@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Рынок недвижимости Москвы</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c0f14;--surface:#13171f;--s2:#1a1f2b;--border:#252b38;--gold:#c9a96e;--blue:#7eb8c9;--text:#e8e4dc;--muted:#6b7280;--pos:#5fb88a;--neg:#e06b6b;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-weight:300;}
+.header{padding:26px 40px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;}
+.header h1{font-family:'Playfair Display',serif;font-size:22px;color:var(--gold);}
+.header p{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:3px;letter-spacing:.05em;}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);border:1px solid var(--gold);padding:4px 10px;letter-spacing:.08em;opacity:.8;}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:16px;}
+.spinner{width:36px;height:36px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-txt{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:.08em;text-align:center;line-height:1.8;}
+.load-bar{width:240px;height:2px;background:var(--border);}
+.load-fill{height:100%;background:var(--gold);width:0%;transition:width .3s;}
+.err{background:rgba(224,107,107,.1);border:1px solid var(--neg);padding:16px 24px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--neg);max-width:500px;text-align:center;line-height:1.8;}
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);}
+.tab{padding:13px 28px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:.2s;user-select:none;}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab:hover:not(.active){color:var(--text);}
+.panel{display:none;}.panel.active{display:block;}
+.ctrl-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 40px;display:flex;gap:22px;align-items:flex-end;flex-wrap:wrap;}
+.cg{display:flex;flex-direction:column;gap:5px;}
+.cl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;}
+select,input[type=month]{background:var(--s2);border:1px solid var(--border);color:var(--text);padding:7px 11px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;outline:none;min-width:150px;-webkit-appearance:none;}
+select:focus,input:focus{border-color:var(--gold);}
+select option{background:var(--s2);}
+.pills{display:flex;flex-wrap:wrap;gap:5px;max-width:760px;}
+.pill{padding:4px 10px;font-size:11px;font-family:'IBM Plex Mono',monospace;border:1px solid var(--border);cursor:pointer;transition:.15s;color:var(--muted);user-select:none;}
+.pill.on{border-color:var(--gold);color:var(--gold);background:rgba(201,169,110,.06);}
+.pill:hover:not(.on){border-color:#3a4050;color:var(--text);}
+.pill-all{border-color:var(--blue);color:var(--blue);opacity:.6;}
+.pill-all.on{opacity:1;background:rgba(126,184,201,.06);}
+.tog-row{display:flex;align-items:center;gap:10px;padding:9px 40px;background:var(--surface);border-bottom:1px solid var(--border);}
+.tog{position:relative;width:36px;height:20px;cursor:pointer;}
+.tog input{opacity:0;width:0;height:0;}
+.tog-sl{position:absolute;inset:0;background:var(--border);border-radius:20px;transition:.2s;}
+.tog-sl:before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:#6b7280;border-radius:50%;transition:.2s;}
+.tog input:checked+.tog-sl{background:rgba(201,169,110,.3);}
+.tog input:checked+.tog-sl:before{transform:translateX(16px);background:var(--gold);}
+.tog-lbl{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.06em;cursor:pointer;user-select:none;}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border);}
+.kpi{background:var(--surface);padding:18px 26px;}
+.kpi-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.11em;color:var(--muted);text-transform:uppercase;margin-bottom:7px;}
+.kpi-val{font-family:'Playfair Display',serif;font-size:24px;color:var(--text);}
+.kpi-sub{font-family:'IBM Plex Mono',monospace;font-size:11px;margin-top:4px;color:var(--muted);}
+.charts{background:var(--border);padding:1px;display:grid;grid-template-columns:1fr 1fr;gap:1px;}
+.card{background:var(--surface);padding:26px;}
+.card.full{grid-column:1/-1;}
+.ct{font-family:'Playfair Display',serif;font-size:15px;color:var(--gold);margin-bottom:3px;}
+.cs{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:18px;letter-spacing:.06em;text-transform:uppercase;}
+.cw{position:relative;height:270px;}
+.cw.tall{height:340px;}
+.cw.htall{height:420px;}
+/* MAP */
+.map-wrap{position:relative;width:100%;height:400px;background:var(--s2);overflow:hidden;}
+.map-wrap svg{position:absolute;top:0;left:0;width:100%;height:100%;}
+
+.map-wrap path{stroke:#0c0f14;stroke-width:0.5;cursor:pointer;transition:opacity .15s;}
+.map-wrap path:hover{opacity:.8;stroke-width:1.5;stroke:#c9a96e;}
+.map-wrap path.selected{stroke:#c9a96e;stroke-width:2;}
+.map-legend{display:flex;align-items:center;gap:8px;padding:8px 0 0;flex-wrap:wrap;}
+.map-legend-bar{width:160px;height:8px;border-radius:4px;}
+.map-legend-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);}
+.map-tooltip{position:fixed;background:#1a1f2b;border:1px solid #252b38;padding:8px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#e8e4dc;pointer-events:none;display:none;z-index:1000;border-radius:2px;line-height:1.6;}
+.map-tooltip .tt-name{color:var(--gold);margin-bottom:2px;}
+/* no map on mobile */
+.map-card{display:block;}
+@media(max-width:768px){.map-card{display:none!important;}}
+/* table */
+.tbl-sec{display:none;padding:26px 40px;}
+.tbl-sec.on{display:block;}
+.tbl-title{font-family:'Playfair Display',serif;font-size:15px;color:var(--gold);margin-bottom:14px;}
+.dt{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:11px;}
+.dt th{color:var(--muted);padding:5px 9px;text-align:right;font-weight:400;font-size:10px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.dt th:first-child{text-align:left;}
+.dt td{padding:5px 9px;text-align:right;border-bottom:1px solid rgba(255,255,255,.03);white-space:nowrap;}
+.dt td:first-child{text-align:left;color:var(--muted);}
+.dt tr:hover td{background:rgba(255,255,255,.02);}
+.tp{color:var(--pos)}.tn{color:var(--neg)}
+.hm-wrap{overflow-x:auto;}
+.hmt{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:11px;min-width:500px;}
+.hmt th{color:var(--muted);padding:4px 6px;text-align:center;font-weight:400;font-size:10px;white-space:nowrap;}
+.hmt th.rh{text-align:left;}
+.hmt td{padding:4px 6px;text-align:center;font-size:10px;white-space:nowrap;border:1px solid rgba(255,255,255,.02);}
+.hmt td.rl{text-align:left;color:var(--muted);padding-right:12px;}
+.upd-bar{background:var(--s2);border-bottom:1px solid var(--border);padding:6px 40px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+.upd-btn{border:1px solid var(--border);padding:3px 10px;cursor:pointer;font-size:10px;color:var(--muted);background:transparent;font-family:'IBM Plex Mono',monospace;transition:.15s;}
+.upd-btn:hover{border-color:var(--gold);color:var(--gold);}
+footer{padding:14px 40px;border-top:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+@media(max-width:860px){
+  .header,.ctrl-bar,.tog-row,.tbl-sec,.upd-bar{padding:14px 16px;}
+  .kpis{grid-template-columns:1fr 1fr;}
+  .charts{display:block;}.card{margin-bottom:1px;}.card.full{grid-column:1;}
+  .tab{padding:11px 14px;}
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <div><h1>Рынок недвижимости Москвы</h1><p>СРЕДНЕВЗВЕШЕННЫЕ ЦЕНЫ И ДИНАМИКА</p></div>
+  <span class="badge" id="hdr-badge">ЗАГРУЗКА...</span>
+</div>
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <div class="load-bar"><div class="load-fill" id="load-fill"></div></div>
+  <div class="load-txt" id="load-txt">ЗАГРУЗКА ДАННЫХ...</div>
+</div>
+<div id="main" style="display:none">
+  <div class="upd-bar">
+    <span id="upd-info">—</span>
+    <button class="upd-btn" onclick="loadData()">↻ ОБНОВИТЬ ДАННЫЕ</button>
+  </div>
+  <div class="tabs">
+    <div class="tab active" id="tab-m" onclick="switchTab('m')">ВСЯ МОСКВА</div>
+    <div class="tab" id="tab-d" onclick="switchTab('d')">ПО ОКРУГУ</div>
+  </div>
+
+  <!-- МОСКВА -->
+  <div class="panel active" id="panel-m">
+    <div class="ctrl-bar">
+      <div class="cg"><span class="cl">Период с</span><input type="month" id="mf" onchange="mUpdate()"></div>
+      <div class="cg"><span class="cl">Период по</span><input type="month" id="mt" onchange="mUpdate()"></div>
+      <div class="cg" style="flex:1"><span class="cl">Округа</span><div class="pills" id="m-pills"></div></div>
+    </div>
+    <div class="tog-row">
+      <label class="tog"><input type="checkbox" id="m-tog" onchange="mUpdate()"><span class="tog-sl"></span></label>
+      <span class="tog-lbl" onclick="var e=document.getElementById('m-tog');e.checked=!e.checked;mUpdate()">ПОКАЗАТЬ ТАБЛИЦУ ЗНАЧЕНИЙ</span>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><div class="kpi-lbl">Средняя цена</div><div class="kpi-val" id="mk-p">—</div><div class="kpi-sub" id="mk-ps"></div></div>
+      <div class="kpi"><div class="kpi-lbl">Выборка</div><div class="kpi-val" id="mk-v">—</div><div class="kpi-sub">объектов (~60% рынка)</div></div>
+      <div class="kpi"><div class="kpi-lbl">Изм. цены к пред. мес.</div><div class="kpi-val" id="mk-c">—</div><div class="kpi-sub">среднее по выборке</div></div>
+      <div class="kpi"><div class="kpi-lbl">Округов в выборке</div><div class="kpi-val" id="mk-n">—</div><div class="kpi-sub" id="mk-ns"></div></div>
+    </div>
+    <div class="charts">
+      <!-- КАРТА МОСКВЫ ПО ОКРУГАМ -->
+      <div class="card full map-card">
+        <div class="ct">Карта цен по округам</div>
+        <div class="cs" id="m-map-sub">₽/м² · последний месяц · нажмите на район для перехода</div>
+        <div class="map-wrap" id="m-map-wrap">
+          <svg id="m-map-svg" viewBox="0 0 1130 920" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMin meet"></svg>
+        </div>
+        <div class="map-legend">
+          <span class="map-legend-lbl" id="m-leg-min">—</span>
+          <canvas class="map-legend-bar" id="m-leg-bar" width="160" height="8"></canvas>
+          <span class="map-legend-lbl" id="m-leg-max">—</span>
+          <span class="map-legend-lbl" style="margin-left:12px;color:#6b7280">· серый = нет данных</span>
+        </div>
+      </div>
+      <div class="card full"><div class="ct">Динамика цен по округам</div><div class="cs">₽/м² · средневзвешенная цена</div><div class="cw tall"><canvas id="m-c1"></canvas></div></div>
+      <div class="card"><div class="ct">Изменение цены к предыдущему месяцу</div><div class="cs">% · последние 18 месяцев</div><div class="cw"><canvas id="m-c2"></canvas></div></div>
+      <div class="card"><div class="ct" id="m-c3-title">Цены по округам — последний месяц</div><div class="cs">₽/м²</div><div class="cw"><canvas id="m-c3"></canvas></div></div>
+      <div class="card full"><div class="ct" id="m-c4-title">Сравнение цен по годам</div><div class="cs" id="m-c4-sub">₽/м² · один и тот же месяц в разные годы</div><div class="cw tall"><canvas id="m-c4"></canvas></div></div>
+      <div class="card full"><div class="ct">Тепловая карта изменений цен</div><div class="cs">% к предыдущему месяцу · 12 месяцев</div><div class="hm-wrap"><div id="m-hm"></div></div></div>
+    </div>
+    <div class="tbl-sec" id="m-tbl"><div class="tbl-title">Таблица значений</div><div style="overflow-x:auto" id="m-tbl-c"></div></div>
+  </div>
+
+  <!-- ОКРУГ -->
+  <div class="panel" id="panel-d">
+    <div class="ctrl-bar">
+      <div class="cg"><span class="cl">Округ</span><select id="d-sel" onchange="dDistChange()"></select></div>
+      <div class="cg"><span class="cl">Период с</span><input type="month" id="df" onchange="dUpdate()"></div>
+      <div class="cg"><span class="cl">Период по</span><input type="month" id="dt2" onchange="dUpdate()"></div>
+      <div class="cg" style="flex:1"><span class="cl">Муниципалитеты</span><div class="pills" id="d-pills"></div></div>
+    </div>
+    <div class="tog-row">
+      <label class="tog"><input type="checkbox" id="d-tog" onchange="dUpdate()"><span class="tog-sl"></span></label>
+      <span class="tog-lbl" onclick="var e=document.getElementById('d-tog');e.checked=!e.checked;dUpdate()">ПОКАЗАТЬ ТАБЛИЦУ ЗНАЧЕНИЙ</span>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><div class="kpi-lbl">Средняя цена</div><div class="kpi-val" id="dk-p">—</div><div class="kpi-sub" id="dk-ps"></div></div>
+      <div class="kpi"><div class="kpi-lbl">Изм. цены к пред. мес.</div><div class="kpi-val" id="dk-c">—</div><div class="kpi-sub">среднее по выборке</div></div>
+      <div class="kpi"><div class="kpi-lbl">Муниципалитетов</div><div class="kpi-val" id="dk-n">—</div><div class="kpi-sub" id="dk-ns"></div></div>
+      <div class="kpi"><div class="kpi-lbl">Период данных</div><div class="kpi-val" id="dk-d" style="font-size:16px">—</div><div class="kpi-sub">по муниципалитетам</div></div>
+    </div>
+    <div class="charts">
+      <!-- КАРТА ОКРУГА -->
+      <div class="card full map-card">
+        <div class="ct" id="d-map-title">Карта цен по муниципалитетам</div>
+        <div class="cs" id="d-map-sub">₽/м² · последний месяц</div>
+        <div class="map-wrap" id="d-map-wrap">
+          <svg id="d-map-svg" viewBox="0 0 1130 920" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMin meet"></svg>
+        </div>
+        <div class="map-legend">
+          <span class="map-legend-lbl" id="d-leg-min">—</span>
+          <canvas class="map-legend-bar" id="d-leg-bar" width="160" height="8"></canvas>
+          <span class="map-legend-lbl" id="d-leg-max">—</span>
+        </div>
+      </div>
+      <div class="card full"><div class="ct">Динамика цен по муниципалитетам</div><div class="cs">₽/м² · средневзвешенная цена</div><div class="cw tall"><canvas id="d-c1"></canvas></div></div>
+      <div class="card"><div class="ct">Изменение цены к предыдущему месяцу</div><div class="cs">% · выбранный период</div><div class="cw"><canvas id="d-c2"></canvas></div></div>
+      <div class="card"><div class="ct" id="d-c3-title">Цены — последний месяц</div><div class="cs">₽/м²</div><div class="cw"><canvas id="d-c3"></canvas></div></div>
+      <div class="card full"><div class="ct" id="d-c4-title">Сравнение цен по годам</div><div class="cs" id="d-c4-sub">₽/м²</div><div class="cw htall"><canvas id="d-c4"></canvas></div></div>
+      <div class="card full"><div class="ct">Тепловая карта изменений цен</div><div class="cs">% к предыдущему месяцу · 12 месяцев</div><div class="hm-wrap"><div id="d-hm"></div></div></div>
+    </div>
+    <div class="tbl-sec" id="d-tbl"><div class="tbl-title">Таблица значений</div><div style="overflow-x:auto" id="d-tbl-c"></div></div>
+  </div>
+</div>
+<div class="map-tooltip" id="map-tt"></div>
+<footer>
+  <span>РЫНОК НЕДВИЖИМОСТИ МОСКВЫ · ДАННЫЕ: ВЫБОРКА ~60% РЫНКА</span>
+  <span id="footer-info">—</span>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════
+// НАСТРОЙКИ
+// ═══════════════════════════════════════════
+const URL_MOS   = 'https://script.google.com/macros/s/AKfycbyukBGGeJhoe_YG2NUpP2f2wL6uj8O3HrHV3HryAo4NMJqiKBPfCO8gpqRtAXmD2Gdrsg/exec';
+const URL_APP1  = 'https://script.google.com/macros/s/AKfycby9lwQk01Umh_4izxP3QzNZ4PJnPb3dWU-v2SG7E4WhzRn-Yi9gKfdUeHiItdMQkIYnWg/exec';
+const URL_GEO_AO   = 'https://wwwantimilnet.github.io/moscow-realty-dashboard/moscow_ao.geojson';
+const URL_GEO_MUN  = 'https://wwwantimilnet.github.io/moscow-realty-dashboard/moscow_districts.geojson';
+// ═══════════════════════════════════════════
+
+const CLR=['#c9a96e','#7eb8c9','#9b8fd4','#6ec9a0','#e07b7b','#d4af6e','#7ec9c0','#c96e9b','#a0c96e','#6e8dc9','#c9bf6e','#c99b6e','#89c97e','#c97eb8','#7e9bc9','#c9c97e','#e0a07b'];
+const YR_CLR=['#6b7280','#7eb8c9','#c9a96e'];
+let MOS=[], MUNI={}, GEO_AO=null, GEO_MUN=null;
+
+const fmtP=n=>new Intl.NumberFormat('ru-RU').format(Math.round(n))+' ₽';
+const fmtK=n=>n>=1e6?(n/1e6).toFixed(1)+'М':n>=1e3?Math.round(n/1e3)+'K':Math.round(n);
+const setLoad=(p,t)=>{document.getElementById('load-fill').style.width=p+'%';document.getElementById('load-txt').textContent=t;};
+
+// ── Цвет по цене (тепловая: синий->жёлтый->красный)
+function priceColor(val, min, max) {
+  if (!val || val<=0) return '#2a2f3a';
+  const t = Math.max(0, Math.min(1, (val-min)/(max-min)));
+  // холодный (#4a7fa5) -> средний (#c9a96e) -> горячий (#c96e6e)
+  let r,g,b;
+  if (t < 0.5) {
+    const s = t*2;
+    r = Math.round(74 + (201-74)*s);
+    g = Math.round(127 + (169-127)*s);
+    b = Math.round(165 + (110-165)*s);
+  } else {
+    const s = (t-0.5)*2;
+    r = Math.round(201 + (201-201)*s);
+    g = Math.round(169 + (110-169)*s);
+    b = Math.round(110 + (110-110)*s);
+  }
+  return `rgb(${r},${g},${b})`;
+}
+
+function drawLegend(canvasId, minId, maxId, min, max) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createLinearGradient(0,0,160,0);
+  grad.addColorStop(0, priceColor(min,min,max));
+  grad.addColorStop(0.5, priceColor((min+max)/2,min,max));
+  grad.addColorStop(1, priceColor(max,min,max));
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,160,8);
+  document.getElementById(minId).textContent = Math.round(min/1000)+'K ₽';
+  document.getElementById(maxId).textContent = Math.round(max/1000)+'K ₽';
+}
+
+// ── GeoJSON -> SVG проекция (простая плоская)
+function projectGeo(geojson, width, height, padding=20, cropBounds=null) {
+  // cropBounds = {minLat, maxLat, minLng, maxLng} — обрезка по координатам
+  let minLng, maxLng, minLat, maxLat;
+  if (cropBounds) {
+    minLng=cropBounds.minLng; maxLng=cropBounds.maxLng;
+    minLat=cropBounds.minLat; maxLat=cropBounds.maxLat;
+  } else {
+    minLng=Infinity; maxLng=-Infinity; minLat=Infinity; maxLat=-Infinity;
+    function scanCoords(coords) {
+      if (!Array.isArray(coords)) return;
+      if (typeof coords[0]==='number') {
+        const [lng,lat]=coords;
+        if(lng<minLng)minLng=lng; if(lng>maxLng)maxLng=lng;
+        if(lat<minLat)minLat=lat; if(lat>maxLat)maxLat=lat;
+      } else coords.forEach(scanCoords);
+    }
+    geojson.features.forEach(f=>scanCoords(f.geometry.coordinates));
+  }
+
+  const latCenter=(minLat+maxLat)/2;
+  const lngCorr=Math.cos(latCenter*Math.PI/180);
+  const scaleX=(width-padding*2)/((maxLng-minLng)*lngCorr);
+  const scaleY=(height-padding*2)/(maxLat-minLat);
+  const scale=Math.min(scaleX,scaleY);
+  const mapW=(maxLng-minLng)*lngCorr*scale;
+  const mapH=(maxLat-minLat)*scale;
+  const offX=(width-mapW)/2;
+  const offY=(height-mapH)/2;
+
+  function project([lng,lat]) {
+    const x = (lng-minLng)*lngCorr*scale + offX;
+    const y = height - ((lat-minLat)*scale + offY);
+    return [x,y];
+  }
+
+  function coordsToPath(coords) {
+    if (typeof coords[0][0]==='number') {
+      return coords.map((c,i)=>{const [x,y]=project(c);return `${i===0?'M':'L'}${x.toFixed(1)},${y.toFixed(1)}`;}).join(' ')+'Z';
+    }
+    return coords.map(ring=>coordsToPath(ring)).join(' ');
+  }
+
+  return {project, coordsToPath};
+}
+
+// ── Строим SVG карту
+// Границы обрезки для карты Москвы:
+// Сверху — верхняя граница Зеленограда, снизу — нижняя граница НАО
+const MOSCOW_CROP = {minLng:36.80, maxLng:37.97, minLat:55.513, maxLat:55.99};
+
+function buildMap(svgId, geojson, priceMap, onClickDistrict, crop=true) {
+  const svg = document.getElementById(svgId);
+  if (!svg || !geojson) return;
+  svg.innerHTML = '';
+
+  const vb = svg.getAttribute('viewBox').split(' ').map(Number);
+  const W=vb[2], H=vb[3];
+
+  const features = geojson.features;
+  const {coordsToPath} = projectGeo({features}, W, H, crop ? 20 : 8, crop ? MOSCOW_CROP : null);
+
+  const prices = features.map(f=>priceMap[f.properties.name]).filter(v=>v&&v>0);
+  const minP = Math.min(...prices), maxP = Math.max(...prices);
+
+  const tt = document.getElementById('map-tt');
+
+  features.forEach(f => {
+    const name = f.properties.name;
+    const price = priceMap[name];
+    const geom = f.geometry;
+    let d = '';
+
+    if (geom.type==='Polygon') {
+      d = coordsToPath(geom.coordinates);
+    } else if (geom.type==='MultiPolygon') {
+      d = geom.coordinates.map(poly=>coordsToPath(poly)).join(' ');
+    }
+    if (!d) return;
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', d);
+    path.setAttribute('fill', priceColor(price, minP, maxP));
+    path.setAttribute('data-name', name);
+    path.setAttribute('data-price', price||0);
+
+    // Tooltip
+    path.addEventListener('mousemove', e => {
+      tt.style.display='block';
+      tt.style.left=(e.clientX+14)+'px';
+      tt.style.top=(e.clientY-10)+'px';
+      tt.innerHTML = `<div class="tt-name">${name}</div>${price?new Intl.NumberFormat('ru-RU').format(Math.round(price))+' ₽/м²':'нет данных'}`;
+    });
+    path.addEventListener('mouseleave', ()=>tt.style.display='none');
+
+    if (onClickDistrict) {
+      path.addEventListener('click', ()=>onClickDistrict(name));
+    }
+
+    svg.appendChild(path);
+  });
+
+  return {minP, maxP};
+}
+
+function parseMainData(rows) {
+  if (!rows.length) return [];
+  const keys = Object.keys(rows[0]);
+  const kP=keys.find(k=>k.toLowerCase().includes('период'));
+  const kD=keys.find(k=>k.toLowerCase().includes('округ')||k.toLowerCase().includes('район'));
+  const kPr=keys.find(k=>k.toLowerCase().includes('средне')||k.toLowerCase().includes('цена'));
+  const kV=keys.find(k=>k.toLowerCase().includes('объём')||k.toLowerCase().includes('объем')||k.toLowerCase().includes('предложени'));
+  const kC=keys.find(k=>k.toLowerCase().includes('изменение цены')||k.toLowerCase().includes('прирост цены'));
+  return rows.map(r=>{
+    try{
+      let period=String(r[kP]||'').trim().slice(0,7);
+      if(!/^\d{4}-\d{2}$/.test(period))return null;
+      const district=String(r[kD]||'').trim();
+      if(!district)return null;
+      const price=parseFloat(r[kPr]);
+      if(!price||price<=0)return null;
+      const volume=parseFloat(r[kV])||0;
+      let chg=kC?parseFloat(r[kC]):null;
+      if(chg!==null&&!isNaN(chg)&&Math.abs(chg)<1&&chg!==0)chg=chg*100;
+      return{period,district,price:Math.round(price),volume:Math.round(volume),price_change:isNaN(chg)?null:Math.round(chg*100)/100};
+    }catch(e){return null;}
+  }).filter(Boolean);
+}
+
+async function loadData() {
+  document.getElementById('loading').style.display='flex';
+  document.getElementById('main').style.display='none';
+  document.getElementById('hdr-badge').textContent='ЗАГРУЗКА...';
+  try {
+    setLoad(10,'ЗАГРУЗКА ДАННЫХ ПО МОСКВЕ...');
+    const r1=await fetch(URL_MOS);
+    if(!r1.ok)throw new Error('Ошибка загрузки "Данные": HTTP '+r1.status);
+    MOS=parseMainData(await r1.json());
+    if(!MOS.length)throw new Error('Лист "Данные" не распознан.');
+
+    setLoad(40,'ЗАГРУЗКА ДАННЫХ ПО ОКРУГАМ...');
+    const r2=await fetch(URL_APP1);
+    if(!r2.ok)throw new Error('Ошибка загрузки "приложение1 цены": HTTP '+r2.status);
+    MUNI=await r2.json();
+
+    setLoad(70,'ЗАГРУЗКА КАРТЫ...');
+    try {
+      const [r3,r4]=await Promise.all([fetch(URL_GEO_AO),fetch(URL_GEO_MUN)]);
+      if(r3.ok) GEO_AO=await r3.json();
+      if(r4.ok) GEO_MUN=await r4.json();
+    } catch(e) { console.warn('Карта не загружена:', e); }
+
+    setLoad(100,'ГОТОВО');
+    const periods=[...new Set(MOS.map(r=>r.period))].sort();
+    const latest=periods[periods.length-1];
+    document.getElementById('hdr-badge').textContent=latest||'ЗАГРУЖЕНО';
+    document.getElementById('upd-info').textContent=`Обновлено: ${new Date().toLocaleString('ru-RU')} · Данные: ${periods[0]} — ${latest}`;
+    document.getElementById('footer-info').textContent=`ДАННЫЕ: ${periods[0]} — ${latest}`;
+    ['mf','mt','df','dt2'].forEach(id=>{const el=document.getElementById(id);el.min=periods[0];el.max=latest;});
+    document.getElementById('mf').value=periods.length>30?periods[periods.length-31]:periods[0];
+    document.getElementById('mt').value=latest;
+    document.getElementById('df').value=periods.length>30?periods[periods.length-31]:periods[0];
+    document.getElementById('dt2').value=latest;
+    setTimeout(()=>{
+      document.getElementById('loading').style.display='none';
+      document.getElementById('main').style.display='block';
+      initMPills();initDSelect();mUpdate();
+    },300);
+  }catch(e){
+    document.getElementById('load-txt').innerHTML=`<div class="err">ОШИБКА:<br>${e.message}</div>`;
+    document.getElementById('hdr-badge').textContent='ОШИБКА';
+    console.error(e);
+  }
+}
+
+let CH={};
+function mkChart(id,type,data,opts){if(CH[id])CH[id].destroy();CH[id]=new Chart(document.getElementById(id),{type,data,options:opts});}
+function cdefs(){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#9ca3af',font:{family:'IBM Plex Mono',size:10},boxWidth:11,padding:12},position:'bottom'},tooltip:{backgroundColor:'#1a1f2b',borderColor:'#252b38',borderWidth:1,titleColor:'#c9a96e',bodyColor:'#e8e4dc',titleFont:{family:'IBM Plex Mono'},bodyFont:{family:'IBM Plex Sans'},padding:9}},scales:{x:{ticks:{color:'#6b7280',font:{family:'IBM Plex Mono',size:10},maxRotation:45},grid:{color:'#1a1f2b'},border:{color:'#252b38'}},y:{ticks:{color:'#6b7280',font:{family:'IBM Plex Mono',size:10}},grid:{color:'rgba(37,43,56,.6)'},border:{color:'#252b38'}}}};}
+
+function mkHeatmap(el,labels,periods,map){
+  const ps=periods.slice(-12);let h='<table class="hmt"><thead><tr><th class="rh">Название</th>';
+  ps.forEach(p=>h+=`<th>${p.slice(2)}</th>`);h+='</tr></thead><tbody>';
+  labels.forEach(lbl=>{h+=`<tr><td class="rl">${lbl}</td>`;
+    ps.forEach(p=>{const v=map[lbl]?.[p];let bg='transparent',cl='#6b7280';
+      if(v!=null){const i=Math.min(Math.abs(v),5)/5;if(v>0){bg=`rgba(95,184,138,${.15+i*.5})`;cl='#5fb88a';}else if(v<0){bg=`rgba(224,107,107,${.15+i*.5})`;cl='#e06b6b';}}
+      h+=`<td style="background:${bg};color:${cl}">${v!=null?(v>0?'+':'')+v.toFixed(1)+'%':'—'}</td>`;});h+='</tr>';});
+  h+='</tbody></table>';document.getElementById(el).innerHTML=h;
+}
+function mkTable(el,labels,periods,pm,cm){
+  const ps=periods.slice(-18);let h='<table class="dt"><thead><tr><th>Название</th>';
+  ps.forEach(p=>h+=`<th colspan="2">${p.slice(2)}</th>`);h+='</tr><tr><th></th>';
+  ps.forEach(()=>h+='<th>₽/м²</th><th>изм.%</th>');h+='</tr></thead><tbody>';
+  const FOOTNOTE_MUNIS = {'Внуково':'*', 'Внуковское':'*'};
+  let hasFootnote = false;
+  labels.forEach(lbl=>{
+    const mark = FOOTNOTE_MUNIS[lbl]||'';
+    if(mark) hasFootnote=true;
+    h+=`<tr><td>${lbl}${mark?`<sup style="color:var(--gold)">${mark}</sup>`:''}</td>`;
+    ps.forEach(p=>{const pr=pm[lbl]?.[p],ch=cm[lbl]?.[p];
+      const ps2=pr?new Intl.NumberFormat('ru-RU').format(Math.round(pr)):'—';
+      let cs='—',cc='';if(ch!=null){cs=(ch>0?'+':'')+ch.toFixed(1)+'%';cc=ch>0?'tp':ch<0?'tn':'';}
+      h+=`<td>${ps2}</td><td class="${cc}">${cs}</td>`;});h+='</tr>';});
+  h+='</tbody></table>';
+  if(hasFootnote) h+=`<p style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-top:8px">* До 8 мая 2024 года район Внуково входил в состав Западного АО, после — в состав Новомосковского АО. Данные могут содержать показания из обоих периодов. В расчёт среднего по округу не включается. <a href="https://www.mos.ru/mayor/themes/15299/12068050/" target="_blank" style="color:var(--gold)">Подробнее →</a></p>`;
+  document.getElementById(el).innerHTML=h;
+}
+
+function mkYearCompare(canvasId,titleId,subId,labels,pm,lastPeriod){
+  const yr=parseInt(lastPeriod.slice(0,4)),mo=lastPeriod.slice(4);
+  const years=[yr-2,yr-1,yr].filter(y=>y>=2020);
+  const shortLabels=labels.map(l=>l.replace(' АО',''));
+  const moName=new Date(lastPeriod+'-01').toLocaleString('ru-RU',{month:'long'});
+  document.getElementById(titleId).textContent=`Сравнение цен — ${moName}`;
+  document.getElementById(subId).textContent=years.join(' / ')+' · ₽/м²';
+  const o=cdefs();o.scales.x.ticks.maxRotation=45;o.scales.y.ticks.callback=v=>(v/1000).toFixed(0)+'K ₽';o.plugins.legend.position='top';
+  mkChart(canvasId,'bar',{labels:shortLabels,datasets:years.map((y,i)=>({label:String(y),data:labels.map(l=>pm[l]?.[y+mo]||null),backgroundColor:YR_CLR[i]+'aa',borderColor:YR_CLR[i],borderWidth:1,borderRadius:2}))},o);
+}
+
+function mkYearCompareH(canvasId,titleId,subId,labels,pm,lastPeriod){
+  const yr=parseInt(lastPeriod.slice(0,4)),mo=lastPeriod.slice(4);
+  const years=[yr-2,yr-1,yr].filter(y=>y>=2020);
+  const moName=new Date(lastPeriod+'-01').toLocaleString('ru-RU',{month:'long'});
+  document.getElementById(titleId).textContent=`Сравнение цен — ${moName}`;
+  document.getElementById(subId).textContent=years.join(' / ')+' · ₽/м²';
+  const o=cdefs();o.indexAxis='y';o.scales.x.ticks.callback=v=>(v/1000).toFixed(0)+'K';o.scales.y.ticks.font={family:'IBM Plex Mono',size:10};o.plugins.legend.position='top';
+  mkChart(canvasId,'bar',{labels,datasets:years.map((y,i)=>({label:String(y),data:labels.map(l=>pm[l]?.[y+mo]||null),backgroundColor:YR_CLR[i]+'aa',borderColor:YR_CLR[i],borderWidth:1,borderRadius:2}))},o);
+}
+
+function switchTab(id){['m','d'].forEach(x=>{document.getElementById('panel-'+x).classList.toggle('active',x===id);document.getElementById('tab-'+x).classList.toggle('active',x===id);});}
+
+// ── МОСКВА ──
+let mOn=new Set();
+function initMPills(){
+  const ALL=[...new Set(MOS.map(r=>r.district))].sort();mOn=new Set(ALL);
+  const c=document.getElementById('m-pills');c.innerHTML='';
+  const ap=document.createElement('span');ap.className='pill pill-all on';ap.id='m-ap';ap.textContent='Все';
+  ap.onclick=()=>{if(mOn.size===ALL.length){mOn.clear();ap.classList.remove('on');}else{mOn=new Set(ALL);ap.classList.add('on');}c.querySelectorAll('.pd').forEach(p=>p.classList.toggle('on',mOn.has(p.dataset.v)));mUpdate();};
+  c.appendChild(ap);
+  ALL.forEach(d=>{const p=document.createElement('span');p.className='pill pd on';p.dataset.v=d;p.textContent=d;
+    p.onclick=()=>{mOn.has(d)?mOn.delete(d):mOn.add(d);p.classList.toggle('on',mOn.has(d));document.getElementById('m-ap').classList.toggle('on',mOn.size===ALL.length);mUpdate();};c.appendChild(p);});
+}
+
+function mUpdate(){
+  const from=document.getElementById('mf').value,to=document.getElementById('mt').value,showT=document.getElementById('m-tog').checked;
+  const rows=MOS.filter(r=>mOn.has(r.district)&&r.period>=from&&r.period<=to&&r.price>0);
+  const periods=[...new Set(rows.map(r=>r.period))].sort(),dists=[...mOn].sort();
+  const pm={},cm={},vm={};dists.forEach(d=>{pm[d]={};cm[d]={};vm[d]={};});
+  rows.forEach(r=>{if(pm[r.district]){pm[r.district][r.period]=r.price;cm[r.district][r.period]=r.price_change;vm[r.district][r.period]=r.volume;}});
+  const last=periods[periods.length-1];
+  const ld=rows.filter(r=>r.period===last);
+  const avgP=ld.length?ld.reduce((s,r)=>s+r.price,0)/ld.length:0;
+  const totV=ld.reduce((s,r)=>s+(r.volume||0),0);
+  const vc=ld.filter(r=>r.price_change!=null),avgC=vc.length?vc.reduce((s,r)=>s+r.price_change,0)/vc.length:0;
+  document.getElementById('mk-p').textContent=avgP?fmtP(avgP):'—';
+  document.getElementById('mk-v').textContent=totV?fmtK(totV)+' объектов':'—';
+  const cel=document.getElementById('mk-c');cel.textContent=vc.length?(avgC>0?'+':'')+avgC.toFixed(2)+'%':'—';cel.style.color=avgC>0?'var(--pos)':avgC<0?'var(--neg)':'var(--text)';
+  document.getElementById('mk-n').textContent=mOn.size;
+  document.getElementById('mk-ps').textContent=last?'Данные: '+last:'';
+  document.getElementById('mk-ns').textContent=periods.length?periods[0]+' — '+last:'';
+
+  // КАРТА — округа с ценами из листа "Данные"
+  if (GEO_AO && last) {
+    const aoPriceMap = {};
+    dists.forEach(d => { if(pm[d][last]) aoPriceMap[d]=pm[d][last]; });
+    const moName = new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'});
+    document.getElementById('m-map-sub').textContent = `₽/м² · ${moName} · нажмите на округ для перехода`;
+    const res = buildMap('m-map-svg', GEO_AO, aoPriceMap, (name)=>{
+      if(MUNI[name]) {
+        switchTab('d');
+        document.getElementById('d-sel').value = name;
+        dDistChange();
+      }
+    });
+    if (res) drawLegend('m-leg-bar','m-leg-min','m-leg-max',res.minP,res.maxP);
+  }
+
+  const o1=cdefs();o1.scales.y.ticks.callback=v=>(v/1000).toFixed(0)+'K ₽';
+  mkChart('m-c1','line',{labels:periods,datasets:dists.map((d,i)=>({label:d,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.map(p=>pm[d][p]||null),borderWidth:1.5,pointRadius:0,pointHoverRadius:4,tension:.3,spanGaps:true}))},o1);
+  const o2=cdefs();o2.scales.y.ticks.callback=v=>v.toFixed(1)+'%';
+  mkChart('m-c2','line',{labels:periods.slice(-18),datasets:dists.map((d,i)=>({label:d,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.slice(-18).map(p=>cm[d][p]??null),borderWidth:1.5,pointRadius:2,pointHoverRadius:4,tension:.2,spanGaps:true}))},o2);
+  const moName2=last?new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}):'';
+  document.getElementById('m-c3-title').textContent=`Цены по округам — ${moName2}`;
+  const o3=cdefs();o3.plugins.legend.display=false;o3.scales.y.ticks.callback=v=>(v/1000).toFixed(0)+'K';
+  mkChart('m-c3','bar',{labels:dists.map(d=>d.replace(' АО','')),datasets:[{data:dists.map(d=>pm[d][last]||0),backgroundColor:dists.map((_,i)=>CLR[i%CLR.length]+'99'),borderColor:dists.map((_,i)=>CLR[i%CLR.length]),borderWidth:1,borderRadius:3}]},o3);
+  if(last)mkYearCompare('m-c4','m-c4-title','m-c4-sub',dists,pm,last);
+  mkHeatmap('m-hm',dists,periods,cm);
+  document.getElementById('m-tbl').classList.toggle('on',showT);
+  if(showT)mkTable('m-tbl-c',dists,periods,pm,cm);
+}
+
+// ── ОКРУГ ──
+let dOn=new Set();
+function initDSelect(){const sel=document.getElementById('d-sel');sel.innerHTML='';Object.keys(MUNI).sort().forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;sel.appendChild(o);});}
+function dDistChange(){
+  const dist=document.getElementById('d-sel').value,munis=Object.keys(MUNI[dist]||{}).sort();
+  dOn=new Set(munis);const c=document.getElementById('d-pills');c.innerHTML='';
+  const ap=document.createElement('span');ap.className='pill pill-all on';ap.id='d-ap';ap.textContent='Все';
+  ap.onclick=()=>{if(dOn.size===munis.length){dOn.clear();ap.classList.remove('on');}else{dOn=new Set(munis);ap.classList.add('on');}c.querySelectorAll('.pm').forEach(p=>p.classList.toggle('on',dOn.has(p.dataset.v)));dUpdate();};
+  c.appendChild(ap);
+  munis.forEach(m=>{const p=document.createElement('span');p.className='pill pm on';p.dataset.v=m;p.textContent=m;
+    p.onclick=()=>{dOn.has(m)?dOn.delete(m):dOn.add(m);p.classList.toggle('on',dOn.has(m));document.getElementById('d-ap').classList.toggle('on',dOn.size===munis.length);dUpdate();};c.appendChild(p);});
+  dUpdate();
+}
+
+function dUpdate(){
+  const dist=document.getElementById('d-sel').value,from=document.getElementById('df').value,to=document.getElementById('dt2').value,showT=document.getElementById('d-tog').checked;
+  if(!dist||!MUNI[dist])return;
+  const munis=[...dOn].sort(),allP=new Set();
+  munis.forEach(m=>(MUNI[dist][m]||[]).forEach(r=>{if(r.period>=from&&r.period<=to&&r.price>0)allP.add(r.period);}));
+  const periods=[...allP].sort(),pm={},cm={},vm={};
+  munis.forEach(m=>{pm[m]={};cm[m]={};vm[m]={};(MUNI[dist][m]||[]).forEach(r=>{if(r.period>=from&&r.period<=to&&r.price>0){pm[m][r.period]=r.price;cm[m][r.period]=r.price_change;vm[m][r.period]=r.volume;}});});
+  const last=periods[periods.length-1];
+  const lp=munis.map(m=>pm[m][last]).filter(Boolean);
+  const avgP=lp.length?lp.reduce((a,b)=>a+b,0)/lp.length:0;
+  const vc=munis.map(m=>cm[m][last]).filter(v=>v!=null),avgC=vc.length?vc.reduce((a,b)=>a+b,0)/vc.length:0;
+  document.getElementById('dk-p').textContent=avgP?fmtP(avgP):'—';
+  const dcel=document.getElementById('dk-c');dcel.textContent=vc.length?(avgC>0?'+':'')+avgC.toFixed(2)+'%':'—';dcel.style.color=avgC>0?'var(--pos)':avgC<0?'var(--neg)':'var(--text)';
+  document.getElementById('dk-n').textContent=munis.length;
+  document.getElementById('dk-ps').textContent=last?'Данные: '+last:'';
+  document.getElementById('dk-ns').textContent=periods.length?periods[0]+' — '+last:'';
+  document.getElementById('dk-d').textContent=periods.length?(periods[0].slice(0,4)+' — '+last.slice(0,4)):'—';
+
+  // КАРТА ОКРУГА — только для округов со стандартными муниципалитетами
+  const NO_MAP_DISTS = ['Новомосковский', 'Троицкий', 'Зеленоградский АО'];
+  const dMapCard = document.querySelector('#panel-d .map-card');
+  if (NO_MAP_DISTS.includes(dist)) {
+    if (dMapCard) dMapCard.style.display='none';
+  } else {
+    if (dMapCard) dMapCard.style.display='block';
+    if (GEO_MUN && last) {
+      const distMunis = Object.keys(MUNI[dist]||{});
+      const distGeo = {
+        type:'FeatureCollection',
+        features: GEO_MUN.features.filter(f=>distMunis.includes(f.properties.name))
+      };
+      const muniPriceMap = {};
+      munis.forEach(m=>{ if(pm[m][last]) muniPriceMap[m]=pm[m][last]; });
+      document.getElementById('d-map-title').textContent=`Карта цен — ${dist}`;
+      const moName=new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'});
+      document.getElementById('d-map-sub').textContent=`₽/м² · ${moName}`;
+      const res=buildMap('d-map-svg', distGeo, muniPriceMap, null, false);
+      if(res) drawLegend('d-leg-bar','d-leg-min','d-leg-max',res.minP,res.maxP);
+    }
+  }
+
+  const o1=cdefs();o1.scales.y.ticks.callback=v=>(v/1000).toFixed(0)+'K ₽';
+  mkChart('d-c1','line',{labels:periods,datasets:munis.map((m,i)=>({label:m,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.map(p=>pm[m][p]||null),borderWidth:1.5,pointRadius:0,pointHoverRadius:4,tension:.3,spanGaps:true}))},o1);
+  const o2=cdefs();o2.scales.y.ticks.callback=v=>v.toFixed(1)+'%';
+  mkChart('d-c2','line',{labels:periods,datasets:munis.map((m,i)=>({label:m,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.map(p=>cm[m][p]??null),borderWidth:1.5,pointRadius:2,pointHoverRadius:4,tension:.2,spanGaps:true}))},o2);
+  const moName2=last?new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}):'';
+  document.getElementById('d-c3-title').textContent=`Цены — ${moName2}`;
+  const o3=cdefs();o3.plugins.legend.display=false;o3.scales.y.ticks.callback=v=>(v/1000).toFixed(0)+'K';
+  mkChart('d-c3','bar',{labels:munis,datasets:[{data:munis.map(m=>pm[m][last]||0),backgroundColor:munis.map((_,i)=>CLR[i%CLR.length]+'99'),borderColor:munis.map((_,i)=>CLR[i%CLR.length]),borderWidth:1,borderRadius:2}]},o3);
+  if(last)mkYearCompareH('d-c4','d-c4-title','d-c4-sub',munis,pm,last);
+  mkHeatmap('d-hm',munis,periods,cm);
+  document.getElementById('d-tbl').classList.toggle('on',showT);
+  if(showT)mkTable('d-tbl-c',munis,periods,pm,cm);
+  // Сноска Внуково
+  const fnMunis = munis.filter(m=>m==='Внуково'||m==='Внуковское');
+  let fnEl = document.getElementById('d-footnote');
+  if(!fnEl){fnEl=document.createElement('p');fnEl.id='d-footnote';fnEl.style.cssText='font-family:IBM Plex Mono,monospace;font-size:10px;color:var(--muted);padding:8px 40px 0';document.getElementById('panel-d').appendChild(fnEl);}
+  const NAO_TAO = ['Новомосковский','Троицкий'];
+  const isNaoTao = NAO_TAO.includes(dist);
+  const fnVnukovo = fnMunis.length ? `<br>* <b>Внуково</b> — до 8 мая 2024 входил в состав Западного АО, после — в состав Новомосковского АО. В расчёт среднего по округу не включается.` : '';
+  const fnReform = isNaoTao ? `<br>† До 8 мая 2024 года данные собирались по старым поселениям (Внуковское, Воскресенское, Десеновское и др.). После реформы поселения были упразднены и объединены в укрупнённые районы (Коммунарка, Филимонковский, Вороново и др.). Данные разных периодов не полностью сопоставимы. <a href="https://www.mos.ru/mayor/themes/15299/12068050/" target="_blank" style="color:var(--gold)">Подробнее →</a>` : '';
+  fnEl.innerHTML = (fnVnukovo || fnReform) ? `<span style="opacity:.8">${fnVnukovo}${fnReform}</span>` : '';
+}
+
+loadData();
+</script>
+</body>
+</html>
