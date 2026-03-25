@@ -7,7 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0c0f14;--surface:#13171f;--s2:#1a1f2b;--border:#252b38;--gold:#c9a96e;--blue:#7eb8c9;--text:#e8e4dc;--muted:#6b7280;--pos:#5fb88a;--neg:#e06b6b;}
+:root{--bg:#faf8f4;--surface:#ffffff;--s2:#f3f0eb;--border:#e2ddd6;--gold:#b8924a;--blue:#4a8fa8;--text:#1c1a17;--muted:#7a7268;--pos:#2d8a5e;--neg:#c0392b;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-weight:300;}
 .header{padding:26px 40px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;}
@@ -20,7 +20,7 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-ser
 .load-txt{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:.08em;text-align:center;line-height:1.8;}
 .load-bar{width:240px;height:2px;background:var(--border);}
 .load-fill{height:100%;background:var(--gold);width:0%;transition:width .3s;}
-.err{background:rgba(224,107,107,.1);border:1px solid var(--neg);padding:16px 24px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--neg);max-width:500px;text-align:center;line-height:1.8;}
+.err{background:rgba(192,57,43,.07);border:1px solid var(--neg);padding:16px 24px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--neg);max-width:500px;text-align:center;line-height:1.8;}
 .tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);}
 .tab{padding:13px 28px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:.2s;user-select:none;}
 .tab.active{color:var(--gold);border-bottom-color:var(--gold);}
@@ -31,7 +31,7 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-ser
 .cl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;}
 select,input[type=month]{background:var(--s2);border:1px solid var(--border);color:var(--text);padding:7px 11px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;outline:none;min-width:150px;-webkit-appearance:none;}
 select:focus,input:focus{border-color:var(--gold);}
-select option{background:var(--s2);}
+select option{background:var(--surface);color:var(--text);}
 .pills{display:flex;flex-wrap:wrap;gap:5px;max-width:760px;}
 .pill{padding:4px 10px;font-size:11px;font-family:'IBM Plex Mono',monospace;border:1px solid var(--border);cursor:pointer;transition:.15s;color:var(--muted);user-select:none;}
 .pill.on{border-color:var(--gold);color:var(--gold);background:rgba(201,169,110,.06);}
@@ -42,15 +42,18 @@ select option{background:var(--s2);}
 .tog{position:relative;width:36px;height:20px;cursor:pointer;}
 .tog input{opacity:0;width:0;height:0;}
 .tog-sl{position:absolute;inset:0;background:var(--border);border-radius:20px;transition:.2s;}
-.tog-sl:before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:#6b7280;border-radius:50%;transition:.2s;}
-.tog input:checked+.tog-sl{background:rgba(201,169,110,.3);}
+.tog-sl:before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:#aaa;border-radius:50%;transition:.2s;}
+.tog input:checked+.tog-sl{background:rgba(184,146,74,.25);}
 .tog input:checked+.tog-sl:before{transform:translateX(16px);background:var(--gold);}
 .tog-lbl{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.06em;cursor:pointer;user-select:none;}
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border);}
+.kpis-m{grid-template-columns:1fr 1fr 2fr;}
 .kpi{background:var(--surface);padding:18px 26px;}
 .kpi-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.11em;color:var(--muted);text-transform:uppercase;margin-bottom:7px;}
 .kpi-val{font-family:'Playfair Display',serif;font-size:24px;color:var(--text);}
 .kpi-sub{font-family:'IBM Plex Mono',monospace;font-size:11px;margin-top:4px;color:var(--muted);}
+.kpi-comment-period{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);margin-bottom:5px;letter-spacing:.06em;}
+.kpi-comment-text{font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text);line-height:1.6;opacity:.85;}
 .charts{background:var(--border);padding:1px;display:grid;grid-template-columns:1fr 1fr;gap:1px;}
 .card{background:var(--surface);padding:26px;}
 .card.full{grid-column:1/-1;}
@@ -60,17 +63,18 @@ select option{background:var(--s2);}
 .cw.tall{height:340px;}
 .cw.htall{height:420px;}
 /* MAP */
-.map-wrap{position:relative;width:100%;height:400px;background:var(--s2);overflow:hidden;}
+.map-wrap{position:relative;width:100%;height:400px;background:var(--s2);overflow:hidden;border:1px solid var(--border);}
 .map-wrap svg{position:absolute;top:0;left:0;width:100%;height:100%;}
 
-.map-wrap path{stroke:#0c0f14;stroke-width:0.5;cursor:pointer;transition:opacity .15s;}
-.map-wrap path:hover{opacity:.8;stroke-width:1.5;stroke:#c9a96e;}
-.map-wrap path.selected{stroke:#c9a96e;stroke-width:2;}
+.map-wrap path{stroke:#faf8f4;stroke-width:0.8;cursor:pointer;transition:opacity .15s;}
+.map-wrap path:hover{opacity:.85;stroke-width:2;stroke:var(--gold);}
+.map-wrap path.selected{stroke:var(--gold);stroke-width:2.5;}
 .map-legend{display:flex;align-items:center;gap:8px;padding:8px 0 0;flex-wrap:wrap;}
 .map-legend-bar{width:160px;height:8px;border-radius:4px;}
 .map-legend-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);}
-.map-tooltip{position:fixed;background:#1a1f2b;border:1px solid #252b38;padding:8px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#e8e4dc;pointer-events:none;display:none;z-index:1000;border-radius:2px;line-height:1.6;}
-.map-tooltip .tt-name{color:var(--gold);margin-bottom:2px;}
+.map-tooltip{position:fixed;background:#ffffff;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,.12);padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);pointer-events:none;display:none;z-index:1000;border-radius:2px;line-height:1.8;}
+.map-tooltip .tt-name{font-size:12px;font-weight:500;color:var(--gold);margin-bottom:3px;letter-spacing:.03em;}
+.map-tooltip .tt-price{font-size:13px;color:var(--text);font-family:'Playfair Display',serif;}
 /* no map on mobile */
 .map-card{display:block;}
 @media(max-width:768px){.map-card{display:none!important;}}
@@ -135,7 +139,11 @@ footer{padding:14px 40px;border-top:1px solid var(--border);font-family:'IBM Ple
       <span class="tog-lbl" onclick="var e=document.getElementById('m-tog');e.checked=!e.checked;mUpdate()">ПОКАЗАТЬ ТАБЛИЦУ ЗНАЧЕНИЙ</span>
     </div>
     <div class="kpis">
-      <div class="kpi"><div class="kpi-lbl">Средняя цена</div><div class="kpi-val" id="mk-p">—</div><div class="kpi-sub" id="mk-ps"></div></div>
+      <div class="kpi kpi-comment">
+        <div class="kpi-lbl">Комментарий аналитика</div>
+        <div class="kpi-comment-period" id="mk-comment-period">—</div>
+        <div class="kpi-comment-text" id="mk-comment-text">—</div>
+      </div>
       <div class="kpi"><div class="kpi-lbl">Выборка</div><div class="kpi-val" id="mk-v">—</div><div class="kpi-sub">объектов (~60% рынка)</div></div>
       <div class="kpi"><div class="kpi-lbl">Изм. цены к пред. мес.</div><div class="kpi-val" id="mk-c">—</div><div class="kpi-sub">среднее по выборке</div></div>
       <div class="kpi"><div class="kpi-lbl">Округов в выборке</div><div class="kpi-val" id="mk-n">—</div><div class="kpi-sub" id="mk-ns"></div></div>
@@ -152,7 +160,7 @@ footer{padding:14px 40px;border-top:1px solid var(--border);font-family:'IBM Ple
           <span class="map-legend-lbl" id="m-leg-min">—</span>
           <canvas class="map-legend-bar" id="m-leg-bar" width="160" height="8"></canvas>
           <span class="map-legend-lbl" id="m-leg-max">—</span>
-          <span class="map-legend-lbl" style="margin-left:12px;color:#6b7280">· серый = нет данных</span>
+          <span class="map-legend-lbl" style="margin-left:12px;color:var(--muted)">· серый = нет данных</span>
         </div>
       </div>
       <div class="card full"><div class="ct">Динамика цен по округам</div><div class="cs">₽/м² · средневзвешенная цена</div><div class="cw tall"><canvas id="m-c1"></canvas></div></div>
@@ -222,7 +230,18 @@ const URL_GEO_MUN  = 'https://wwwantimilnet.github.io/moscow-realty-dashboard/mo
 // ═══════════════════════════════════════════
 
 const CLR=['#c9a96e','#7eb8c9','#9b8fd4','#6ec9a0','#e07b7b','#d4af6e','#7ec9c0','#c96e9b','#a0c96e','#6e8dc9','#c9bf6e','#c99b6e','#89c97e','#c97eb8','#7e9bc9','#c9c97e','#e0a07b'];
-const YR_CLR=['#6b7280','#7eb8c9','#c9a96e'];
+const YR_CLR=['#aab4be','#4a8fa8','#b8924a'];
+
+// ── КОММЕНТАРИИ АНАЛИТИКА (редактировать здесь)
+// Ключ: 'YYYY-MM', значение: {period: 'отображаемый период', text: 'текст комментария'}
+const ANALYST_COMMENTS = {
+  '2025-09': {
+    period: 'Сентябрь 2025',
+    text: 'Объём предложения городской недвижимости Москвы составляет порядка 35 614 лотов. Цены с наступлением осени немного разогнались — прирост до 1,5% в среднем по округам.'
+  },
+  // Добавляйте новые месяцы по образцу выше:
+  // '2025-10': { period: 'Октябрь 2025', text: 'Текст комментария...' },
+};
 let MOS=[], MUNI={}, GEO_AO=null, GEO_MUN=null;
 
 const fmtP=n=>new Intl.NumberFormat('ru-RU').format(Math.round(n))+' ₽';
@@ -231,20 +250,20 @@ const setLoad=(p,t)=>{document.getElementById('load-fill').style.width=p+'%';doc
 
 // ── Цвет по цене (тепловая: синий->жёлтый->красный)
 function priceColor(val, min, max) {
-  if (!val || val<=0) return '#2a2f3a';
+  if (!val || val<=0) return '#ddd9d2';
   const t = Math.max(0, Math.min(1, (val-min)/(max-min)));
-  // холодный (#4a7fa5) -> средний (#c9a96e) -> горячий (#c96e6e)
+  // светло-голубой (#a8c8d8) -> золотистый (#c9a96e) -> кирпичный (#c96e6e)
   let r,g,b;
   if (t < 0.5) {
     const s = t*2;
-    r = Math.round(74 + (201-74)*s);
-    g = Math.round(127 + (169-127)*s);
-    b = Math.round(165 + (110-165)*s);
+    r = Math.round(168 + (201-168)*s);
+    g = Math.round(200 + (169-200)*s);
+    b = Math.round(216 + (110-216)*s);
   } else {
     const s = (t-0.5)*2;
     r = Math.round(201 + (201-201)*s);
-    g = Math.round(169 + (110-169)*s);
-    b = Math.round(110 + (110-110)*s);
+    g = Math.round(169 + (100-169)*s);
+    b = Math.round(110 + (90-110)*s);
   }
   return `rgb(${r},${g},${b})`;
 }
@@ -354,7 +373,8 @@ function buildMap(svgId, geojson, priceMap, onClickDistrict, crop=true) {
       tt.style.display='block';
       tt.style.left=(e.clientX+14)+'px';
       tt.style.top=(e.clientY-10)+'px';
-      tt.innerHTML = `<div class="tt-name">${name}</div>${price?new Intl.NumberFormat('ru-RU').format(Math.round(price))+' ₽/м²':'нет данных'}`;
+      const priceStr = price ? new Intl.NumberFormat('ru-RU').format(Math.round(price))+' ₽/м²' : 'нет данных';
+      tt.innerHTML = `<div class="tt-name">${name}</div><div class="tt-price">${priceStr}</div>`;
     });
     path.addEventListener('mouseleave', ()=>tt.style.display='none');
 
@@ -440,14 +460,13 @@ async function loadData() {
 
 let CH={};
 function mkChart(id,type,data,opts){if(CH[id])CH[id].destroy();CH[id]=new Chart(document.getElementById(id),{type,data,options:opts});}
-function cdefs(){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#9ca3af',font:{family:'IBM Plex Mono',size:10},boxWidth:11,padding:12},position:'bottom'},tooltip:{backgroundColor:'#1a1f2b',borderColor:'#252b38',borderWidth:1,titleColor:'#c9a96e',bodyColor:'#e8e4dc',titleFont:{family:'IBM Plex Mono'},bodyFont:{family:'IBM Plex Sans'},padding:9}},scales:{x:{ticks:{color:'#6b7280',font:{family:'IBM Plex Mono',size:10},maxRotation:45},grid:{color:'#1a1f2b'},border:{color:'#252b38'}},y:{ticks:{color:'#6b7280',font:{family:'IBM Plex Mono',size:10}},grid:{color:'rgba(37,43,56,.6)'},border:{color:'#252b38'}}}};}
-
+function cdefs(){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},boxWidth:11,padding:12},position:'bottom'},tooltip:{backgroundColor:'#ffffff',borderColor:'#e2ddd6',borderWidth:1,titleColor:'#b8924a',bodyColor:'#1c1a17',titleFont:{family:'IBM Plex Mono'},bodyFont:{family:'IBM Plex Sans'},padding:9}},scales:{x:{ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},maxRotation:45},grid:{color:'#f0ece5'},border:{color:'#e2ddd6'}},y:{ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10}},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}}}};}
 function mkHeatmap(el,labels,periods,map){
   const ps=periods.slice(-12);let h='<table class="hmt"><thead><tr><th class="rh">Название</th>';
   ps.forEach(p=>h+=`<th>${p.slice(2)}</th>`);h+='</tr></thead><tbody>';
   labels.forEach(lbl=>{h+=`<tr><td class="rl">${lbl}</td>`;
-    ps.forEach(p=>{const v=map[lbl]?.[p];let bg='transparent',cl='#6b7280';
-      if(v!=null){const i=Math.min(Math.abs(v),5)/5;if(v>0){bg=`rgba(95,184,138,${.15+i*.5})`;cl='#5fb88a';}else if(v<0){bg=`rgba(224,107,107,${.15+i*.5})`;cl='#e06b6b';}}
+    ps.forEach(p=>{const v=map[lbl]?.[p];let bg='transparent',cl='#aaa5a0';
+      if(v!=null){const i=Math.min(Math.abs(v),5)/5;if(v>0){bg=`rgba(45,138,94,${.12+i*.4})`;cl='#1f6b47';}else if(v<0){bg=`rgba(192,57,43,${.12+i*.4})`;cl='#9b2c20';}}
       h+=`<td style="background:${bg};color:${cl}">${v!=null?(v>0?'+':'')+v.toFixed(1)+'%':'—'}</td>`;});h+='</tr>';});
   h+='</tbody></table>';document.getElementById(el).innerHTML=h;
 }
@@ -516,12 +535,14 @@ function mUpdate(){
   const avgP=ld.length?ld.reduce((s,r)=>s+r.price,0)/ld.length:0;
   const totV=ld.reduce((s,r)=>s+(r.volume||0),0);
   const vc=ld.filter(r=>r.price_change!=null),avgC=vc.length?vc.reduce((s,r)=>s+r.price_change,0)/vc.length:0;
-  document.getElementById('mk-p').textContent=avgP?fmtP(avgP):'—';
   document.getElementById('mk-v').textContent=totV?fmtK(totV)+' объектов':'—';
   const cel=document.getElementById('mk-c');cel.textContent=vc.length?(avgC>0?'+':'')+avgC.toFixed(2)+'%':'—';cel.style.color=avgC>0?'var(--pos)':avgC<0?'var(--neg)':'var(--text)';
   document.getElementById('mk-n').textContent=mOn.size;
-  document.getElementById('mk-ps').textContent=last?'Данные: '+last:'';
   document.getElementById('mk-ns').textContent=periods.length?periods[0]+' — '+last:'';
+  // Комментарий аналитика
+  const comment = last ? ANALYST_COMMENTS[last] : null;
+  document.getElementById('mk-comment-period').textContent = comment ? comment.period : (last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : '—');
+  document.getElementById('mk-comment-text').textContent = comment ? comment.text : 'Комментарий для этого периода не добавлен.';
 
   // КАРТА — округа с ценами из листа "Данные"
   if (GEO_AO && last) {
