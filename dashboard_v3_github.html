@@ -75,6 +75,10 @@ select option{background:var(--surface);color:var(--text);}
 .map-tooltip{position:fixed;background:#ffffff;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,.12);padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);pointer-events:none;display:none;z-index:1000;border-radius:2px;line-height:1.8;}
 .map-tooltip .tt-name{font-size:12px;font-weight:500;color:var(--gold);margin-bottom:3px;letter-spacing:.03em;}
 .map-tooltip .tt-price{font-size:13px;color:var(--text);font-family:'Playfair Display',serif;}
+.r-map-switcher{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;}
+.r-map-btn{padding:4px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;border:1px solid var(--border);cursor:pointer;background:transparent;color:var(--muted);transition:.15s;letter-spacing:.04em;}
+.r-map-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(184,146,74,.08);}
+.r-map-btn:hover:not(.active){border-color:#bbb;color:var(--text);}
 /* no map on mobile */
 .map-card{display:block;}
 @media(max-width:768px){.map-card{display:none!important;}}
@@ -125,6 +129,7 @@ footer{padding:14px 40px;border-top:1px solid var(--border);font-family:'IBM Ple
   <div class="tabs">
     <div class="tab active" id="tab-m" onclick="switchTab('m')">ВСЯ МОСКВА</div>
     <div class="tab" id="tab-d" onclick="switchTab('d')">ПО ОКРУГУ</div>
+    <div class="tab" id="tab-r" onclick="switchTab('r')">АРЕНДА</div>
   </div>
 
   <!-- МОСКВА -->
@@ -211,6 +216,53 @@ footer{padding:14px 40px;border-top:1px solid var(--border);font-family:'IBM Ple
       <div class="card full"><div class="ct">Тепловая карта изменений цен</div><div class="cs">% к предыдущему месяцу · 12 месяцев</div><div class="hm-wrap"><div id="d-hm"></div></div></div>
     </div>
     <div class="tbl-sec" id="d-tbl"><div class="tbl-title">Таблица значений</div><div style="overflow-x:auto" id="d-tbl-c"></div></div>
+  </div>
+
+  <!-- АРЕНДА -->
+  <div class="panel" id="panel-r">
+    <div class="ctrl-bar">
+      <div class="cg"><span class="cl">Период с</span><input type="month" id="rf" onchange="rUpdate()"></div>
+      <div class="cg"><span class="cl">Период по</span><input type="month" id="rt" onchange="rUpdate()"></div>
+      <div class="cg" style="flex:1"><span class="cl">Комнатность</span><div class="pills" id="r-cat-pills"></div></div>
+      <div class="cg" style="flex:2"><span class="cl">Округа</span><div class="pills" id="r-pills"></div></div>
+    </div>
+    <div class="tog-row">
+      <label class="tog"><input type="checkbox" id="r-tog" onchange="rUpdate()"><span class="tog-sl"></span></label>
+      <span class="tog-lbl" onclick="var e=document.getElementById('r-tog');e.checked=!e.checked;rUpdate()">ПОКАЗАТЬ ТАБЛИЦУ ЗНАЧЕНИЙ</span>
+    </div>
+    <div class="kpis">
+      <div class="kpi kpi-comment">
+        <div class="kpi-lbl">Комментарий аналитика</div>
+        <div class="kpi-comment-period" id="rk-comment-period">—</div>
+        <div class="kpi-comment-text" id="rk-comment-text">—</div>
+      </div>
+      <div class="kpi"><div class="kpi-lbl">Средняя цена</div><div class="kpi-val" id="rk-p">—</div><div class="kpi-sub" id="rk-ps"></div></div>
+      <div class="kpi"><div class="kpi-lbl">Изм. к пред. мес.</div><div class="kpi-val" id="rk-c">—</div><div class="kpi-sub">среднее по выборке</div></div>
+      <div class="kpi"><div class="kpi-lbl">Округов в выборке</div><div class="kpi-val" id="rk-n">—</div><div class="kpi-sub" id="rk-ns"></div></div>
+    </div>
+    <div class="charts">
+      <!-- КАРТА АРЕНДЫ -->
+      <div class="card full map-card">
+        <div class="ct" id="r-map-title">Карта аренды по округам</div>
+        <div class="cs" id="r-map-sub">₽/мес · последний месяц</div>
+        <div class="r-map-switcher" id="r-map-switcher"></div>
+        <div class="map-wrap" id="r-map-wrap">
+          <svg id="r-map-svg" viewBox="0 0 1130 920" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMin meet"></svg>
+        </div>
+        <div class="map-legend">
+          <span class="map-legend-lbl" id="r-leg-min">—</span>
+          <canvas class="map-legend-bar" id="r-leg-bar" width="160" height="8"></canvas>
+          <span class="map-legend-lbl" id="r-leg-max">—</span>
+          <span class="map-legend-lbl" style="margin-left:12px;color:var(--muted)">· серый = нет данных</span>
+        </div>
+      </div>
+      <div class="card full"><div class="ct">Динамика аренды по округам</div><div class="cs">₽/мес · средневзвешенная цена</div><div class="cw tall"><canvas id="r-c1"></canvas></div></div>
+      <div class="card"><div class="ct">Изменение цены к предыдущему месяцу</div><div class="cs">% · по округам</div><div class="cw"><canvas id="r-c2"></canvas></div></div>
+      <div class="card"><div class="ct" id="r-c3-title">Цены по округам — последний месяц</div><div class="cs">₽/мес</div><div class="cw"><canvas id="r-c3"></canvas></div></div>
+      <div class="card full"><div class="ct" id="r-c4-title">Сравнение по комнатности</div><div class="cs" id="r-c4-sub">₽/мес · последний месяц · по округам</div><div class="cw tall"><canvas id="r-c4"></canvas></div></div>
+      <div class="card full"><div class="ct">Тепловая карта изменений цен</div><div class="cs">% к предыдущему месяцу</div><div class="hm-wrap"><div id="r-hm"></div></div></div>
+    </div>
+    <div class="tbl-sec" id="r-tbl"><div class="tbl-title">Таблица значений</div><div style="overflow-x:auto" id="r-tbl-c"></div></div>
   </div>
 </div>
 <div class="map-tooltip" id="map-tt"></div>
@@ -450,6 +502,13 @@ async function loadData() {
       document.getElementById('loading').style.display='none';
       document.getElementById('main').style.display='block';
       initMPills();initDSelect();mUpdate();
+      // Аренда — инициализация периодов
+      const rentFirst = RENT_MONTHS[0], rentLast = RENT_MONTHS[RENT_MONTHS.length-1];
+      ['rf','rt'].forEach(id=>{const el=document.getElementById(id);el.min=rentFirst;el.max=rentLast;});
+      document.getElementById('rf').value = rentFirst;
+      document.getElementById('rt').value = rentLast;
+      initRentPills();
+      initRentMapSwitcher();
     },300);
   }catch(e){
     document.getElementById('load-txt').innerHTML=`<div class="err">ОШИБКА:<br>${e.message}</div>`;
@@ -460,7 +519,7 @@ async function loadData() {
 
 let CH={};
 function mkChart(id,type,data,opts){if(CH[id])CH[id].destroy();CH[id]=new Chart(document.getElementById(id),{type,data,options:opts});}
-function cdefs(){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},boxWidth:11,padding:12},position:'bottom'},tooltip:{backgroundColor:'#ffffff',borderColor:'#e2ddd6',borderWidth:1,titleColor:'#b8924a',bodyColor:'#1c1a17',titleFont:{family:'IBM Plex Mono'},bodyFont:{family:'IBM Plex Sans'},padding:9}},scales:{x:{ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},maxRotation:45},grid:{color:'#f0ece5'},border:{color:'#e2ddd6'}},y:{ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10}},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}}}};}
+function cdefs(){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},boxWidth:11,padding:12},position:'bottom'},tooltip:{backgroundColor:'#ffffff',borderColor:'#e2ddd6',borderWidth:1,titleColor:'#b8924a',bodyColor:'#1c1a17',titleFont:{family:'IBM Plex Mono',size:11},bodyFont:{family:'IBM Plex Sans',size:12},padding:10,mode:'index',intersect:false,itemSort:(a,b)=>b.raw-a.raw,callbacks:{label:ctx=>{const v=ctx.raw;if(v==null)return null;const lbl=ctx.dataset.label||'';if(typeof v==='number'){if(Math.abs(v)<20)return` ${lbl}: ${v>0?'+':''}${v.toFixed(1)}%`;return` ${lbl}: ${new Intl.NumberFormat('ru-RU').format(Math.round(v))} ₽`;}return` ${lbl}: ${v}`;}}}},scales:{x:{ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},maxRotation:45},grid:{color:'#f0ece5'},border:{color:'#e2ddd6'}},y:{ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10}},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}}}};}
 function mkHeatmap(el,labels,periods,map){
   const ps=periods.slice(-12);let h='<table class="hmt"><thead><tr><th class="rh">Название</th>';
   ps.forEach(p=>h+=`<th>${p.slice(2)}</th>`);h+='</tr></thead><tbody>';
@@ -510,7 +569,11 @@ function mkYearCompareH(canvasId,titleId,subId,labels,pm,lastPeriod){
   mkChart(canvasId,'bar',{labels,datasets:years.map((y,i)=>({label:String(y),data:labels.map(l=>pm[l]?.[y+mo]||null),backgroundColor:YR_CLR[i]+'aa',borderColor:YR_CLR[i],borderWidth:1,borderRadius:2}))},o);
 }
 
-function switchTab(id){['m','d'].forEach(x=>{document.getElementById('panel-'+x).classList.toggle('active',x===id);document.getElementById('tab-'+x).classList.toggle('active',x===id);});}
+let rInited = false;
+function switchTab(id){
+  ['m','d','r'].forEach(x=>{document.getElementById('panel-'+x).classList.toggle('active',x===id);document.getElementById('tab-'+x).classList.toggle('active',x===id);});
+  if (id==='r' && !rInited) { rInited=true; rUpdate(); }
+}
 
 // ── МОСКВА ──
 let mOn=new Set();
@@ -650,6 +713,238 @@ function dUpdate(){
   const fnVnukovo = fnMunis.length ? `<br>* <b>Внуково</b> — до 8 мая 2024 входил в состав Западного АО, после — в состав Новомосковского АО. В расчёт среднего по округу не включается.` : '';
   const fnReform = isNaoTao ? `<br>† До 8 мая 2024 года данные собирались по старым поселениям (Внуковское, Воскресенское, Десеновское и др.). После реформы поселения были упразднены и объединены в укрупнённые районы (Коммунарка, Филимонковский, Вороново и др.). Данные разных периодов не полностью сопоставимы. <a href="https://www.mos.ru/mayor/themes/15299/12068050/" target="_blank" style="color:var(--gold)">Подробнее →</a>` : '';
   fnEl.innerHTML = (fnVnukovo || fnReform) ? `<span style="opacity:.8">${fnVnukovo}${fnReform}</span>` : '';
+}
+
+
+// ═══════════════════════════════════════════
+// АРЕНДА
+// ═══════════════════════════════════════════
+
+// Данные аренды (встроены). Для подключения Google Apps Script:
+// const URL_RENT = 'https://script.google.com/...'; // раскомментировать
+const URL_RENT = null;
+
+// КОММЕНТАРИИ АНАЛИТИКА — АРЕНДА (редактировать здесь)
+const RENT_COMMENTS = {
+  '2026-02': {
+    period: 'Февраль 2026',
+    text: 'Комментарий для этого периода не добавлен.'
+  },
+};
+
+const CAT_NAMES = {
+  '0': 'Студии', '1': '1-комн.', '2': '2-комн.', '3': '3-комн.', '4': '4-комн.', '5': 'Многокомн.'
+};
+
+const RENT_RAW = {"Восточный АО": {"0": {"2025-07": 51690, "2025-08": 53135, "2025-09": 54976, "2025-10": 53364, "2025-11": 53379, "2025-12": 49364, "2026-01": 50456, "2026-02": 50985}, "1": {"2025-07": 50599, "2025-08": 51615, "2025-09": 53209, "2025-10": 51896, "2025-11": 51566, "2025-12": 51340, "2026-01": 51854, "2026-02": 51614}, "2": {"2025-07": 62181, "2025-08": 65245, "2025-09": 66241, "2025-10": 65652, "2025-11": 65650, "2025-12": 65078, "2026-01": 65862, "2026-02": 66056}, "3": {"2025-07": 84089, "2025-08": 85990, "2025-09": 85813, "2025-10": 84873, "2025-11": 84988, "2025-12": 83283, "2026-01": 83937, "2026-02": 80147}, "4": {"2025-07": 135750, "2025-08": 142705, "2025-09": 131867, "2025-10": 109727, "2025-11": 116889, "2025-12": 126071, "2026-01": 142000, "2026-02": 161250}, "5": {"2025-07": 260000, "2025-08": 260000, "2025-09": 380000, "2025-10": 380000, "2025-11": 230000, "2025-12": 365000, "2026-01": 340000, "2026-02": 156667}}, "Западный АО": {"0": {"2025-07": 60538, "2025-08": 61392, "2025-09": 60983, "2025-10": 61731, "2025-11": 61087, "2025-12": 59036, "2026-01": 58463, "2026-02": 57862}, "1": {"2025-07": 61535, "2025-08": 62864, "2025-09": 65796, "2025-10": 65690, "2025-11": 64327, "2025-12": 62642, "2026-01": 64057, "2026-02": 64465}, "2": {"2025-07": 81925, "2025-08": 84222, "2025-09": 88162, "2025-10": 88213, "2025-11": 86325, "2025-12": 86275, "2026-01": 86990, "2026-02": 86996}, "3": {"2025-07": 127275, "2025-08": 134687, "2025-09": 130298, "2025-10": 134095, "2025-11": 131011, "2025-12": 129684, "2026-01": 127129, "2026-02": 130220}, "4": {"2025-07": 231130, "2025-08": 242242, "2025-09": 231763, "2025-10": 242250, "2025-11": 258272, "2025-12": 244867, "2026-01": 242561, "2026-02": 237093}, "5": {"2025-07": 480765, "2025-08": 430446, "2025-09": 440636, "2025-10": 425585, "2025-11": 535980, "2025-12": 609487, "2026-01": 584833, "2026-02": 524891}}, "Новомосковский": {"0": {"2025-07": 41933, "2025-08": 43134, "2025-09": 43030, "2025-10": 43003, "2025-11": 43958, "2025-12": 44041, "2026-01": 44507, "2026-02": 43923}, "1": {"2025-07": 49367, "2025-08": 51003, "2025-09": 50798, "2025-10": 51505, "2025-11": 50661, "2025-12": 50995, "2026-01": 49824, "2026-02": 49797}, "2": {"2025-07": 62300, "2025-08": 61670, "2025-09": 63592, "2025-10": 64091, "2025-11": 62323, "2025-12": 63497, "2026-01": 64457, "2026-02": 64136}, "3": {"2025-07": 84075, "2025-08": 84279, "2025-09": 84546, "2025-10": 84036, "2025-11": 86523, "2025-12": 89240, "2026-01": 87887, "2026-02": 85348}, "4": {"2025-07": 107000, "2025-08": 123333, "2025-09": 118000, "2025-10": 108167, "2025-11": 106000, "2025-12": 78667, "2026-01": 100857, "2026-02": 96250}, "5": {"2025-09": 127000, "2025-10": 127000, "2026-01": 140000, "2026-02": 140000}}, "Северный АО": {"0": {"2025-07": 58539, "2025-08": 59005, "2025-09": 62622, "2025-10": 60444, "2025-11": 57899, "2025-12": 56610, "2026-01": 59090, "2026-02": 57059}, "1": {"2025-07": 58120, "2025-08": 60590, "2025-09": 62729, "2025-10": 60606, "2025-11": 60371, "2025-12": 60123, "2026-01": 60295, "2026-02": 59773}, "2": {"2025-07": 77030, "2025-08": 78141, "2025-09": 82039, "2025-10": 80160, "2025-11": 79972, "2025-12": 79830, "2026-01": 79259, "2026-02": 78366}, "3": {"2025-07": 104814, "2025-08": 105424, "2025-09": 103398, "2025-10": 105074, "2025-11": 106343, "2025-12": 107935, "2026-01": 104756, "2026-02": 103918}, "4": {"2025-07": 176825, "2025-08": 174191, "2025-09": 151694, "2025-10": 155538, "2025-11": 144258, "2025-12": 142212, "2026-01": 167019, "2026-02": 189045}, "5": {"2025-07": 270000, "2025-08": 220000, "2025-09": 222500, "2025-10": 1800000, "2025-11": 203333, "2025-12": 157400, "2026-01": 180000, "2026-02": 170000}}, "Северо-Восточный АО": {"0": {"2025-07": 52646, "2025-08": 54570, "2025-09": 58997, "2025-10": 57798, "2025-11": 56168, "2025-12": 56002, "2026-01": 54867, "2026-02": 53136}, "1": {"2025-07": 54548, "2025-08": 57187, "2025-09": 57734, "2025-10": 57443, "2025-11": 57552, "2025-12": 55349, "2026-01": 57086, "2026-02": 56603}, "2": {"2025-07": 70172, "2025-08": 72963, "2025-09": 74196, "2025-10": 73629, "2025-11": 72571, "2025-12": 71477, "2026-01": 72700, "2026-02": 72022}, "3": {"2025-07": 91410, "2025-08": 94179, "2025-09": 92775, "2025-10": 94658, "2025-11": 92643, "2025-12": 93942, "2026-01": 94284, "2026-02": 96517}, "4": {"2025-07": 152000, "2025-08": 162545, "2025-09": 171190, "2025-10": 180600, "2025-11": 161250, "2025-12": 154154, "2026-01": 125815, "2026-02": 151212}, "5": {"2025-07": 120000, "2025-09": 150000, "2025-10": 195000, "2025-11": 180000, "2025-12": 200000, "2026-01": 205000, "2026-02": 220000}}, "Северо-Западный АО": {"0": {"2025-07": 57935, "2025-08": 56039, "2025-09": 69614, "2025-10": 68072, "2025-11": 71712, "2025-12": 67013, "2026-01": 63264, "2026-02": 66205}, "1": {"2025-07": 55596, "2025-08": 57888, "2025-09": 58230, "2025-10": 58275, "2025-11": 58049, "2025-12": 56135, "2026-01": 56797, "2026-02": 57119}, "2": {"2025-07": 72289, "2025-08": 75930, "2025-09": 75650, "2025-10": 76007, "2025-11": 76182, "2025-12": 73211, "2026-01": 74378, "2026-02": 75392}, "3": {"2025-07": 106710, "2025-08": 103815, "2025-09": 107393, "2025-10": 107958, "2025-11": 107213, "2025-12": 107894, "2026-01": 107345, "2026-02": 110268}, "4": {"2025-07": 254914, "2025-08": 244194, "2025-09": 229080, "2025-10": 227789, "2025-11": 213431, "2025-12": 218051, "2026-01": 214771, "2026-02": 211719}, "5": {"2025-07": 586884, "2025-08": 559777, "2025-09": 523117, "2025-10": 488022, "2025-11": 443369, "2025-12": 450338, "2026-01": 463976, "2026-02": 642346}}, "Троицкий": {"0": {"2025-07": 38000, "2025-08": 33000, "2025-09": 22500, "2025-10": 50000, "2025-11": 30000, "2025-12": 38500, "2026-01": 40250, "2026-02": 38286}, "1": {"2025-07": 38559, "2025-08": 37884, "2025-09": 38781, "2025-10": 38427, "2025-11": 40758, "2025-12": 38985, "2026-01": 39957, "2026-02": 39020}, "2": {"2025-07": 48100, "2025-08": 47847, "2025-09": 48735, "2025-10": 48448, "2025-11": 50838, "2025-12": 50462, "2026-01": 52536, "2026-02": 51385}, "3": {"2025-07": 60611, "2025-08": 68600, "2025-09": 62250, "2025-10": 62769, "2025-11": 64300, "2025-12": 61818, "2026-01": 74824, "2026-02": 66725}, "5": {"2025-07": 110000}, "4": {"2025-08": 102500, "2025-09": 55000, "2025-10": 52500, "2025-11": 80000, "2025-12": 82500, "2026-01": 97500, "2026-02": 100000}}, "Центральный АО": {"0": {"2025-07": 78081, "2025-08": 86238, "2025-09": 94886, "2025-10": 90386, "2025-11": 87863, "2025-12": 83449, "2026-01": 84533, "2026-02": 83676}, "1": {"2025-07": 84591, "2025-08": 86912, "2025-09": 87003, "2025-10": 86384, "2025-11": 84669, "2025-12": 83538, "2026-01": 82954, "2026-02": 83203}, "2": {"2025-07": 137468, "2025-08": 141088, "2025-09": 146503, "2025-10": 142541, "2025-11": 132231, "2025-12": 131274, "2026-01": 129225, "2026-02": 129578}, "3": {"2025-07": 230323, "2025-08": 237792, "2025-09": 250483, "2025-10": 238644, "2025-11": 227592, "2025-12": 232782, "2026-01": 237535, "2026-02": 233456}, "4": {"2025-07": 381650, "2025-08": 412193, "2025-09": 411234, "2025-10": 385535, "2025-11": 383409, "2025-12": 370957, "2026-01": 366007, "2026-02": 360459}, "5": {"2025-07": 712998, "2025-08": 711372, "2025-09": 723358, "2025-10": 747785, "2025-11": 757126, "2025-12": 728916, "2026-01": 713009, "2026-02": 707489}}, "Юго-Восточный АО": {"0": {"2025-07": 47243, "2025-08": 52387, "2025-09": 57740, "2025-10": 53562, "2025-11": 51651, "2025-12": 50880, "2026-01": 51980, "2026-02": 53694}, "1": {"2025-07": 51304, "2025-08": 53640, "2025-09": 54689, "2025-10": 54921, "2025-11": 54139, "2025-12": 52952, "2026-01": 54138, "2026-02": 53168}, "2": {"2025-07": 66846, "2025-08": 67145, "2025-09": 67463, "2025-10": 67723, "2025-11": 67230, "2025-12": 66390, "2026-01": 66378, "2026-02": 67835}, "3": {"2025-07": 87369, "2025-08": 87018, "2025-09": 88563, "2025-10": 88897, "2025-11": 87599, "2025-12": 86073, "2026-01": 86750, "2026-02": 87500}, "4": {"2025-07": 118909, "2025-08": 120828, "2025-09": 113632, "2025-10": 110120, "2025-11": 111500, "2025-12": 107188, "2026-01": 128937, "2026-02": 117105}, "5": {"2025-07": 125000, "2025-08": 140000, "2025-09": 130000, "2025-10": 90000, "2025-11": 65000}}, "Юго-Западный АО": {"0": {"2025-07": 53297, "2025-08": 52337, "2025-09": 58194, "2025-10": 51859, "2025-11": 48490, "2025-12": 52374, "2026-01": 52786, "2026-02": 52156}, "1": {"2025-07": 56356, "2025-08": 59280, "2025-09": 59234, "2025-10": 58780, "2025-11": 57713, "2025-12": 56964, "2026-01": 57942, "2026-02": 57310}, "2": {"2025-07": 76096, "2025-08": 78579, "2025-09": 81288, "2025-10": 79153, "2025-11": 77257, "2025-12": 76965, "2026-01": 76881, "2026-02": 76483}, "3": {"2025-07": 101292, "2025-08": 105564, "2025-09": 108653, "2025-10": 106378, "2025-11": 109962, "2025-12": 105333, "2026-01": 106865, "2026-02": 106064}, "4": {"2025-07": 177582, "2025-08": 193535, "2025-09": 183376, "2025-10": 193231, "2025-11": 185205, "2025-12": 192027, "2026-01": 180687, "2026-02": 184616}, "5": {"2025-07": 428901, "2025-08": 364279, "2025-09": 419027, "2025-10": 368347, "2025-11": 501514, "2025-12": 269788, "2026-01": 367419, "2026-02": 331942}}, "Южный АО": {"0": {"2025-07": 57257, "2025-08": 60487, "2025-09": 62500, "2025-10": 59367, "2025-11": 58068, "2025-12": 56998, "2026-01": 60301, "2026-02": 54942}, "1": {"2025-07": 53297, "2025-08": 54589, "2025-09": 54909, "2025-10": 55867, "2025-11": 54863, "2025-12": 54210, "2026-01": 55535, "2026-02": 55722}, "2": {"2025-07": 68618, "2025-08": 70531, "2025-09": 71649, "2025-10": 71398, "2025-11": 72010, "2025-12": 71026, "2026-01": 71197, "2026-02": 71025}, "3": {"2025-07": 93537, "2025-08": 96600, "2025-09": 95464, "2025-10": 98107, "2025-11": 99590, "2025-12": 95697, "2026-01": 94816, "2026-02": 95172}, "4": {"2025-07": 144058, "2025-08": 146779, "2025-09": 137292, "2025-10": 126000, "2025-11": 113375, "2025-12": 117577, "2026-01": 124476, "2026-02": 120185}, "5": {"2025-07": 194000, "2025-08": 170000, "2025-09": 175000, "2025-10": 160000, "2025-11": 265000, "2025-12": 182500, "2026-01": 99000, "2026-02": 142500}}, "Зеленоградский АО": {"1": {"2025-07": 39979, "2025-08": 42475, "2025-09": 42839, "2025-10": 43121, "2025-11": 42404, "2025-12": 42291, "2026-01": 43315, "2026-02": 42005}, "2": {"2025-07": 53628, "2025-08": 55611, "2025-09": 57788, "2025-10": 56452, "2025-11": 55600, "2025-12": 58566, "2026-01": 59417, "2026-02": 57256}, "3": {"2025-07": 65016, "2025-08": 72105, "2025-09": 67500, "2025-10": 67375, "2025-11": 71615, "2025-12": 76296, "2026-01": 80482, "2026-02": 79245}, "4": {"2025-07": 45000, "2025-08": 83000, "2025-09": 105000, "2025-10": 35000, "2025-11": 70000, "2025-12": 80000, "2026-01": 80000}, "5": {"2025-07": 125000, "2025-08": 125000, "2025-09": 125000}, "0": {"2025-08": 60000, "2025-09": 47500, "2025-10": 36000, "2025-11": 36500, "2025-12": 38500, "2026-01": 34000, "2026-02": 37500}}};
+
+// Вычисляем price_change на лету
+function buildRentData(raw) {
+  // raw: {area: {cat: {month: price}}}
+  const result = {};
+  for (const area of Object.keys(raw)) {
+    result[area] = {};
+    for (const cat of Object.keys(raw[area])) {
+      const months = Object.keys(raw[area][cat]).sort();
+      result[area][cat] = {};
+      months.forEach((m, i) => {
+        const price = raw[area][cat][m];
+        let change = null;
+        if (i > 0) {
+          const prev = raw[area][cat][months[i-1]];
+          if (prev && prev > 0) change = Math.round((price - prev) / prev * 10000) / 100;
+        }
+        result[area][cat][m] = { price, change };
+      });
+    }
+  }
+  return result;
+}
+
+const RENT = buildRentData(RENT_RAW);
+const RENT_AREAS = Object.keys(RENT).sort();
+const RENT_MONTHS = [...new Set(Object.values(RENT_RAW).flatMap(a => Object.values(a).flatMap(c => Object.keys(c))))].sort();
+const RENT_CATS = ['0','1','2','3','4','5'];
+
+let rOn = new Set(RENT_AREAS);
+let rCatOn = new Set(['1','2','3']); // по умолчанию 1-2-3 комн
+
+function initRentPills() {
+  // Округа
+  const ap = document.createElement('span');
+  ap.className = 'pill pill-all on'; ap.id = 'r-ap'; ap.textContent = 'Все';
+  ap.onclick = () => {
+    if (rOn.size === RENT_AREAS.length) { rOn.clear(); ap.classList.remove('on'); }
+    else { rOn = new Set(RENT_AREAS); ap.classList.add('on'); }
+    document.querySelectorAll('.rp').forEach(p => p.classList.toggle('on', rOn.has(p.dataset.v)));
+    rUpdate();
+  };
+  const pc = document.getElementById('r-pills');
+  pc.innerHTML = ''; pc.appendChild(ap);
+  RENT_AREAS.forEach(a => {
+    const p = document.createElement('span'); p.className = 'pill rp on'; p.dataset.v = a;
+    p.textContent = a.replace(' АО','');
+    p.onclick = () => { rOn.has(a) ? rOn.delete(a) : rOn.add(a); p.classList.toggle('on', rOn.has(a)); document.getElementById('r-ap').classList.toggle('on', rOn.size === RENT_AREAS.length); rUpdate(); };
+    pc.appendChild(p);
+  });
+
+  // Комнатность
+  const cc = document.getElementById('r-cat-pills');
+  cc.innerHTML = '';
+  const ca = document.createElement('span'); ca.className = 'pill pill-all'; ca.id = 'r-ca'; ca.textContent = 'Все';
+  ca.onclick = () => {
+    if (rCatOn.size === RENT_CATS.length) { rCatOn.clear(); ca.classList.remove('on'); }
+    else { rCatOn = new Set(RENT_CATS); ca.classList.add('on'); }
+    document.querySelectorAll('.rcp').forEach(p => p.classList.toggle('on', rCatOn.has(p.dataset.v)));
+    rUpdate();
+  };
+  cc.appendChild(ca);
+  RENT_CATS.forEach(c => {
+    const p = document.createElement('span'); p.className = 'pill rcp' + (rCatOn.has(c) ? ' on' : ''); p.dataset.v = c;
+    p.textContent = CAT_NAMES[c];
+    p.onclick = () => { rCatOn.has(c) ? rCatOn.delete(c) : rCatOn.add(c); p.classList.toggle('on', rCatOn.has(c)); document.getElementById('r-ca').classList.toggle('on', rCatOn.size === RENT_CATS.length); rUpdate(); };
+    cc.appendChild(p);
+  });
+}
+
+function rUpdate() {
+  const from = document.getElementById('rf').value;
+  const to   = document.getElementById('rt').value;
+  const showT = document.getElementById('r-tog').checked;
+
+  const areas  = [...rOn].sort();
+  const cats   = [...rCatOn].sort();
+  const periods = RENT_MONTHS.filter(m => m >= from && m <= to);
+  const last   = periods[periods.length - 1];
+
+  // Строим pm[area_cat][month] = price, cm[area_cat][month] = change
+  // Для динамики — группируем по выбранным округам с агрегацией по комнатности
+  // Если выбрано несколько комнатностей — усредняем цены по ним для каждого округа
+  const pm = {}, cm = {};
+  areas.forEach(a => {
+    pm[a] = {}; cm[a] = {};
+    periods.forEach(m => {
+      const prices = cats.map(c => RENT[a]?.[c]?.[m]?.price).filter(Boolean);
+      const changes = cats.map(c => RENT[a]?.[c]?.[m]?.change).filter(v => v != null);
+      if (prices.length) { pm[a][m] = Math.round(prices.reduce((s,v) => s+v,0) / prices.length); }
+      if (changes.length) { cm[a][m] = Math.round(changes.reduce((s,v) => s+v,0) / changes.length * 100) / 100; }
+    });
+  });
+
+  // KPI
+  const lp = areas.map(a => pm[a][last]).filter(Boolean);
+  const avgP = lp.length ? Math.round(lp.reduce((s,v) => s+v,0) / lp.length) : 0;
+  const vc = areas.map(a => cm[a][last]).filter(v => v != null);
+  const avgC = vc.length ? Math.round(vc.reduce((s,v) => s+v,0) / vc.length * 100) / 100 : null;
+
+  document.getElementById('rk-p').textContent = avgP ? fmtP(avgP) : '—';
+  document.getElementById('rk-ps').textContent = last ? 'Данные: ' + last : '';
+  const rcel = document.getElementById('rk-c');
+  rcel.textContent = avgC != null ? (avgC > 0 ? '+' : '') + avgC.toFixed(2) + '%' : '—';
+  rcel.style.color = avgC > 0 ? 'var(--pos)' : avgC < 0 ? 'var(--neg)' : 'var(--text)';
+  document.getElementById('rk-n').textContent = areas.length;
+  document.getElementById('rk-ns').textContent = periods.length ? periods[0] + ' — ' + last : '';
+
+  // Комментарий
+  const rc = last ? RENT_COMMENTS[last] : null;
+  document.getElementById('rk-comment-period').textContent = rc ? rc.period : (last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : '—');
+  document.getElementById('rk-comment-text').textContent = rc ? rc.text : 'Комментарий для этого периода не добавлен.';
+
+  // Чарт 1 — динамика по округам
+  const o1 = cdefs(); o1.scales.y.ticks.callback = v => (v/1000).toFixed(0)+'K ₽';
+  mkChart('r-c1','line',{labels:periods,datasets:areas.map((a,i)=>({label:a,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.map(m=>pm[a][m]||null),borderWidth:1.5,pointRadius:0,pointHoverRadius:4,tension:.3,spanGaps:true}))},o1);
+
+  // Чарт 2 — изменение %
+  const o2 = cdefs(); o2.scales.y.ticks.callback = v => v.toFixed(1)+'%';
+  mkChart('r-c2','line',{labels:periods,datasets:areas.map((a,i)=>({label:a,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.map(m=>cm[a][m]??null),borderWidth:1.5,pointRadius:2,pointHoverRadius:4,tension:.2,spanGaps:true}))},o2);
+
+  // Чарт 3 — бар последний месяц
+  const moName = last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : '';
+  document.getElementById('r-c3-title').textContent = `Цены по округам — ${moName}`;
+  const o3 = cdefs(); o3.plugins.legend.display = false; o3.scales.y.ticks.callback = v => (v/1000).toFixed(0)+'K';
+  mkChart('r-c3','bar',{labels:areas.map(a=>a.replace(' АО','')),datasets:[{data:areas.map(a=>pm[a][last]||0),backgroundColor:areas.map((_,i)=>CLR[i%CLR.length]+'99'),borderColor:areas.map((_,i)=>CLR[i%CLR.length]),borderWidth:1,borderRadius:3}]},o3);
+
+  // Чарт 4 — сравнение по комнатности (горизонтальный бар, последний месяц)
+  document.getElementById('r-c4-title').textContent = `Сравнение по комнатности — ${moName}`;
+  document.getElementById('r-c4-sub').textContent = cats.map(c=>CAT_NAMES[c]).join(' · ') + ' · ₽/мес';
+  const o4 = cdefs(); o4.indexAxis = 'y'; o4.scales.x.ticks.callback = v => (v/1000).toFixed(0)+'K';
+  o4.scales.y.ticks.font = {family:'IBM Plex Mono',size:10}; o4.plugins.legend.position = 'top';
+  const catColors = ['#aab4be','#b8924a','#4a8fa8','#6e9b7e','#9b8fd4','#c96e9b'];
+  mkChart('r-c4','bar',{labels:areas,datasets:cats.map((c,i)=>({label:CAT_NAMES[c],data:areas.map(a=>RENT[a]?.[c]?.[last]?.price||null),backgroundColor:catColors[i]+'99',borderColor:catColors[i],borderWidth:1,borderRadius:2}))},o4);
+
+  // Тепловая
+  mkHeatmap('r-hm', areas, periods, cm);
+
+  // Таблица
+  document.getElementById('r-tbl').classList.toggle('on', showT);
+  if (showT) {
+    // Таблица: строки=округа, колонки=месяцы*2 (цена+изм%)
+    const ps = periods.slice(-8);
+    let h = '<table class="dt"><thead><tr><th>Округ</th>';
+    ps.forEach(p => h += `<th colspan="2">${p.slice(2)}</th>`);
+    h += '</tr><tr><th></th>'; ps.forEach(() => h += '<th>₽/мес</th><th>изм.%</th>'); h += '</tr></thead><tbody>';
+    areas.forEach(a => {
+      h += `<tr><td>${a}</td>`;
+      ps.forEach(m => {
+        const pr = pm[a][m], ch = cm[a][m];
+        const ps2 = pr ? new Intl.NumberFormat('ru-RU').format(pr) : '—';
+        let cs = '—', cc = '';
+        if (ch != null) { cs = (ch>0?'+':'')+ch.toFixed(1)+'%'; cc = ch>0?'tp':ch<0?'tn':''; }
+        h += `<td>${ps2}</td><td class="${cc}">${cs}</td>`;
+      });
+      h += '</tr>';
+    });
+    h += '</tbody></table>';
+    document.getElementById('r-tbl-c').innerHTML = h;
+  }
+
+  // КАРТА АРЕНДЫ
+  if (GEO_AO && last) buildRentMap(last);
+}
+
+// Категории для переключателя карты
+const MAP_CAT_BTNS = [
+  {label:'Все',    cats:['0','1','2','3','4','5']},
+  {label:'Студии', cats:['0']},
+  {label:'1-комн.',cats:['1']},
+  {label:'2-комн.',cats:['2']},
+  {label:'3-комн.',cats:['3']},
+  {label:'3к+',   cats:['4','5']},
+];
+let rMapCat = 0; // индекс активной кнопки
+
+function initRentMapSwitcher() {
+  const sw = document.getElementById('r-map-switcher');
+  if (!sw) return;
+  sw.innerHTML = '';
+  MAP_CAT_BTNS.forEach((btn, i) => {
+    const b = document.createElement('button');
+    b.className = 'r-map-btn' + (i === rMapCat ? ' active' : '');
+    b.textContent = btn.label;
+    b.onclick = () => {
+      rMapCat = i;
+      sw.querySelectorAll('.r-map-btn').forEach((el, j) => el.classList.toggle('active', j === i));
+      const last = document.getElementById('rt').value;
+      if (last) buildRentMap(last);
+    };
+    sw.appendChild(b);
+  });
+}
+
+function buildRentMap(last) {
+  if (!GEO_AO || !last) return;
+  const cats = MAP_CAT_BTNS[rMapCat].cats;
+  const priceMap = {};
+  RENT_AREAS.forEach(a => {
+    const prices = cats.map(c => RENT[a]?.[c]?.[last]?.price).filter(Boolean);
+    if (prices.length) priceMap[a] = Math.round(prices.reduce((s,v) => s+v,0) / prices.length);
+  });
+  const catLabel = MAP_CAT_BTNS[rMapCat].label;
+  const moName = new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'});
+  document.getElementById('r-map-title').textContent = `Карта аренды — ${catLabel}`;
+  document.getElementById('r-map-sub').textContent = `₽/мес · ${moName}`;
+  const res = buildMap('r-map-svg', GEO_AO, priceMap, null, true);
+  if (res) drawLegend('r-leg-bar','r-leg-min','r-leg-max', res.minP, res.maxP);
 }
 
 loadData();
