@@ -545,9 +545,24 @@ async function loadData() {
     // Новые данные точнее — перезаписывают совпадающие периоды
     setLoad(55,'ЗАГРУЗКА АКТУАЛЬНЫХ ДАННЫХ...');
     try {
-      const rNew = await fetch(URL_NEW);
-      if (rNew.ok) {
-        const newData = await rNew.json();
+      const newData = await new Promise((resolve, reject) => {
+        const cbName = 'gasCallback_' + Date.now();
+        const script = document.createElement('script');
+        const timer = setTimeout(() => {
+          delete window[cbName];
+          document.head.removeChild(script);
+          reject(new Error('timeout'));
+        }, 10000);
+        window[cbName] = (data) => {
+          clearTimeout(timer);
+          delete window[cbName];
+          document.head.removeChild(script);
+          resolve(data);
+        };
+        script.src = URL_NEW + '?callback=' + cbName;
+        script.onerror = () => { clearTimeout(timer); reject(new Error('script error')); };
+        document.head.appendChild(script);
+      });
 
         // Округа: конвертируем формат {district: [{period, price, price_change}]} -> EXTRA_MOS формат
         if (newData.districts) {
