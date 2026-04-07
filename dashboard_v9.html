@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Рынок недвижимости Москвы</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#faf8f4;--surface:#ffffff;--s2:#f3f0eb;--border:#e2ddd6;--gold:#b8924a;--blue:#4a8fa8;--text:#1c1a17;--muted:#7a7268;--pos:#2d8a5e;--neg:#c0392b;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-weight:300;}
+.header{padding:26px 40px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;}
+.header h1{font-family:'Playfair Display',serif;font-size:22px;color:var(--gold);}
+.header p{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:3px;letter-spacing:.05em;}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);border:1px solid var(--gold);padding:4px 10px;letter-spacing:.08em;opacity:.8;}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:16px;}
+.spinner{width:36px;height:36px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-txt{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:.08em;text-align:center;line-height:1.8;}
+.load-bar{width:240px;height:2px;background:var(--border);}
+.load-fill{height:100%;background:var(--gold);width:0%;transition:width .3s;}
+.err{background:rgba(192,57,43,.07);border:1px solid var(--neg);padding:16px 24px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--neg);max-width:500px;text-align:center;line-height:1.8;}
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);}
+.tab{padding:13px 28px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:.2s;user-select:none;}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab:hover:not(.active){color:var(--text);}
+.panel{display:none;}.panel.active{display:block;}
+.ctrl-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 40px;display:flex;gap:22px;align-items:flex-end;flex-wrap:wrap;}
+.cg{display:flex;flex-direction:column;gap:5px;}
+.cl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;}
+select,input[type=month]{background:var(--s2);border:1px solid var(--border);color:var(--text);padding:7px 11px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;outline:none;min-width:150px;-webkit-appearance:none;}
+select:focus,input:focus{border-color:var(--gold);}
+select option{background:var(--surface);color:var(--text);}
+.pills{display:flex;flex-wrap:wrap;gap:5px;max-width:760px;}
+.pill{padding:4px 10px;font-size:11px;font-family:'IBM Plex Mono',monospace;border:1px solid var(--border);cursor:pointer;transition:.15s;color:var(--muted);user-select:none;}
+.pill.on{border-color:var(--gold);color:var(--gold);background:rgba(201,169,110,.06);}
+.pill:hover:not(.on){border-color:#3a4050;color:var(--text);}
+.pill-all{border-color:var(--blue);color:var(--blue);opacity:.6;}
+.pill-all.on{opacity:1;background:rgba(126,184,201,.06);}
+.tog-row{display:flex;align-items:center;gap:10px;padding:9px 40px;background:var(--surface);border-bottom:1px solid var(--border);}
+.tog{position:relative;width:36px;height:20px;cursor:pointer;}
+.tog input{opacity:0;width:0;height:0;}
+.tog-sl{position:absolute;inset:0;background:var(--border);border-radius:20px;transition:.2s;}
+.tog-sl:before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:#aaa;border-radius:50%;transition:.2s;}
+.tog input:checked+.tog-sl{background:rgba(184,146,74,.25);}
+.tog input:checked+.tog-sl:before{transform:translateX(16px);background:var(--gold);}
+.tog-lbl{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.06em;cursor:pointer;user-select:none;}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border);}
+.kpis-m{grid-template-columns:1fr 1fr 2fr;}
+.kpi{background:var(--surface);padding:18px 26px;}
+.kpi-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.11em;color:var(--muted);text-transform:uppercase;margin-bottom:7px;}
+.kpi-val{font-family:'Playfair Display',serif;font-size:24px;color:var(--text);}
+.kpi-sub{font-family:'IBM Plex Mono',monospace;font-size:11px;margin-top:4px;color:var(--muted);}
+.kpi-comment-period{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);margin-bottom:5px;letter-spacing:.06em;}
+.kpi-comment-text{font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text);line-height:1.6;opacity:.85;}
+.charts{background:var(--border);padding:1px;display:grid;grid-template-columns:1fr 1fr;gap:1px;}
+.card{background:var(--surface);padding:26px;}
+.card.full{grid-column:1/-1;}
+.opt-block{display:none;}
+.opt-block.visible{display:block;}
+.card-split{display:flex;gap:0;padding:0;}
+.card-split .split-chart{flex:1.6;padding:26px;min-width:0;}
+.card-split .split-comment{flex:1;padding:26px 28px;border-left:1px solid var(--border);display:flex;flex-direction:column;justify-content:flex-start;}
+.sc-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.11em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;}
+.sc-text{font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text);line-height:1.7;opacity:.85;}
+.ct{font-family:'Playfair Display',serif;font-size:15px;color:var(--gold);margin-bottom:3px;}
+.cs{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:18px;letter-spacing:.06em;text-transform:uppercase;}
+.cw{position:relative;height:270px;}
+.cw.tall{height:340px;}
+.cw.htall{height:420px;}
+/* MAP */
+.map-wrap{position:relative;width:100%;height:400px;background:var(--s2);overflow:hidden;border:1px solid var(--border);}
+.map-wrap svg{position:absolute;top:0;left:0;width:100%;height:100%;}
+
+.map-wrap path{stroke:#faf8f4;stroke-width:0.8;cursor:pointer;transition:opacity .15s;}
+.map-wrap path:hover{opacity:.85;stroke-width:2;stroke:var(--gold);}
+.map-wrap path.selected{stroke:var(--gold);stroke-width:2.5;}
+.map-legend{display:flex;align-items:center;gap:8px;padding:8px 0 0;flex-wrap:wrap;}
+.map-legend-bar{width:160px;height:8px;border-radius:4px;}
+.map-legend-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);}
+.map-tooltip{position:fixed;background:#ffffff;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,.12);padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);pointer-events:none;display:none;z-index:1000;border-radius:2px;line-height:1.8;}
+.map-tooltip .tt-name{font-size:12px;font-weight:500;color:var(--gold);margin-bottom:3px;letter-spacing:.03em;}
+.map-tooltip .tt-price{font-size:13px;color:var(--text);font-family:'Playfair Display',serif;}
+.r-map-switcher{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;}
+.r-map-btn{padding:4px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;border:1px solid var(--border);cursor:pointer;background:transparent;color:var(--muted);transition:.15s;letter-spacing:.04em;}
+.r-map-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(184,146,74,.08);}
+.r-map-btn:hover:not(.active){border-color:#bbb;color:var(--text);}
+/* no map on mobile */
+.map-card{display:block;}
+@media(max-width:768px){.map-card{display:none!important;}}
+/* table */
+.tbl-sec{display:none;padding:26px 40px;}
+.tbl-sec.on{display:block;}
+.tbl-title{font-family:'Playfair Display',serif;font-size:15px;color:var(--gold);margin-bottom:14px;}
+.dt{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:11px;}
+.dt th{color:var(--muted);padding:5px 9px;text-align:right;font-weight:400;font-size:10px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.dt th:first-child{text-align:left;}
+.dt td{padding:5px 9px;text-align:right;border-bottom:1px solid rgba(255,255,255,.03);white-space:nowrap;}
+.dt td:first-child{text-align:left;color:var(--muted);}
+.dt tr:hover td{background:rgba(255,255,255,.02);}
+.tp{color:var(--pos)}.tn{color:var(--neg)}
+.hm-wrap{overflow-x:auto;}
+.hmt{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:11px;min-width:500px;}
+.hmt th{color:var(--muted);padding:4px 6px;text-align:center;font-weight:400;font-size:10px;white-space:nowrap;}
+.hmt th.rh{text-align:left;}
+.hmt td{padding:4px 6px;text-align:center;font-size:10px;white-space:nowrap;border:1px solid rgba(255,255,255,.02);}
+.hmt td.rl{text-align:left;color:var(--muted);padding-right:12px;}
+.upd-bar{background:var(--s2);border-bottom:1px solid var(--border);padding:6px 40px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+.upd-btn{border:1px solid var(--border);padding:3px 10px;cursor:pointer;font-size:10px;color:var(--muted);background:transparent;font-family:'IBM Plex Mono',monospace;transition:.15s;}
+.upd-btn:hover{border-color:var(--gold);color:var(--gold);}
+footer{padding:14px 40px;border-top:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+@media(max-width:860px){
+  .header,.ctrl-bar,.tog-row,.tbl-sec,.upd-bar{padding:14px 16px;}
+  .kpis{grid-template-columns:1fr 1fr;}
+  .charts{display:block;}.card{margin-bottom:1px;}.card.full{grid-column:1;}
+  .tab{padding:11px 14px;}
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <div><h1>Рынок недвижимости Москвы</h1><p>СРЕДНЕВЗВЕШЕННЫЕ ЦЕНЫ И ДИНАМИКА</p></div>
+  <span class="badge" id="hdr-badge">ЗАГРУЗКА...</span>
+</div>
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <div class="load-bar"><div class="load-fill" id="load-fill"></div></div>
+  <div class="load-txt" id="load-txt">ЗАГРУЗКА ДАННЫХ...</div>
+</div>
+<div id="main" style="display:none">
+  <div class="upd-bar">
+    <span id="upd-info">—</span>
+    <button class="upd-btn" onclick="loadData()">↻ ОБНОВИТЬ ДАННЫЕ</button>
+  </div>
+  <div class="tabs">
+    <div class="tab active" id="tab-m" onclick="switchTab('m')">ВСЯ МОСКВА</div>
+    <div class="tab" id="tab-d" onclick="switchTab('d')">ПО ОКРУГУ</div>
+    <div class="tab" id="tab-r" onclick="switchTab('r')">АРЕНДА</div>
+  </div>
+
+  <!-- МОСКВА -->
+  <div class="panel active" id="panel-m">
+    <div class="ctrl-bar">
+      <div class="cg"><span class="cl">Период с</span><input type="month" id="mf" onchange="mUpdate()"></div>
+      <div class="cg"><span class="cl">Период по</span><input type="month" id="mt" onchange="mUpdate()"></div>
+      <div class="cg" style="flex:1"><span class="cl">Округа</span><div class="pills" id="m-pills"></div></div>
+    </div>
+    <div class="tog-row">
+      <label class="tog"><input type="checkbox" id="m-tog" onchange="mUpdate()"><span class="tog-sl"></span></label>
+      <span class="tog-lbl" onclick="var e=document.getElementById('m-tog');e.checked=!e.checked;mUpdate()">ПОКАЗАТЬ ТАБЛИЦУ ЗНАЧЕНИЙ</span>
+      <span style="margin-left:24px;color:var(--border)">|</span>
+      <label class="tog" style="margin-left:24px"><input type="checkbox" id="m-tog-opt" onchange="mToggleOpt()"><span class="tog-sl"></span></label>
+      <span class="tog-lbl" onclick="var e=document.getElementById('m-tog-opt');e.checked=!e.checked;mToggleOpt()">ПОКАЗАТЬ ДОПОЛНИТЕЛЬНЫЕ ГРАФИКИ ЦЕН</span>
+    </div>
+    <div class="kpis" style="grid-template-columns:3fr 1fr;">
+      <div class="kpi kpi-comment">
+        <div class="kpi-lbl">Комментарий аналитика</div>
+        <div class="kpi-comment-period" id="mk-comment-period">—</div>
+        <div class="kpi-comment-text" id="mk-comment-text">—</div>
+      </div>
+      <div class="kpi" style="display:flex;flex-direction:column;justify-content:space-between;">
+        <div><div class="kpi-lbl">Округов в выборке</div><div class="kpi-val" id="mk-n">—</div><div class="kpi-sub" id="mk-ns"></div></div>
+        <div style="margin-top:14px"><div class="kpi-lbl">Изм. цены к пред. мес.</div><div class="kpi-val" id="mk-c" style="font-size:20px">—</div><div class="kpi-sub">среднее по выборке</div></div>
+      </div>
+    </div>
+    <div class="charts">
+      <!-- КАРТА + ГИСТОГРАММА ОБЪЯВЛЕНИЙ ПО ОКРУГАМ -->
+      <div class="card full map-card">
+        <div class="ct">Карта цен по округам</div>
+        <div class="cs" id="m-map-sub">₽/м² · последний месяц · нажмите на округ для перехода</div>
+        <div class="map-wrap" id="m-map-wrap">
+          <svg id="m-map-svg" viewBox="0 0 1130 920" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMin meet"></svg>
+        </div>
+        <div class="map-legend">
+          <span class="map-legend-lbl" id="m-leg-min">—</span>
+          <canvas class="map-legend-bar" id="m-leg-bar" width="160" height="8"></canvas>
+          <span class="map-legend-lbl" id="m-leg-max">—</span>
+          <span class="map-legend-lbl" style="margin-left:12px;color:var(--muted)">· серый = нет данных</span>
+        </div>
+      </div>
+      <div class="card full"><div class="ct">Количество новых объявлений и объектов по округам</div><div class="cs" id="m-c8-sub">март 2026 · объявлений / объектов · коэффициент дублирования</div><div class="cw tall"><canvas id="m-c8"></canvas></div></div>
+
+      <!-- ДИНАМИКА ЦЕН — опциональные блоки под toggle -->
+      <div class="card full opt-block" id="opt-c1"><div class="ct">Динамика цен по округам</div><div class="cs">₽/м² · средневзвешенная цена</div><div class="cw tall"><canvas id="m-c1"></canvas></div></div>
+      <div class="card opt-block" id="opt-c2"><div class="ct">Изменение цены к предыдущему месяцу</div><div class="cs">% · последние 18 месяцев</div><div class="cw"><canvas id="m-c2"></canvas></div></div>
+      <div class="card opt-block" id="opt-c3"><div class="ct" id="m-c3-title">Цены по округам — последний месяц</div><div class="cs">₽/м²</div><div class="cw"><canvas id="m-c3"></canvas></div></div>
+      <div class="card full opt-block" id="opt-c4"><div class="ct" id="m-c4-title">Сравнение цен по годам</div><div class="cs" id="m-c4-sub">₽/м² · один и тот же месяц в разные годы</div><div class="cw tall"><canvas id="m-c4"></canvas></div></div>
+      <div class="card full"><div class="ct">Тепловая карта изменений цен</div><div class="cs">% к предыдущему месяцу · 12 месяцев</div><div class="hm-wrap"><div id="m-hm"></div></div></div>
+
+      <!-- БЛОКИ С КОММЕНТАРИЕМ -->
+      <div class="card full card-split">
+        <div class="split-chart"><div class="ct">Динамика объявлений и объектов</div><div class="cs">авг 2025 — март 2026</div><div class="cw tall"><canvas id="m-c5"></canvas></div></div>
+        <div class="split-comment"><div class="sc-lbl">КОММЕНТАРИЙ</div><div class="sc-text" id="m-sc1">За последние полгода количество новых объектов, выходивших на рынок ежемесячно, было неоднородным. Максимальный прирост новых объектов наблюдался в ноябре — около 26 тысяч. В январе прирост составил всего 20 тысяч. В феврале рынок дошёл до отметки 23 тысячи новых объектов в месяц, и в марте можно снова наблюдать пиковые значения — 25,6 тысяч.</div></div>
+      </div>
+      <div class="card full card-split">
+        <div class="split-chart"><div class="ct">Структура новых объектов по комнатности</div><div class="cs" id="m-c7-sub">март 2026</div><div class="cw"><canvas id="m-c7"></canvas></div></div>
+        <div class="split-comment"><div class="sc-lbl">КОММЕНТАРИЙ</div><div class="sc-text">В марте на рынок вышло больше всего однокомнатных квартир — 34%, двушек чуть меньше — 33%, трёхкомнатных — 24%, четырёхкомнатных — 7%, доля остальных около 2%.</div></div>
+      </div>
+      <div class="card full card-split">
+        <div class="split-chart"><div class="ct">Средняя стоимость м²</div><div class="cs">новые объявления vs все объекты · ₽/м²</div><div class="cw tall"><canvas id="m-c6"></canvas></div></div>
+        <div class="split-comment"><div class="sc-lbl">КОММЕНТАРИЙ</div><div class="sc-text">Средняя стоимость метра квадратного с октября 2025 имеет восходящую динамику. В новых объявлениях зачастую наблюдается завышение цены — разница между ценой в новых объявлениях и во всём массиве может составлять от 10% и больше. Общая стоимость квадратного метра по всем объектам с октября 2025 прибавляет 1–2% в месяц. За последние 4 месяца цена изменилась на 6–7%.</div></div>
+      </div>
+      <div class="card full"><div class="ct">Средняя стоимость м² и ключевая ставка ЦБ</div><div class="cs">вторичный рынок Москвы · окт 2025 — март 2026</div><div class="cw"><canvas id="m-c9"></canvas></div></div>
+    </div>
+    <div class="tbl-sec" id="m-tbl"><div class="tbl-title">Таблица значений</div><div style="overflow-x:auto" id="m-tbl-c"></div></div>
+  </div>
+
+  <!-- ОКРУГ -->
+  <div class="panel" id="panel-d">
+    <div class="ctrl-bar">
+      <div class="cg"><span class="cl">Округ</span><select id="d-sel" onchange="dDistChange()"></select></div>
+      <div class="cg"><span class="cl">Период с</span><input type="month" id="df" onchange="dUpdate()"></div>
+      <div class="cg"><span class="cl">Период по</span><input type="month" id="dt2" onchange="dUpdate()"></div>
+      <div class="cg" style="flex:1"><span class="cl">Муниципалитеты</span><div class="pills" id="d-pills"></div></div>
+    </div>
+    <div class="tog-row">
+      <label class="tog"><input type="checkbox" id="d-tog" onchange="dUpdate()"><span class="tog-sl"></span></label>
+      <span class="tog-lbl" onclick="var e=document.getElementById('d-tog');e.checked=!e.checked;dUpdate()">ПОКАЗАТЬ ТАБЛИЦУ ЗНАЧЕНИЙ</span>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><div class="kpi-lbl">Средняя цена</div><div class="kpi-val" id="dk-p">—</div><div class="kpi-sub" id="dk-ps"></div></div>
+      <div class="kpi"><div class="kpi-lbl">Изм. цены к пред. мес.</div><div class="kpi-val" id="dk-c">—</div><div class="kpi-sub">среднее по выборке</div></div>
+      <div class="kpi"><div class="kpi-lbl">Муниципалитетов</div><div class="kpi-val" id="dk-n">—</div><div class="kpi-sub" id="dk-ns"></div></div>
+      <div class="kpi"><div class="kpi-lbl">Период данных</div><div class="kpi-val" id="dk-d" style="font-size:16px">—</div><div class="kpi-sub">по муниципалитетам</div></div>
+    </div>
+    <div class="charts">
+      <!-- КАРТА ОКРУГА -->
+      <div class="card full map-card">
+        <div class="ct" id="d-map-title">Карта цен по муниципалитетам</div>
+        <div class="cs" id="d-map-sub">₽/м² · последний месяц</div>
+        <div class="map-wrap" id="d-map-wrap">
+          <svg id="d-map-svg" viewBox="0 0 1130 920" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMin meet"></svg>
+        </div>
+        <div class="map-legend">
+          <span class="map-legend-lbl" id="d-leg-min">—</span>
+          <canvas class="map-legend-bar" id="d-leg-bar" width="160" height="8"></canvas>
+          <span class="map-legend-lbl" id="d-leg-max">—</span>
+        </div>
+      </div>
+      <div class="card full"><div class="ct">Динамика цен по муниципалитетам</div><div class="cs">₽/м² · средневзвешенная цена</div><div class="cw tall"><canvas id="d-c1"></canvas></div></div>
+      <div class="card"><div class="ct">Изменение цены к предыдущему месяцу</div><div class="cs">% · выбранный период</div><div class="cw"><canvas id="d-c2"></canvas></div></div>
+      <div class="card"><div class="ct" id="d-c3-title">Цены — последний месяц</div><div class="cs">₽/м²</div><div class="cw"><canvas id="d-c3"></canvas></div></div>
+      <div class="card full"><div class="ct" id="d-c4-title">Сравнение цен по годам</div><div class="cs" id="d-c4-sub">₽/м²</div><div class="cw htall"><canvas id="d-c4"></canvas></div></div>
+      <div class="card full"><div class="ct">Тепловая карта изменений цен</div><div class="cs">% к предыдущему месяцу · 12 месяцев</div><div class="hm-wrap"><div id="d-hm"></div></div></div>
+    </div>
+    <div class="tbl-sec" id="d-tbl"><div class="tbl-title">Таблица значений</div><div style="overflow-x:auto" id="d-tbl-c"></div></div>
+  </div>
+
+  <!-- АРЕНДА -->
+  <div class="panel" id="panel-r">
+    <div class="ctrl-bar">
+      <div class="cg"><span class="cl">Период с</span><input type="month" id="rf" onchange="rUpdate()"></div>
+      <div class="cg"><span class="cl">Период по</span><input type="month" id="rt" onchange="rUpdate()"></div>
+      <div class="cg" style="flex:1"><span class="cl">Комнатность</span><div class="pills" id="r-cat-pills"></div></div>
+      <div class="cg" style="flex:2"><span class="cl">Округа</span><div class="pills" id="r-pills"></div></div>
+    </div>
+    <div class="tog-row">
+      <label class="tog"><input type="checkbox" id="r-tog" onchange="rUpdate()"><span class="tog-sl"></span></label>
+      <span class="tog-lbl" onclick="var e=document.getElementById('r-tog');e.checked=!e.checked;rUpdate()">ПОКАЗАТЬ ТАБЛИЦУ ЗНАЧЕНИЙ</span>
+    </div>
+    <div class="kpis">
+      <div class="kpi kpi-comment">
+        <div class="kpi-lbl">Комментарий аналитика</div>
+        <div class="kpi-comment-period" id="rk-comment-period">—</div>
+        <div class="kpi-comment-text" id="rk-comment-text">—</div>
+      </div>
+      <div class="kpi"><div class="kpi-lbl">Средняя цена</div><div class="kpi-val" id="rk-p">—</div><div class="kpi-sub" id="rk-ps"></div></div>
+      <div class="kpi"><div class="kpi-lbl">Изм. к пред. мес.</div><div class="kpi-val" id="rk-c">—</div><div class="kpi-sub">среднее по выборке</div></div>
+      <div class="kpi"><div class="kpi-lbl">Округов в выборке</div><div class="kpi-val" id="rk-n">—</div><div class="kpi-sub" id="rk-ns"></div></div>
+    </div>
+    <div class="charts">
+      <!-- КАРТА АРЕНДЫ -->
+      <div class="card full map-card">
+        <div class="ct" id="r-map-title">Карта аренды по округам</div>
+        <div class="cs" id="r-map-sub">₽/мес · последний месяц</div>
+        <div class="r-map-switcher" id="r-map-switcher"></div>
+        <div class="map-wrap" id="r-map-wrap">
+          <svg id="r-map-svg" viewBox="0 0 1130 920" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMin meet"></svg>
+        </div>
+        <div class="map-legend">
+          <span class="map-legend-lbl" id="r-leg-min">—</span>
+          <canvas class="map-legend-bar" id="r-leg-bar" width="160" height="8"></canvas>
+          <span class="map-legend-lbl" id="r-leg-max">—</span>
+          <span class="map-legend-lbl" style="margin-left:12px;color:var(--muted)">· серый = нет данных</span>
+        </div>
+      </div>
+      <div class="card full"><div class="ct">Динамика аренды по округам</div><div class="cs">₽/мес · средневзвешенная цена</div><div class="cw tall"><canvas id="r-c1"></canvas></div></div>
+      <div class="card"><div class="ct">Изменение цены к предыдущему месяцу</div><div class="cs">% · по округам</div><div class="cw"><canvas id="r-c2"></canvas></div></div>
+      <div class="card"><div class="ct" id="r-c3-title">Цены по округам — последний месяц</div><div class="cs">₽/мес</div><div class="cw"><canvas id="r-c3"></canvas></div></div>
+      <div class="card full"><div class="ct" id="r-c4-title">Сравнение по комнатности</div><div class="cs" id="r-c4-sub">₽/мес · последний месяц · по округам</div><div class="cw tall"><canvas id="r-c4"></canvas></div></div>
+      <div class="card full"><div class="ct">Тепловая карта изменений цен</div><div class="cs">% к предыдущему месяцу</div><div class="hm-wrap"><div id="r-hm"></div></div></div>
+    </div>
+    <div class="tbl-sec" id="r-tbl"><div class="tbl-title">Таблица значений</div><div style="overflow-x:auto" id="r-tbl-c"></div></div>
+  </div>
+</div>
+<div class="map-tooltip" id="map-tt"></div>
+<footer>
+  <span>РЫНОК НЕДВИЖИМОСТИ МОСКВЫ · ДАННЫЕ: ВЫБОРКА ~60% РЫНКА</span>
+  <span id="footer-info">—</span>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════
+// НАСТРОЙКИ
+// ═══════════════════════════════════════════
+const URL_MOS   = 'https://script.google.com/macros/s/AKfycbyukBGGeJhoe_YG2NUpP2f2wL6uj8O3HrHV3HryAo4NMJqiKBPfCO8gpqRtAXmD2Gdrsg/exec';
+const URL_APP1  = 'https://script.google.com/macros/s/AKfycby9lwQk01Umh_4izxP3QzNZ4PJnPb3dWU-v2SG7E4WhzRn-Yi9gKfdUeHiItdMQkIYnWg/exec';
+const URL_NEW   = 'https://script.google.com/macros/s/AKfycbzdD4_WPhE1FXs_ORwTlfhXrTf8isIRfcClRWCJ5BOjDZ2kW4CGy-HGzRwYFGzMBLxv/exec';
+const URL_GEO_AO   = 'https://wwwantimilnet.github.io/moscow-realty-dashboard/moscow_ao.geojson';
+const URL_GEO_MUN  = 'https://wwwantimilnet.github.io/moscow-realty-dashboard/moscow_districts.geojson';
+// ═══════════════════════════════════════════
+
+const CLR=['#c9a96e','#7eb8c9','#9b8fd4','#6ec9a0','#e07b7b','#d4af6e','#7ec9c0','#c96e9b','#a0c96e','#6e8dc9','#c9bf6e','#c99b6e','#89c97e','#c97eb8','#7e9bc9','#c9c97e','#e0a07b'];
+const YR_CLR=['#aab4be','#4a8fa8','#b8924a'];
+
+// ── КОММЕНТАРИИ АНАЛИТИКА (редактировать здесь)
+// Ключ: 'YYYY-MM', значение: {period: 'отображаемый период', text: 'текст комментария'}
+const ANALYST_COMMENTS = {
+  '2025-09': {
+    period: 'Сентябрь 2025',
+    text: 'Объём предложения городской недвижимости Москвы составляет порядка 35 614 лотов. Цены с наступлением осени немного разогнались — прирост до 1,5% в среднем по округам.'
+  },
+  '2025-10': {
+    period: 'Октябрь 2025',
+    text: 'В октябре 2025 года средняя стоимость квадратного метра по Москве начала восходящую динамику после летней стабилизации. С октября ЦБ РФ приступил к планомерному снижению ключевой ставки, что, вероятно, и послужило триггером для оживления рынка. Цены прибавляют в среднем 1–2% в месяц. Объём предложения держится на стабильном уровне — около 25–26 тысяч новых объектов в месяц.'
+  },
+  '2025-11': {
+    period: 'Ноябрь 2025',
+    text: 'Ноябрь зафиксировал максимальный за полугодие выход новых объектов — около 26 тысяч. Средняя цена метра по всем объектам продолжает рост: +1–2% к предыдущему месяцу. Разница между ценой в новых объявлениях и в общем массиве составляет от 10% и более — продавцы традиционно «экспериментируют» с ценой на старте.'
+  },
+  '2025-12': {
+    period: 'Декабрь 2025',
+    text: 'Декабрь показал сезонное снижение активности: количество новых объектов опустилось примерно до 21 тысячи. При этом ценовая динамика остаётся положительной — стоимость метра прибавляет 1–2% в месяц. ЦБ продолжает снижать ставку, формируя ожидания дальнейшего оживления рынка в начале 2026 года.'
+  },
+  '2026-01': {
+    period: 'Январь 2026',
+    text: 'Январь традиционно остаётся месяцем низкой активности: выход новых объектов упал до 20,5 тысяч — минимум за рассматриваемый период. Тем не менее средняя цена квадратного метра продолжила рост и уже прибавила около 6–7% с октября 2025 года. Рынок готовится к весеннему сезону на фоне снижающейся ключевой ставки.'
+  },
+  '2026-02': {
+    period: 'Февраль 2026',
+    text: 'В феврале рынок начал восстанавливаться после январского спада: новых объектов вышло около 23 тысяч. Восходящая ценовая динамика сохраняется — стоимость метра по всем объектам прибавляет 1–2% в месяц. За последние 4 месяца цена изменилась на 6–7%. Максимальный рост показывают Западный и Северо-Восточный АО.'
+  },
+  '2026-03': {
+    period: 'Март 2026',
+    text: 'Март 2026 года: рынок вошёл в активный весенний сезон. Появилось порядка 50 тысяч новых объявлений, которые представляют около 25,5 тысяч новых объектов. На один объект приходится в среднем 2 объявления из-за размещения на разных площадках. Прирост новых объектов по округам в среднем +15% к февралю. По абсолютному количеству новых объявлений лидируют ЗАО, ЮВАО и ЦАО. Средняя стоимость метра с октября 2025 имеет устойчивую восходящую динамику. Ключевая ставка ЦБ снизилась до 15% — рынок реагирует ростом активности и цен. Структура предложения: однокомнатные — 34%, двухкомнатные — 33%, трёхкомнатные — 24%, четырёхкомнатные — 7%, прочие — 2%.'
+  },
+};
+// ── ДОПОЛНИТЕЛЬНЫЕ ДАННЫЕ (устарело — данные теперь через URL_NEW)
+const EXTRA_MOS = [{"period": "2025-08", "district": "Восточный АО", "price": 301402, "volume": null, "price_change": null}, {"period": "2025-09", "district": "Восточный АО", "price": 307185, "volume": null, "price_change": 1.92}, {"period": "2025-10", "district": "Восточный АО", "price": 307415, "volume": null, "price_change": 0.07}, {"period": "2025-11", "district": "Восточный АО", "price": 311522, "volume": null, "price_change": 1.34}, {"period": "2025-12", "district": "Восточный АО", "price": 313798, "volume": null, "price_change": 0.73}, {"period": "2026-01", "district": "Восточный АО", "price": 321736, "volume": null, "price_change": 2.53}, {"period": "2026-02", "district": "Восточный АО", "price": 329683, "volume": null, "price_change": 2.47}, {"period": "2026-03", "district": "Восточный АО", "price": 329683, "volume": null, "price_change": 0.0}, {"period": "2025-08", "district": "Западный АО", "price": 390427, "volume": null, "price_change": null}, {"period": "2025-09", "district": "Западный АО", "price": 396290, "volume": null, "price_change": 1.5}, {"period": "2025-10", "district": "Западный АО", "price": 398077, "volume": null, "price_change": 0.45}, {"period": "2025-11", "district": "Западный АО", "price": 404904, "volume": null, "price_change": 1.71}, {"period": "2025-12", "district": "Западный АО", "price": 412549, "volume": null, "price_change": 1.89}, {"period": "2026-01", "district": "Западный АО", "price": 421301, "volume": null, "price_change": 2.12}, {"period": "2026-02", "district": "Западный АО", "price": 421821, "volume": null, "price_change": 0.12}, {"period": "2026-03", "district": "Западный АО", "price": 421821, "volume": null, "price_change": 0.0}, {"period": "2025-08", "district": "Зеленоградский АО", "price": 245622, "volume": null, "price_change": null}, {"period": "2025-09", "district": "Зеленоградский АО", "price": 247879, "volume": null, "price_change": 0.92}, {"period": "2025-10", "district": "Зеленоградский АО", "price": 250477, "volume": null, "price_change": 1.05}, {"period": "2025-11", "district": "Зеленоградский АО", "price": 255874, "volume": null, "price_change": 2.15}, {"period": "2025-12", "district": "Зеленоградский АО", "price": 259071, "volume": null, "price_change": 1.25}, {"period": "2026-01", "district": "Зеленоградский АО", "price": 263880, "volume": null, "price_change": 1.86}, {"period": "2026-02", "district": "Зеленоградский АО", "price": 271433, "volume": null, "price_change": 2.86}, {"period": "2026-03", "district": "Зеленоградский АО", "price": 271433, "volume": null, "price_change": 0.0}, {"period": "2025-08", "district": "Новомосковский", "price": 237173, "volume": null, "price_change": null}, {"period": "2025-09", "district": "Новомосковский", "price": 237903, "volume": null, "price_change": 0.31}, {"period": "2025-10", "district": "Новомосковский", "price": 240540, "volume": null, "price_change": 1.11}, {"period": "2025-11", "district": "Новомосковский", "price": 244583, "volume": null, "price_change": 1.68}, {"period": "2025-12", "district": "Новомосковский", "price": 249060, "volume": null, "price_change": 1.83}, {"period": "2026-01", "district": "Новомосковский", "price": 254569, "volume": null, "price_change": 2.21}, {"period": "2026-02", "district": "Новомосковский", "price": 262995, "volume": null, "price_change": 3.31}, {"period": "2026-03", "district": "Новомосковский", "price": 262995, "volume": null, "price_change": 0.0}, {"period": "2025-08", "district": "Северный АО", "price": 348720, "volume": null, "price_change": null}, {"period": "2025-09", "district": "Северный АО", "price": 356021, "volume": null, "price_change": 2.09}, {"period": "2025-10", "district": "Северный АО", "price": 354568, "volume": null, "price_change": -0.41}, {"period": "2025-11", "district": "Северный АО", "price": 360794, "volume": null, "price_change": 1.76}, {"period": "2025-12", "district": "Северный АО", "price": 365625, "volume": null, "price_change": 1.34}, {"period": "2026-01", "district": "Северный АО", "price": 370072, "volume": null, "price_change": 1.22}, {"period": "2026-02", "district": "Северный АО", "price": 376828, "volume": null, "price_change": 1.83}, {"period": "2026-03", "district": "Северный АО", "price": 376828, "volume": null, "price_change": 0.0}, {"period": "2025-08", "district": "Северо-Восточный АО", "price": 321601, "volume": null, "price_change": null}, {"period": "2025-09", "district": "Северо-Восточный АО", "price": 327724, "volume": null, "price_change": 1.9}, {"period": "2025-10", "district": "Северо-Восточный АО", "price": 330797, "volume": null, "price_change": 0.94}, {"period": "2025-11", "district": "Северо-Восточный АО", "price": 336036, "volume": null, "price_change": 1.58}, {"period": "2025-12", "district": "Северо-Восточный АО", "price": 340107, "volume": null, "price_change": 1.21}, {"period": "2026-01", "district": "Северо-Восточный АО", "price": 348467, "volume": null, "price_change": 2.46}, {"period": "2026-02", "district": "Северо-Восточный АО", "price": 357535, "volume": null, "price_change": 2.6}, {"period": "2026-03", "district": "Северо-Восточный АО", "price": 357535, "volume": null, "price_change": 0.0}, {"period": "2025-08", "district": "Северо-Западный АО", "price": 341954, "volume": null, "price_change": null}, {"period": "2025-09", "district": "Северо-Западный АО", "price": 345374, "volume": null, "price_change": 1.0}, {"period": "2025-10", "district": "Северо-Западный АО", "price": 352414, "volume": null, "price_change": 2.04}, {"period": "2025-11", "district": "Северо-Западный АО", "price": 359462, "volume": null, "price_change": 2.0}, {"period": "2025-12", "district": "Северо-Западный АО", "price": 365672, "volume": null, "price_change": 1.73}, {"period": "2026-01", "district": "Северо-Западный АО", "price": 370411, "volume": null, "price_change": 1.3}, {"period": "2026-02", "district": "Северо-Западный АО", "price": 376096, "volume": null, "price_change": 1.53}, {"period": "2026-03", "district": "Северо-Западный АО", "price": 376096, "volume": null, "price_change": 0.0}, {"period": "2025-08", "district": "Троицкий", "price": 182008, "volume": null, "price_change": null}, {"period": "2025-09", "district": "Троицкий", "price": 183184, "volume": null, "price_change": 0.65}, {"period": "2025-10", "district": "Троицкий", "price": 183372, "volume": null, "price_change": 0.1}, {"period": "2025-11", "district": "Троицкий", "price": 185718, "volume": null, "price_change": 1.28}, {"period": "2025-12", "district": "Троицкий", "price": 188272, "volume": null, "price_change": 1.38}, {"period": "2026-01", "district": "Троицкий", "price": 196880, "volume": null, "price_change": 4.57}, {"period": "2026-02", "district": "Троицкий", "price": 200311, "volume": null, "price_change": 1.74}, {"period": "2026-03", "district": "Троицкий", "price": 200311, "volume": null, "price_change": 0.0}, {"period": "2025-08", "district": "Центральный АО", "price": 691577, "volume": null, "price_change": null}, {"period": "2025-09", "district": "Центральный АО", "price": 708759, "volume": null, "price_change": 2.48}, {"period": "2025-10", "district": "Центральный АО", "price": 713989, "volume": null, "price_change": 0.74}, {"period": "2025-11", "district": "Центральный АО", "price": 706729, "volume": null, "price_change": -1.02}, {"period": "2025-12", "district": "Центральный АО", "price": 707861, "volume": null, "price_change": 0.16}, {"period": "2026-01", "district": "Центральный АО", "price": 715134, "volume": null, "price_change": 1.03}, {"period": "2026-02", "district": "Центральный АО", "price": 718943, "volume": null, "price_change": 0.53}, {"period": "2026-03", "district": "Центральный АО", "price": 718943, "volume": null, "price_change": 0.0}, {"period": "2025-08", "district": "Юго-Восточный АО", "price": 293797, "volume": null, "price_change": null}, {"period": "2025-09", "district": "Юго-Восточный АО", "price": 296124, "volume": null, "price_change": 0.79}, {"period": "2025-10", "district": "Юго-Восточный АО", "price": 297916, "volume": null, "price_change": 0.61}, {"period": "2025-11", "district": "Юго-Восточный АО", "price": 301487, "volume": null, "price_change": 1.2}, {"period": "2025-12", "district": "Юго-Восточный АО", "price": 306380, "volume": null, "price_change": 1.62}, {"period": "2026-01", "district": "Юго-Восточный АО", "price": 314632, "volume": null, "price_change": 2.69}, {"period": "2026-02", "district": "Юго-Восточный АО", "price": 321049, "volume": null, "price_change": 2.04}, {"period": "2026-03", "district": "Юго-Восточный АО", "price": 321049, "volume": null, "price_change": 0.0}, {"period": "2025-08", "district": "Юго-Западный АО", "price": 347494, "volume": null, "price_change": null}, {"period": "2025-09", "district": "Юго-Западный АО", "price": 351555, "volume": null, "price_change": 1.17}, {"period": "2025-10", "district": "Юго-Западный АО", "price": 355954, "volume": null, "price_change": 1.25}, {"period": "2025-11", "district": "Юго-Западный АО", "price": 362580, "volume": null, "price_change": 1.86}, {"period": "2025-12", "district": "Юго-Западный АО", "price": 367405, "volume": null, "price_change": 1.33}, {"period": "2026-01", "district": "Юго-Западный АО", "price": 375753, "volume": null, "price_change": 2.27}, {"period": "2026-02", "district": "Юго-Западный АО", "price": 384377, "volume": null, "price_change": 2.3}, {"period": "2026-03", "district": "Юго-Западный АО", "price": 384377, "volume": null, "price_change": 0.0}, {"period": "2025-08", "district": "Южный АО", "price": 319461, "volume": null, "price_change": null}, {"period": "2025-09", "district": "Южный АО", "price": 322235, "volume": null, "price_change": 0.87}, {"period": "2025-10", "district": "Южный АО", "price": 324814, "volume": null, "price_change": 0.8}, {"period": "2025-11", "district": "Южный АО", "price": 328860, "volume": null, "price_change": 1.25}, {"period": "2025-12", "district": "Южный АО", "price": 334395, "volume": null, "price_change": 1.68}, {"period": "2026-01", "district": "Южный АО", "price": 344005, "volume": null, "price_change": 2.87}, {"period": "2026-02", "district": "Южный АО", "price": 352214, "volume": null, "price_change": 2.39}, {"period": "2026-03", "district": "Южный АО", "price": 352214, "volume": null, "price_change": 0.0}];
+const EXTRA_MUNI = {"Восточный АО": {"Богородское": [{"period": "2025-10", "price": 324846, "price_change": null, "volume": null}, {"period": "2025-11", "price": 331174, "price_change": 1.95, "volume": null}, {"period": "2025-12", "price": 340620, "price_change": 2.85, "volume": null}, {"period": "2026-01", "price": 349003, "price_change": 2.46, "volume": null}, {"period": "2026-02", "price": 351624, "price_change": 0.75, "volume": null}], "Вешняки": [{"period": "2025-10", "price": 269543, "price_change": null, "volume": null}, {"period": "2025-11", "price": 273067, "price_change": 1.31, "volume": null}, {"period": "2025-12", "price": 273667, "price_change": 0.22, "volume": null}, {"period": "2026-01", "price": 277856, "price_change": 1.53, "volume": null}, {"period": "2026-02", "price": 292419, "price_change": 5.24, "volume": null}], "Восточное Измайлово": [{"period": "2025-10", "price": 309993, "price_change": null, "volume": null}, {"period": "2025-11", "price": 311518, "price_change": 0.49, "volume": null}, {"period": "2025-12", "price": 311751, "price_change": 0.07, "volume": null}, {"period": "2026-01", "price": 317426, "price_change": 1.82, "volume": null}, {"period": "2026-02", "price": 320865, "price_change": 1.08, "volume": null}], "Восточный": [{"period": "2025-10", "price": 232061, "price_change": null, "volume": null}, {"period": "2025-11", "price": 226191, "price_change": -2.53, "volume": null}, {"period": "2025-12", "price": 229365, "price_change": 1.4, "volume": null}, {"period": "2026-01", "price": 224243, "price_change": -2.23, "volume": null}, {"period": "2026-02", "price": 237145, "price_change": 5.75, "volume": null}], "Гольяново": [{"period": "2025-10", "price": 278939, "price_change": null, "volume": null}, {"period": "2025-11", "price": 284640, "price_change": 2.04, "volume": null}, {"period": "2025-12", "price": 285115, "price_change": 0.17, "volume": null}, {"period": "2026-01", "price": 297891, "price_change": 4.48, "volume": null}, {"period": "2026-02", "price": 304217, "price_change": 2.12, "volume": null}], "Ивановское": [{"period": "2025-10", "price": 266392, "price_change": null, "volume": null}, {"period": "2025-11", "price": 275414, "price_change": 3.39, "volume": null}, {"period": "2025-12", "price": 284948, "price_change": 3.46, "volume": null}, {"period": "2026-01", "price": 288850, "price_change": 1.37, "volume": null}, {"period": "2026-02", "price": 298505, "price_change": 3.34, "volume": null}], "Измайлово": [{"period": "2025-10", "price": 316358, "price_change": null, "volume": null}, {"period": "2025-11", "price": 318813, "price_change": 0.78, "volume": null}, {"period": "2025-12", "price": 322000, "price_change": 1.0, "volume": null}, {"period": "2026-01", "price": 333146, "price_change": 3.46, "volume": null}, {"period": "2026-02", "price": 340986, "price_change": 2.35, "volume": null}], "Косино-Ухтомский": [{"period": "2025-10", "price": 268742, "price_change": null, "volume": null}, {"period": "2025-11", "price": 274140, "price_change": 2.01, "volume": null}, {"period": "2025-12", "price": 272810, "price_change": -0.49, "volume": null}, {"period": "2026-01", "price": 277290, "price_change": 1.64, "volume": null}, {"period": "2026-02", "price": 282245, "price_change": 1.79, "volume": null}], "Метрогородок": [{"period": "2025-10", "price": 300105, "price_change": null, "volume": null}, {"period": "2025-11", "price": 305275, "price_change": 1.72, "volume": null}, {"period": "2025-12", "price": 310036, "price_change": 1.56, "volume": null}, {"period": "2026-01", "price": 323507, "price_change": 4.34, "volume": null}, {"period": "2026-02", "price": 325157, "price_change": 0.51, "volume": null}], "Новогиреево": [{"period": "2025-10", "price": 303257, "price_change": null, "volume": null}, {"period": "2025-11", "price": 306258, "price_change": 0.99, "volume": null}, {"period": "2025-12", "price": 315634, "price_change": 3.06, "volume": null}, {"period": "2026-01", "price": 329451, "price_change": 4.38, "volume": null}, {"period": "2026-02", "price": 343834, "price_change": 4.37, "volume": null}], "Новокосино": [{"period": "2025-10", "price": 280424, "price_change": null, "volume": null}, {"period": "2025-11", "price": 285039, "price_change": 1.65, "volume": null}, {"period": "2025-12", "price": 291087, "price_change": 2.12, "volume": null}, {"period": "2026-01", "price": 307647, "price_change": 5.69, "volume": null}, {"period": "2026-02", "price": 310746, "price_change": 1.01, "volume": null}], "Перово": [{"period": "2025-10", "price": 299511, "price_change": null, "volume": null}, {"period": "2025-11", "price": 302614, "price_change": 1.04, "volume": null}, {"period": "2025-12", "price": 305492, "price_change": 0.95, "volume": null}, {"period": "2026-01", "price": 311806, "price_change": 2.07, "volume": null}, {"period": "2026-02", "price": 317638, "price_change": 1.87, "volume": null}], "Преображенское": [{"period": "2025-10", "price": 331684, "price_change": null, "volume": null}, {"period": "2025-11", "price": 340876, "price_change": 2.77, "volume": null}, {"period": "2025-12", "price": 345129, "price_change": 1.25, "volume": null}, {"period": "2026-01", "price": 357725, "price_change": 3.65, "volume": null}, {"period": "2026-02", "price": 363855, "price_change": 1.71, "volume": null}], "Северное Измайлово": [{"period": "2025-10", "price": 304487, "price_change": null, "volume": null}, {"period": "2025-11", "price": 307207, "price_change": 0.89, "volume": null}, {"period": "2025-12", "price": 310860, "price_change": 1.19, "volume": null}, {"period": "2026-01", "price": 321528, "price_change": 3.43, "volume": null}, {"period": "2026-02", "price": 331797, "price_change": 3.19, "volume": null}], "Соколиная Гора": [{"period": "2025-10", "price": 343323, "price_change": null, "volume": null}, {"period": "2025-11", "price": 339047, "price_change": -1.25, "volume": null}, {"period": "2025-12", "price": 338367, "price_change": -0.2, "volume": null}, {"period": "2026-01", "price": 338168, "price_change": -0.06, "volume": null}, {"period": "2026-02", "price": 344805, "price_change": 1.96, "volume": null}], "Сокольники": [{"period": "2025-10", "price": 424420, "price_change": null, "volume": null}, {"period": "2025-11", "price": 421832, "price_change": -0.61, "volume": null}, {"period": "2025-12", "price": 412613, "price_change": -2.19, "volume": null}, {"period": "2026-01", "price": 420682, "price_change": 1.96, "volume": null}, {"period": "2026-02", "price": 425218, "price_change": 1.08, "volume": null}]}, "Западный АО": {"Внуково": [{"period": "2025-10", "price": 218873, "price_change": null, "volume": null}, {"period": "2025-11", "price": 224049, "price_change": 2.36, "volume": null}, {"period": "2025-12", "price": 230951, "price_change": 3.08, "volume": null}, {"period": "2026-01", "price": 228854, "price_change": -0.91, "volume": null}, {"period": "2026-02", "price": 231318, "price_change": 1.08, "volume": null}], "Дорогомилово": [{"period": "2025-10", "price": 592091, "price_change": null, "volume": null}, {"period": "2025-11", "price": 594307, "price_change": 0.37, "volume": null}, {"period": "2025-12", "price": 605491, "price_change": 1.88, "volume": null}, {"period": "2026-01", "price": 617518, "price_change": 1.99, "volume": null}, {"period": "2026-02", "price": 601083, "price_change": -2.66, "volume": null}], "Крылатское": [{"period": "2025-10", "price": 400373, "price_change": null, "volume": null}, {"period": "2025-11", "price": 414653, "price_change": 3.57, "volume": null}, {"period": "2025-12", "price": 427682, "price_change": 3.14, "volume": null}, {"period": "2026-01", "price": 433877, "price_change": 1.45, "volume": null}, {"period": "2026-02", "price": 438738, "price_change": 1.12, "volume": null}], "Кунцево": [{"period": "2025-10", "price": 357233, "price_change": null, "volume": null}, {"period": "2025-11", "price": 364792, "price_change": 2.12, "volume": null}, {"period": "2025-12", "price": 371977, "price_change": 1.97, "volume": null}, {"period": "2026-01", "price": 377633, "price_change": 1.52, "volume": null}, {"period": "2026-02", "price": 388249, "price_change": 2.81, "volume": null}], "Можайский": [{"period": "2025-10", "price": 334169, "price_change": null, "volume": null}, {"period": "2025-11", "price": 341207, "price_change": 2.11, "volume": null}, {"period": "2025-12", "price": 343118, "price_change": 0.56, "volume": null}, {"period": "2026-01", "price": 346237, "price_change": 0.91, "volume": null}, {"period": "2026-02", "price": 350887, "price_change": 1.34, "volume": null}], "Ново-Переделкино": [{"period": "2025-10", "price": 272407, "price_change": null, "volume": null}, {"period": "2025-11", "price": 276554, "price_change": 1.52, "volume": null}, {"period": "2025-12", "price": 278131, "price_change": 0.57, "volume": null}, {"period": "2026-01", "price": 280873, "price_change": 0.99, "volume": null}, {"period": "2026-02", "price": 286940, "price_change": 2.16, "volume": null}], "Очаково-Матвеевское": [{"period": "2025-10", "price": 351846, "price_change": null, "volume": null}, {"period": "2025-11", "price": 358569, "price_change": 1.91, "volume": null}, {"period": "2025-12", "price": 365508, "price_change": 1.94, "volume": null}, {"period": "2026-01", "price": 372426, "price_change": 1.89, "volume": null}, {"period": "2026-02", "price": 380703, "price_change": 2.22, "volume": null}], "Проспект Вернадского": [{"period": "2025-10", "price": 466359, "price_change": null, "volume": null}, {"period": "2025-11", "price": 471447, "price_change": 1.09, "volume": null}, {"period": "2025-12", "price": 480466, "price_change": 1.91, "volume": null}, {"period": "2026-01", "price": 476217, "price_change": -0.88, "volume": null}, {"period": "2026-02", "price": 473776, "price_change": -0.51, "volume": null}], "Раменки": [{"period": "2025-10", "price": 471103, "price_change": null, "volume": null}, {"period": "2025-11", "price": 469923, "price_change": -0.25, "volume": null}, {"period": "2025-12", "price": 469572, "price_change": -0.07, "volume": null}, {"period": "2026-01", "price": 480010, "price_change": 2.22, "volume": null}, {"period": "2026-02", "price": 467606, "price_change": -2.58, "volume": null}], "Солнцево": [{"period": "2025-10", "price": 288754, "price_change": null, "volume": null}, {"period": "2025-11", "price": 292187, "price_change": 1.19, "volume": null}, {"period": "2025-12", "price": 294041, "price_change": 0.63, "volume": null}, {"period": "2026-01", "price": 303466, "price_change": 3.21, "volume": null}, {"period": "2026-02", "price": 307770, "price_change": 1.42, "volume": null}], "Тропарево-Никулино": [{"period": "2025-10", "price": 401140, "price_change": null, "volume": null}, {"period": "2025-11", "price": 405193, "price_change": 1.01, "volume": null}, {"period": "2025-12", "price": 411295, "price_change": 1.51, "volume": null}, {"period": "2026-01", "price": 419654, "price_change": 2.03, "volume": null}, {"period": "2026-02", "price": 414441, "price_change": -1.24, "volume": null}], "Филевский Парк": [{"period": "2025-10", "price": 414017, "price_change": null, "volume": null}, {"period": "2025-11", "price": 418889, "price_change": 1.18, "volume": null}, {"period": "2025-12", "price": 419850, "price_change": 0.23, "volume": null}, {"period": "2026-01", "price": 426526, "price_change": 1.59, "volume": null}, {"period": "2026-02", "price": 435956, "price_change": 2.21, "volume": null}], "Фили-Давыдково": [{"period": "2025-10", "price": 405772, "price_change": null, "volume": null}, {"period": "2025-11", "price": 409674, "price_change": 0.96, "volume": null}, {"period": "2025-12", "price": 410722, "price_change": 0.26, "volume": null}, {"period": "2026-01", "price": 415390, "price_change": 1.14, "volume": null}, {"period": "2026-02", "price": 432467, "price_change": 4.11, "volume": null}]}, "Зеленоградский АО": {"10-й": [{"period": "2025-10", "price": 263649, "price_change": null, "volume": null}, {"period": "2025-11", "price": 246147, "price_change": -6.64, "volume": null}], "14-й": [{"period": "2025-10", "price": 263143, "price_change": null, "volume": null}, {"period": "2025-11", "price": 293012, "price_change": 11.35, "volume": null}, {"period": "2025-12", "price": 295359, "price_change": 0.8, "volume": null}, {"period": "2026-01", "price": 271576, "price_change": -8.05, "volume": null}, {"period": "2026-02", "price": 269145, "price_change": -0.9, "volume": null}], "15-й": [{"period": "2025-10", "price": 248589, "price_change": null, "volume": null}, {"period": "2025-11", "price": 253704, "price_change": 2.06, "volume": null}, {"period": "2025-12", "price": 257223, "price_change": 1.39, "volume": null}, {"period": "2026-01", "price": 317495, "price_change": 23.43, "volume": null}], "17-й": [{"period": "2025-10", "price": 298595, "price_change": null, "volume": null}, {"period": "2025-11", "price": 320236, "price_change": 7.25, "volume": null}, {"period": "2025-12", "price": 314692, "price_change": -1.73, "volume": null}, {"period": "2026-01", "price": 270293, "price_change": -14.11, "volume": null}, {"period": "2026-02", "price": 270506, "price_change": 0.08, "volume": null}], "19-й": [{"period": "2025-10", "price": 275011, "price_change": null, "volume": null}, {"period": "2025-11", "price": 269511, "price_change": -2.0, "volume": null}, {"period": "2025-12", "price": 265243, "price_change": -1.58, "volume": null}, {"period": "2026-01", "price": 262407, "price_change": -1.07, "volume": null}, {"period": "2026-02", "price": 294639, "price_change": 12.28, "volume": null}], "Матушкино": [{"period": "2025-10", "price": 481400, "price_change": null, "volume": null}, {"period": "2025-11", "price": 378008, "price_change": -21.48, "volume": null}, {"period": "2025-12", "price": 443107, "price_change": 17.22, "volume": null}, {"period": "2026-01", "price": 432166, "price_change": -2.47, "volume": null}, {"period": "2026-02", "price": 432166, "price_change": 0.0, "volume": null}]}, "Новомосковский": {"Внуковское": [{"period": "2025-10", "price": 268025, "price_change": null, "volume": null}, {"period": "2025-11", "price": 263509, "price_change": -1.68, "volume": null}, {"period": "2025-12", "price": 253423, "price_change": -3.83, "volume": null}, {"period": "2026-01", "price": 251008, "price_change": -0.95, "volume": null}, {"period": "2026-02", "price": 265230, "price_change": 5.67, "volume": null}], "Воскресенское": [{"period": "2025-10", "price": 206681, "price_change": null, "volume": null}, {"period": "2025-11", "price": 207449, "price_change": 0.37, "volume": null}, {"period": "2025-12", "price": 211693, "price_change": 2.05, "volume": null}, {"period": "2026-01", "price": 156460, "price_change": -26.09, "volume": null}, {"period": "2026-02", "price": 191584, "price_change": 22.45, "volume": null}], "Десеновское": [{"period": "2025-10", "price": 218637, "price_change": null, "volume": null}, {"period": "2025-11", "price": 219071, "price_change": 0.2, "volume": null}, {"period": "2025-12", "price": 223830, "price_change": 2.17, "volume": null}, {"period": "2026-01", "price": 226894, "price_change": 1.37, "volume": null}, {"period": "2026-02", "price": 229809, "price_change": 1.28, "volume": null}], "Кокошкино": [{"period": "2025-10", "price": 188406, "price_change": null, "volume": null}, {"period": "2025-11", "price": 189367, "price_change": 0.51, "volume": null}, {"period": "2025-12", "price": 199379, "price_change": 5.29, "volume": null}, {"period": "2026-01", "price": 210755, "price_change": 5.71, "volume": null}, {"period": "2026-02", "price": 225256, "price_change": 6.88, "volume": null}], "Марушкинское": [{"period": "2025-10", "price": 192644, "price_change": null, "volume": null}, {"period": "2025-11", "price": 191032, "price_change": -0.84, "volume": null}, {"period": "2025-12", "price": 206571, "price_change": 8.13, "volume": null}, {"period": "2026-01", "price": 208122, "price_change": 0.75, "volume": null}, {"period": "2026-02", "price": 212928, "price_change": 2.31, "volume": null}], "Московский": [{"period": "2025-10", "price": 275933, "price_change": null, "volume": null}, {"period": "2025-11", "price": 279672, "price_change": 1.36, "volume": null}, {"period": "2025-12", "price": 279648, "price_change": -0.01, "volume": null}, {"period": "2026-01", "price": 275061, "price_change": -1.64, "volume": null}, {"period": "2026-02", "price": 281274, "price_change": 2.26, "volume": null}], "Мосрентген": [{"period": "2025-10", "price": 233466, "price_change": null, "volume": null}, {"period": "2025-11", "price": 232780, "price_change": -0.29, "volume": null}, {"period": "2025-12", "price": 233110, "price_change": 0.14, "volume": null}, {"period": "2026-01", "price": 239221, "price_change": 2.62, "volume": null}, {"period": "2026-02", "price": 240252, "price_change": 0.43, "volume": null}], "Рязановское": [{"period": "2025-10", "price": 207330, "price_change": null, "volume": null}, {"period": "2025-11", "price": 210571, "price_change": 1.56, "volume": null}, {"period": "2025-12", "price": 206551, "price_change": -1.91, "volume": null}, {"period": "2026-01", "price": 207511, "price_change": 0.46, "volume": null}, {"period": "2026-02", "price": 211674, "price_change": 2.01, "volume": null}], "Сосенское": [{"period": "2025-10", "price": 287360, "price_change": null, "volume": null}, {"period": "2025-11", "price": 291739, "price_change": 1.52, "volume": null}, {"period": "2025-12", "price": 296973, "price_change": 1.79, "volume": null}, {"period": "2026-01", "price": 308227, "price_change": 3.79, "volume": null}, {"period": "2026-02", "price": 328081, "price_change": 6.44, "volume": null}], "Филимонковское": [{"period": "2025-10", "price": 195739, "price_change": null, "volume": null}, {"period": "2025-11", "price": 213574, "price_change": 9.11, "volume": null}, {"period": "2025-12", "price": 212825, "price_change": -0.35, "volume": null}, {"period": "2026-01", "price": 223924, "price_change": 5.22, "volume": null}, {"period": "2026-02", "price": 230954, "price_change": 3.14, "volume": null}], "Щербинка": [{"period": "2025-10", "price": 205734, "price_change": null, "volume": null}, {"period": "2025-11", "price": 209515, "price_change": 1.84, "volume": null}, {"period": "2025-12", "price": 209608, "price_change": 0.04, "volume": null}, {"period": "2026-01", "price": 216039, "price_change": 3.07, "volume": null}, {"period": "2026-02", "price": 225744, "price_change": 4.49, "volume": null}]}, "Северный АО": {"Аэропорт": [{"period": "2025-10", "price": 408122, "price_change": null, "volume": null}, {"period": "2025-11", "price": 416496, "price_change": 2.05, "volume": null}, {"period": "2025-12", "price": 408305, "price_change": -1.97, "volume": null}, {"period": "2026-01", "price": 401684, "price_change": -1.62, "volume": null}, {"period": "2026-02", "price": 416054, "price_change": 3.58, "volume": null}], "Беговой": [{"period": "2025-10", "price": 440564, "price_change": null, "volume": null}, {"period": "2025-11", "price": 439922, "price_change": -0.15, "volume": null}, {"period": "2025-12", "price": 444652, "price_change": 1.08, "volume": null}, {"period": "2026-01", "price": 456716, "price_change": 2.71, "volume": null}, {"period": "2026-02", "price": 462483, "price_change": 1.26, "volume": null}], "Бескудниковский": [{"period": "2025-10", "price": 335527, "price_change": null, "volume": null}, {"period": "2025-11", "price": 342600, "price_change": 2.11, "volume": null}, {"period": "2025-12", "price": 346629, "price_change": 1.18, "volume": null}, {"period": "2026-01", "price": 349120, "price_change": 0.72, "volume": null}, {"period": "2026-02", "price": 359552, "price_change": 2.99, "volume": null}], "Войковский": [{"period": "2025-10", "price": 367896, "price_change": null, "volume": null}, {"period": "2025-11", "price": 374306, "price_change": 1.74, "volume": null}, {"period": "2025-12", "price": 375647, "price_change": 0.36, "volume": null}, {"period": "2026-01", "price": 378218, "price_change": 0.68, "volume": null}, {"period": "2026-02", "price": 386232, "price_change": 2.12, "volume": null}], "Восточное Дегунино": [{"period": "2025-10", "price": 282871, "price_change": null, "volume": null}, {"period": "2025-11", "price": 294091, "price_change": 3.97, "volume": null}, {"period": "2025-12", "price": 303577, "price_change": 3.23, "volume": null}, {"period": "2026-01", "price": 304674, "price_change": 0.36, "volume": null}, {"period": "2026-02", "price": 315700, "price_change": 3.62, "volume": null}], "Головинский": [{"period": "2025-10", "price": 334666, "price_change": null, "volume": null}, {"period": "2025-11", "price": 337876, "price_change": 0.96, "volume": null}, {"period": "2025-12", "price": 343542, "price_change": 1.68, "volume": null}, {"period": "2026-01", "price": 348361, "price_change": 1.4, "volume": null}, {"period": "2026-02", "price": 355687, "price_change": 2.1, "volume": null}], "Дмитровский": [{"period": "2025-10", "price": 294727, "price_change": null, "volume": null}, {"period": "2025-11", "price": 298869, "price_change": 1.41, "volume": null}, {"period": "2025-12", "price": 303530, "price_change": 1.56, "volume": null}, {"period": "2026-01", "price": 313772, "price_change": 3.37, "volume": null}, {"period": "2026-02", "price": 324019, "price_change": 3.27, "volume": null}], "Западное Дегунино": [{"period": "2025-10", "price": 304193, "price_change": null, "volume": null}, {"period": "2025-11", "price": 300371, "price_change": -1.26, "volume": null}, {"period": "2025-12", "price": 318336, "price_change": 5.98, "volume": null}, {"period": "2026-01", "price": 321513, "price_change": 1.0, "volume": null}, {"period": "2026-02", "price": 326428, "price_change": 1.53, "volume": null}], "Коптево": [{"period": "2025-10", "price": 330535, "price_change": null, "volume": null}, {"period": "2025-11", "price": 334751, "price_change": 1.28, "volume": null}, {"period": "2025-12", "price": 332654, "price_change": -0.63, "volume": null}, {"period": "2026-01", "price": 343094, "price_change": 3.14, "volume": null}, {"period": "2026-02", "price": 351021, "price_change": 2.31, "volume": null}], "Левобережный": [{"period": "2025-10", "price": 361587, "price_change": null, "volume": null}, {"period": "2025-11", "price": 356325, "price_change": -1.46, "volume": null}, {"period": "2025-12", "price": 362983, "price_change": 1.87, "volume": null}, {"period": "2026-01", "price": 371066, "price_change": 2.23, "volume": null}, {"period": "2026-02", "price": 379496, "price_change": 2.27, "volume": null}], "Молжаниновский": [{"period": "2025-10", "price": 210690, "price_change": null, "volume": null}, {"period": "2025-11", "price": 209211, "price_change": -0.7, "volume": null}, {"period": "2025-12", "price": 212096, "price_change": 1.38, "volume": null}, {"period": "2026-01", "price": 217231, "price_change": 2.42, "volume": null}, {"period": "2026-02", "price": 212350, "price_change": -2.25, "volume": null}], "Савеловский": [{"period": "2025-10", "price": 385235, "price_change": null, "volume": null}, {"period": "2025-11", "price": 403709, "price_change": 4.8, "volume": null}, {"period": "2025-12", "price": 404894, "price_change": 0.29, "volume": null}, {"period": "2026-01", "price": 404532, "price_change": -0.09, "volume": null}, {"period": "2026-02", "price": 404443, "price_change": -0.02, "volume": null}], "Сокол": [{"period": "2025-10", "price": 408811, "price_change": null, "volume": null}, {"period": "2025-11", "price": 408878, "price_change": 0.02, "volume": null}, {"period": "2025-12", "price": 406818, "price_change": -0.5, "volume": null}, {"period": "2026-01", "price": 413195, "price_change": 1.57, "volume": null}, {"period": "2026-02", "price": 423161, "price_change": 2.41, "volume": null}], "Тимирязевский": [{"period": "2025-10", "price": 350785, "price_change": null, "volume": null}, {"period": "2025-11", "price": 353349, "price_change": 0.73, "volume": null}, {"period": "2025-12", "price": 358478, "price_change": 1.45, "volume": null}, {"period": "2026-01", "price": 362535, "price_change": 1.13, "volume": null}, {"period": "2026-02", "price": 370697, "price_change": 2.25, "volume": null}], "Ховрино": [{"period": "2025-10", "price": 314905, "price_change": null, "volume": null}, {"period": "2025-11", "price": 318603, "price_change": 1.17, "volume": null}, {"period": "2025-12", "price": 325773, "price_change": 2.25, "volume": null}, {"period": "2026-01", "price": 329198, "price_change": 1.05, "volume": null}, {"period": "2026-02", "price": 337855, "price_change": 2.63, "volume": null}], "Хорошевский": [{"period": "2025-10", "price": 433511, "price_change": null, "volume": null}, {"period": "2025-11", "price": 434749, "price_change": 0.29, "volume": null}, {"period": "2025-12", "price": 431923, "price_change": -0.65, "volume": null}, {"period": "2026-01", "price": 445879, "price_change": 3.23, "volume": null}, {"period": "2026-02", "price": 459139, "price_change": 2.97, "volume": null}]}, "Северо-Восточный АО": {"Алексеевский": [{"period": "2025-10", "price": 395293, "price_change": null, "volume": null}, {"period": "2025-11", "price": 401829, "price_change": 1.65, "volume": null}, {"period": "2025-12", "price": 399976, "price_change": -0.46, "volume": null}, {"period": "2026-01", "price": 403985, "price_change": 1.0, "volume": null}, {"period": "2026-02", "price": 412801, "price_change": 2.18, "volume": null}], "Алтуфьевский": [{"period": "2025-10", "price": 281986, "price_change": null, "volume": null}, {"period": "2025-11", "price": 288311, "price_change": 2.24, "volume": null}, {"period": "2025-12", "price": 284394, "price_change": -1.36, "volume": null}, {"period": "2026-01", "price": 303425, "price_change": 6.69, "volume": null}, {"period": "2026-02", "price": 319972, "price_change": 5.45, "volume": null}], "Бабушкинский": [{"period": "2025-10", "price": 333705, "price_change": null, "volume": null}, {"period": "2025-11", "price": 336079, "price_change": 0.71, "volume": null}, {"period": "2025-12", "price": 342967, "price_change": 2.05, "volume": null}, {"period": "2026-01", "price": 349562, "price_change": 1.92, "volume": null}, {"period": "2026-02", "price": 355180, "price_change": 1.61, "volume": null}], "Бибирево": [{"period": "2025-10", "price": 277299, "price_change": null, "volume": null}, {"period": "2025-11", "price": 286295, "price_change": 3.24, "volume": null}, {"period": "2025-12", "price": 292776, "price_change": 2.26, "volume": null}, {"period": "2026-01", "price": 296755, "price_change": 1.36, "volume": null}, {"period": "2026-02", "price": 304471, "price_change": 2.6, "volume": null}], "Бутырский": [{"period": "2025-10", "price": 360927, "price_change": null, "volume": null}, {"period": "2025-11", "price": 365425, "price_change": 1.25, "volume": null}, {"period": "2025-12", "price": 359481, "price_change": -1.63, "volume": null}, {"period": "2026-01", "price": 366509, "price_change": 1.96, "volume": null}, {"period": "2026-02", "price": 375158, "price_change": 2.36, "volume": null}], "Лианозово": [{"period": "2025-10", "price": 299172, "price_change": null, "volume": null}, {"period": "2025-11", "price": 302196, "price_change": 1.01, "volume": null}, {"period": "2025-12", "price": 299960, "price_change": -0.74, "volume": null}, {"period": "2026-01", "price": 312131, "price_change": 4.06, "volume": null}, {"period": "2026-02", "price": 320598, "price_change": 2.71, "volume": null}], "Лосиноостровский": [{"period": "2025-10", "price": 291970, "price_change": null, "volume": null}, {"period": "2025-11", "price": 298466, "price_change": 2.22, "volume": null}, {"period": "2025-12", "price": 301646, "price_change": 1.07, "volume": null}, {"period": "2026-01", "price": 309755, "price_change": 2.69, "volume": null}, {"period": "2026-02", "price": 316296, "price_change": 2.11, "volume": null}], "Марфино": [{"period": "2025-10", "price": 385068, "price_change": null, "volume": null}, {"period": "2025-11", "price": 387773, "price_change": 0.7, "volume": null}, {"period": "2025-12", "price": 394232, "price_change": 1.67, "volume": null}, {"period": "2026-01", "price": 396423, "price_change": 0.56, "volume": null}, {"period": "2026-02", "price": 404468, "price_change": 2.03, "volume": null}], "Марьина Роща": [{"period": "2025-10", "price": 409546, "price_change": null, "volume": null}, {"period": "2025-11", "price": 412570, "price_change": 0.74, "volume": null}, {"period": "2025-12", "price": 418845, "price_change": 1.52, "volume": null}, {"period": "2026-01", "price": 425122, "price_change": 1.5, "volume": null}, {"period": "2026-02", "price": 438028, "price_change": 3.04, "volume": null}], "Останкинский": [{"period": "2025-10", "price": 397051, "price_change": null, "volume": null}, {"period": "2025-11", "price": 402500, "price_change": 1.37, "volume": null}, {"period": "2025-12", "price": 398881, "price_change": -0.9, "volume": null}, {"period": "2026-01", "price": 401746, "price_change": 0.72, "volume": null}, {"period": "2026-02", "price": 408089, "price_change": 1.58, "volume": null}], "Отрадное": [{"period": "2025-10", "price": 309030, "price_change": null, "volume": null}, {"period": "2025-11", "price": 315554, "price_change": 2.11, "volume": null}, {"period": "2025-12", "price": 322130, "price_change": 2.08, "volume": null}, {"period": "2026-01", "price": 331296, "price_change": 2.85, "volume": null}, {"period": "2026-02", "price": 343564, "price_change": 3.7, "volume": null}], "Ростокино": [{"period": "2025-10", "price": 355321, "price_change": null, "volume": null}, {"period": "2025-11", "price": 367986, "price_change": 3.56, "volume": null}, {"period": "2025-12", "price": 381965, "price_change": 3.8, "volume": null}, {"period": "2026-01", "price": 388502, "price_change": 1.71, "volume": null}, {"period": "2026-02", "price": 384719, "price_change": -0.97, "volume": null}], "Свиблово": [{"period": "2025-10", "price": 362552, "price_change": null, "volume": null}, {"period": "2025-11", "price": 363556, "price_change": 0.28, "volume": null}, {"period": "2025-12", "price": 367210, "price_change": 1.01, "volume": null}, {"period": "2026-01", "price": 381770, "price_change": 3.97, "volume": null}, {"period": "2026-02", "price": 384021, "price_change": 0.59, "volume": null}], "Северное Медведково": [{"period": "2025-10", "price": 294630, "price_change": null, "volume": null}, {"period": "2025-11", "price": 299052, "price_change": 1.5, "volume": null}, {"period": "2025-12", "price": 301711, "price_change": 0.89, "volume": null}, {"period": "2026-01", "price": 318689, "price_change": 5.63, "volume": null}, {"period": "2026-02", "price": 342083, "price_change": 7.34, "volume": null}], "Северный": [{"period": "2025-10", "price": 283551, "price_change": null, "volume": null}, {"period": "2025-11", "price": 285075, "price_change": 0.54, "volume": null}, {"period": "2025-12", "price": 290334, "price_change": 1.84, "volume": null}, {"period": "2026-01", "price": 293582, "price_change": 1.12, "volume": null}, {"period": "2026-02", "price": 299035, "price_change": 1.86, "volume": null}], "Южное Медведково": [{"period": "2025-10", "price": 310142, "price_change": null, "volume": null}, {"period": "2025-11", "price": 308569, "price_change": -0.51, "volume": null}, {"period": "2025-12", "price": 309959, "price_change": 0.45, "volume": null}, {"period": "2026-01", "price": 311068, "price_change": 0.36, "volume": null}, {"period": "2026-02", "price": 326171, "price_change": 4.86, "volume": null}], "Ярославский": [{"period": "2025-10", "price": 280136, "price_change": null, "volume": null}, {"period": "2025-11", "price": 281905, "price_change": 0.63, "volume": null}, {"period": "2025-12", "price": 284841, "price_change": 1.04, "volume": null}, {"period": "2026-01", "price": 284850, "price_change": 0.0, "volume": null}, {"period": "2026-02", "price": 297941, "price_change": 4.6, "volume": null}]}, "Северо-Западный АО": {"Куркино": [{"period": "2025-10", "price": 329293, "price_change": null, "volume": null}, {"period": "2025-11", "price": 334634, "price_change": 1.62, "volume": null}, {"period": "2025-12", "price": 338985, "price_change": 1.3, "volume": null}, {"period": "2026-01", "price": 342641, "price_change": 1.08, "volume": null}, {"period": "2026-02", "price": 339304, "price_change": -0.97, "volume": null}], "Митино": [{"period": "2025-10", "price": 295702, "price_change": null, "volume": null}, {"period": "2025-11", "price": 300727, "price_change": 1.7, "volume": null}, {"period": "2025-12", "price": 301151, "price_change": 0.14, "volume": null}, {"period": "2026-01", "price": 308536, "price_change": 2.45, "volume": null}, {"period": "2026-02", "price": 314621, "price_change": 1.97, "volume": null}], "Покровское-Стрешнево": [{"period": "2025-10", "price": 390943, "price_change": null, "volume": null}, {"period": "2025-11", "price": 390874, "price_change": -0.02, "volume": null}, {"period": "2025-12", "price": 406912, "price_change": 4.1, "volume": null}, {"period": "2026-01", "price": 407628, "price_change": 0.18, "volume": null}, {"period": "2026-02", "price": 422475, "price_change": 3.64, "volume": null}], "Северное Тушино": [{"period": "2025-10", "price": 317098, "price_change": null, "volume": null}, {"period": "2025-11", "price": 322744, "price_change": 1.78, "volume": null}, {"period": "2025-12", "price": 326349, "price_change": 1.12, "volume": null}, {"period": "2026-01", "price": 334883, "price_change": 2.61, "volume": null}, {"period": "2026-02", "price": 337646, "price_change": 0.83, "volume": null}], "Строгино": [{"period": "2025-10", "price": 336031, "price_change": null, "volume": null}, {"period": "2025-11", "price": 340857, "price_change": 1.44, "volume": null}, {"period": "2025-12", "price": 348448, "price_change": 2.23, "volume": null}, {"period": "2026-01", "price": 347363, "price_change": -0.31, "volume": null}, {"period": "2026-02", "price": 357506, "price_change": 2.92, "volume": null}], "Хорошево-Мневники": [{"period": "2025-10", "price": 420364, "price_change": null, "volume": null}, {"period": "2025-11", "price": 431619, "price_change": 2.68, "volume": null}, {"period": "2025-12", "price": 437285, "price_change": 1.31, "volume": null}, {"period": "2026-01", "price": 437891, "price_change": 0.14, "volume": null}, {"period": "2026-02", "price": 441318, "price_change": 0.78, "volume": null}], "Щукино": [{"period": "2025-10", "price": 370657, "price_change": null, "volume": null}, {"period": "2025-11", "price": 375658, "price_change": 1.35, "volume": null}, {"period": "2025-12", "price": 384190, "price_change": 2.27, "volume": null}, {"period": "2026-01", "price": 385840, "price_change": 0.43, "volume": null}, {"period": "2026-02", "price": 393256, "price_change": 1.92, "volume": null}], "Южное Тушино": [{"period": "2025-10", "price": 318236, "price_change": null, "volume": null}, {"period": "2025-11", "price": 322993, "price_change": 1.49, "volume": null}, {"period": "2025-12", "price": 323647, "price_change": 0.2, "volume": null}, {"period": "2026-01", "price": 332739, "price_change": 2.81, "volume": null}, {"period": "2026-02", "price": 341829, "price_change": 2.73, "volume": null}]}, "Троицкий": {"Вороновское": [{"period": "2025-10", "price": 161411, "price_change": null, "volume": null}, {"period": "2025-11", "price": 169860, "price_change": 5.23, "volume": null}, {"period": "2025-12", "price": 172155, "price_change": 1.35, "volume": null}, {"period": "2026-01", "price": 174997, "price_change": 1.65, "volume": null}, {"period": "2026-02", "price": 177509, "price_change": 1.44, "volume": null}], "Киевский": [{"period": "2025-10", "price": 183946, "price_change": null, "volume": null}, {"period": "2025-11", "price": 183432, "price_change": -0.28, "volume": null}, {"period": "2025-12", "price": 164808, "price_change": -10.15, "volume": null}, {"period": "2026-01", "price": 178894, "price_change": 8.55, "volume": null}, {"period": "2026-02", "price": 168446, "price_change": -5.84, "volume": null}], "Кленовское": [{"period": "2025-10", "price": 155045, "price_change": null, "volume": null}, {"period": "2025-11", "price": 151678, "price_change": -2.17, "volume": null}, {"period": "2025-12", "price": 148587, "price_change": -2.04, "volume": null}, {"period": "2026-01", "price": 160261, "price_change": 7.86, "volume": null}, {"period": "2026-02", "price": 163713, "price_change": 2.15, "volume": null}], "Краснопахорское": [{"period": "2025-10", "price": 167338, "price_change": null, "volume": null}, {"period": "2025-11", "price": 160717, "price_change": -3.96, "volume": null}, {"period": "2025-12", "price": 164675, "price_change": 2.46, "volume": null}, {"period": "2026-01", "price": 171697, "price_change": 4.26, "volume": null}, {"period": "2026-02", "price": 169961, "price_change": -1.01, "volume": null}], "Михайлово-Ярцевское": [{"period": "2025-10", "price": 168090, "price_change": null, "volume": null}, {"period": "2025-11", "price": 169218, "price_change": 0.67, "volume": null}, {"period": "2025-12", "price": 174827, "price_change": 3.31, "volume": null}, {"period": "2026-01", "price": 311176, "price_change": 77.99, "volume": null}, {"period": "2026-02", "price": 192678, "price_change": -38.08, "volume": null}], "Новофедоровское": [{"period": "2025-10", "price": 164211, "price_change": null, "volume": null}, {"period": "2025-11", "price": 166759, "price_change": 1.55, "volume": null}, {"period": "2025-12", "price": 166984, "price_change": 0.13, "volume": null}, {"period": "2026-01", "price": 173579, "price_change": 3.95, "volume": null}, {"period": "2026-02", "price": 181589, "price_change": 4.61, "volume": null}], "Первомайское": [{"period": "2025-10", "price": 177701, "price_change": null, "volume": null}, {"period": "2025-11", "price": 175828, "price_change": -1.05, "volume": null}, {"period": "2025-12", "price": 182737, "price_change": 3.93, "volume": null}, {"period": "2026-01", "price": 181841, "price_change": -0.49, "volume": null}, {"period": "2026-02", "price": 184366, "price_change": 1.39, "volume": null}], "Роговское": [{"period": "2025-10", "price": 124024, "price_change": null, "volume": null}, {"period": "2025-11", "price": 130916, "price_change": 5.56, "volume": null}, {"period": "2025-12", "price": 137740, "price_change": 5.21, "volume": null}, {"period": "2026-01", "price": 143623, "price_change": 4.27, "volume": null}, {"period": "2026-02", "price": 138608, "price_change": -3.49, "volume": null}], "Троицк": [{"period": "2025-10", "price": 214277, "price_change": null, "volume": null}, {"period": "2025-11", "price": 216503, "price_change": 1.04, "volume": null}, {"period": "2025-12", "price": 221482, "price_change": 2.3, "volume": null}, {"period": "2026-01", "price": 229217, "price_change": 3.49, "volume": null}, {"period": "2026-02", "price": 236336, "price_change": 3.11, "volume": null}], "Щаповское": [{"period": "2025-10", "price": 172104, "price_change": null, "volume": null}, {"period": "2025-11", "price": 179837, "price_change": 4.49, "volume": null}, {"period": "2025-12", "price": 180994, "price_change": 0.64, "volume": null}, {"period": "2026-01", "price": 169158, "price_change": -6.54, "volume": null}, {"period": "2026-02", "price": 165568, "price_change": -2.12, "volume": null}]}, "Центральный АО": {"Арбат": [{"period": "2025-10", "price": 913950, "price_change": null, "volume": null}, {"period": "2025-11", "price": 852732, "price_change": -6.7, "volume": null}, {"period": "2025-12", "price": 846766, "price_change": -0.7, "volume": null}, {"period": "2026-01", "price": 845101, "price_change": -0.2, "volume": null}, {"period": "2026-02", "price": 854691, "price_change": 1.13, "volume": null}], "Басманный": [{"period": "2025-10", "price": 561904, "price_change": null, "volume": null}, {"period": "2025-11", "price": 565345, "price_change": 0.61, "volume": null}, {"period": "2025-12", "price": 562167, "price_change": -0.56, "volume": null}, {"period": "2026-01", "price": 570474, "price_change": 1.48, "volume": null}, {"period": "2026-02", "price": 569156, "price_change": -0.23, "volume": null}], "Замоскворечье": [{"period": "2025-10", "price": 654746, "price_change": null, "volume": null}, {"period": "2025-11", "price": 660014, "price_change": 0.8, "volume": null}, {"period": "2025-12", "price": 658373, "price_change": -0.25, "volume": null}, {"period": "2026-01", "price": 674424, "price_change": 2.44, "volume": null}, {"period": "2026-02", "price": 700251, "price_change": 3.83, "volume": null}], "Красносельский": [{"period": "2025-10", "price": 589116, "price_change": null, "volume": null}, {"period": "2025-11", "price": 588506, "price_change": -0.1, "volume": null}, {"period": "2025-12", "price": 609134, "price_change": 3.51, "volume": null}, {"period": "2026-01", "price": 613019, "price_change": 0.64, "volume": null}, {"period": "2026-02", "price": 610636, "price_change": -0.39, "volume": null}], "Мещанский": [{"period": "2025-10", "price": 632437, "price_change": null, "volume": null}, {"period": "2025-11", "price": 613379, "price_change": -3.01, "volume": null}, {"period": "2025-12", "price": 591608, "price_change": -3.55, "volume": null}, {"period": "2026-01", "price": 600847, "price_change": 1.56, "volume": null}, {"period": "2026-02", "price": 597229, "price_change": -0.6, "volume": null}], "Пресненский": [{"period": "2025-10", "price": 780733, "price_change": null, "volume": null}, {"period": "2025-11", "price": 788220, "price_change": 0.96, "volume": null}, {"period": "2025-12", "price": 792895, "price_change": 0.59, "volume": null}, {"period": "2026-01", "price": 802737, "price_change": 1.24, "volume": null}, {"period": "2026-02", "price": 807508, "price_change": 0.59, "volume": null}], "Таганский": [{"period": "2025-10", "price": 495107, "price_change": null, "volume": null}, {"period": "2025-11", "price": 499657, "price_change": 0.92, "volume": null}, {"period": "2025-12", "price": 510524, "price_change": 2.17, "volume": null}, {"period": "2026-01", "price": 518560, "price_change": 1.57, "volume": null}, {"period": "2026-02", "price": 520042, "price_change": 0.29, "volume": null}], "Тверской": [{"period": "2025-10", "price": 770499, "price_change": null, "volume": null}, {"period": "2025-11", "price": 751032, "price_change": -2.53, "volume": null}, {"period": "2025-12", "price": 756347, "price_change": 0.71, "volume": null}, {"period": "2026-01", "price": 774460, "price_change": 2.39, "volume": null}, {"period": "2026-02", "price": 762099, "price_change": -1.6, "volume": null}], "Хамовники": [{"period": "2025-10", "price": 895451, "price_change": null, "volume": null}, {"period": "2025-11", "price": 893585, "price_change": -0.21, "volume": null}, {"period": "2025-12", "price": 898617, "price_change": 0.56, "volume": null}, {"period": "2026-01", "price": 915216, "price_change": 1.85, "volume": null}, {"period": "2026-02", "price": 923604, "price_change": 0.92, "volume": null}], "Якиманка": [{"period": "2025-10", "price": 872469, "price_change": null, "volume": null}, {"period": "2025-11", "price": 842864, "price_change": -3.39, "volume": null}, {"period": "2025-12", "price": 805058, "price_change": -4.49, "volume": null}, {"period": "2026-01", "price": 788857, "price_change": -2.01, "volume": null}, {"period": "2026-02", "price": 839671, "price_change": 6.44, "volume": null}]}, "Юго-Восточный АО": {"Выхино-Жулебино": [{"period": "2025-10", "price": 278452, "price_change": null, "volume": null}, {"period": "2025-11", "price": 283342, "price_change": 1.76, "volume": null}, {"period": "2025-12", "price": 284318, "price_change": 0.34, "volume": null}, {"period": "2026-01", "price": 291703, "price_change": 2.6, "volume": null}, {"period": "2026-02", "price": 298521, "price_change": 2.34, "volume": null}], "Капотня": [{"period": "2025-10", "price": 236021, "price_change": null, "volume": null}, {"period": "2025-11", "price": 234202, "price_change": -0.77, "volume": null}, {"period": "2025-12", "price": 240959, "price_change": 2.89, "volume": null}, {"period": "2026-01", "price": 275690, "price_change": 14.41, "volume": null}, {"period": "2026-02", "price": 278170, "price_change": 0.9, "volume": null}], "Кузьминки": [{"period": "2025-10", "price": 308679, "price_change": null, "volume": null}, {"period": "2025-11", "price": 314151, "price_change": 1.77, "volume": null}, {"period": "2025-12", "price": 323390, "price_change": 2.94, "volume": null}, {"period": "2026-01", "price": 331510, "price_change": 2.51, "volume": null}, {"period": "2026-02", "price": 343449, "price_change": 3.6, "volume": null}], "Лефортово": [{"period": "2025-10", "price": 349040, "price_change": null, "volume": null}, {"period": "2025-11", "price": 349109, "price_change": 0.02, "volume": null}, {"period": "2025-12", "price": 355808, "price_change": 1.92, "volume": null}, {"period": "2026-01", "price": 363337, "price_change": 2.12, "volume": null}, {"period": "2026-02", "price": 371994, "price_change": 2.38, "volume": null}], "Люблино": [{"period": "2025-10", "price": 281047, "price_change": null, "volume": null}, {"period": "2025-11", "price": 284565, "price_change": 1.25, "volume": null}, {"period": "2025-12", "price": 289389, "price_change": 1.7, "volume": null}, {"period": "2026-01", "price": 297585, "price_change": 2.83, "volume": null}, {"period": "2026-02", "price": 304345, "price_change": 2.27, "volume": null}], "Марьино": [{"period": "2025-10", "price": 292034, "price_change": null, "volume": null}, {"period": "2025-11", "price": 292427, "price_change": 0.13, "volume": null}, {"period": "2025-12", "price": 295261, "price_change": 0.97, "volume": null}, {"period": "2026-01", "price": 300297, "price_change": 1.71, "volume": null}, {"period": "2026-02", "price": 306910, "price_change": 2.2, "volume": null}], "Некрасовка": [{"period": "2025-10", "price": 240440, "price_change": null, "volume": null}, {"period": "2025-11", "price": 242941, "price_change": 1.04, "volume": null}, {"period": "2025-12", "price": 248037, "price_change": 2.1, "volume": null}, {"period": "2026-01", "price": 251483, "price_change": 1.39, "volume": null}, {"period": "2026-02", "price": 260272, "price_change": 3.49, "volume": null}], "Нижегородский": [{"period": "2025-10", "price": 331821, "price_change": null, "volume": null}, {"period": "2025-11", "price": 344814, "price_change": 3.92, "volume": null}, {"period": "2025-12", "price": 345070, "price_change": 0.07, "volume": null}, {"period": "2026-01", "price": 347991, "price_change": 0.85, "volume": null}, {"period": "2026-02", "price": 348269, "price_change": 0.08, "volume": null}], "Печатники": [{"period": "2025-10", "price": 288996, "price_change": null, "volume": null}, {"period": "2025-11", "price": 295638, "price_change": 2.3, "volume": null}, {"period": "2025-12", "price": 300031, "price_change": 1.49, "volume": null}, {"period": "2026-01", "price": 303422, "price_change": 1.13, "volume": null}, {"period": "2026-02", "price": 306082, "price_change": 0.88, "volume": null}], "Рязанский": [{"period": "2025-10", "price": 303050, "price_change": null, "volume": null}, {"period": "2025-11", "price": 309236, "price_change": 2.04, "volume": null}, {"period": "2025-12", "price": 307809, "price_change": -0.46, "volume": null}, {"period": "2026-01", "price": 317738, "price_change": 3.23, "volume": null}, {"period": "2026-02", "price": 327260, "price_change": 3.0, "volume": null}], "Текстильщики": [{"period": "2025-10", "price": 293010, "price_change": null, "volume": null}, {"period": "2025-11", "price": 297122, "price_change": 1.4, "volume": null}, {"period": "2025-12", "price": 301117, "price_change": 1.34, "volume": null}, {"period": "2026-01", "price": 309034, "price_change": 2.63, "volume": null}, {"period": "2026-02", "price": 319246, "price_change": 3.3, "volume": null}], "Южнопортовый": [{"period": "2025-10", "price": 373217, "price_change": null, "volume": null}, {"period": "2025-11", "price": 373056, "price_change": -0.04, "volume": null}, {"period": "2025-12", "price": 374689, "price_change": 0.44, "volume": null}, {"period": "2026-01", "price": 382234, "price_change": 2.01, "volume": null}, {"period": "2026-02", "price": 381483, "price_change": -0.2, "volume": null}]}, "Юго-Западный АО": {"Академический": [{"period": "2025-10", "price": 400901, "price_change": null, "volume": null}, {"period": "2025-11", "price": 406573, "price_change": 1.41, "volume": null}, {"period": "2025-12", "price": 418333, "price_change": 2.89, "volume": null}, {"period": "2026-01", "price": 426450, "price_change": 1.94, "volume": null}, {"period": "2026-02", "price": 432005, "price_change": 1.3, "volume": null}], "Гагаринский": [{"period": "2025-10", "price": 482722, "price_change": null, "volume": null}, {"period": "2025-11", "price": 483116, "price_change": 0.08, "volume": null}, {"period": "2025-12", "price": 494322, "price_change": 2.32, "volume": null}, {"period": "2026-01", "price": 495743, "price_change": 0.29, "volume": null}, {"period": "2026-02", "price": 492133, "price_change": -0.73, "volume": null}], "Зюзино": [{"period": "2025-10", "price": 360212, "price_change": null, "volume": null}, {"period": "2025-11", "price": 365297, "price_change": 1.41, "volume": null}, {"period": "2025-12", "price": 366267, "price_change": 0.27, "volume": null}, {"period": "2026-01", "price": 378336, "price_change": 3.3, "volume": null}, {"period": "2026-02", "price": 384497, "price_change": 1.63, "volume": null}], "Коньково": [{"period": "2025-10", "price": 348946, "price_change": null, "volume": null}, {"period": "2025-11", "price": 354014, "price_change": 1.45, "volume": null}, {"period": "2025-12", "price": 352812, "price_change": -0.34, "volume": null}, {"period": "2026-01", "price": 356906, "price_change": 1.16, "volume": null}, {"period": "2026-02", "price": 369190, "price_change": 3.44, "volume": null}], "Котловка": [{"period": "2025-10", "price": 359135, "price_change": null, "volume": null}, {"period": "2025-11", "price": 359094, "price_change": -0.01, "volume": null}, {"period": "2025-12", "price": 363665, "price_change": 1.27, "volume": null}, {"period": "2026-01", "price": 373045, "price_change": 2.58, "volume": null}, {"period": "2026-02", "price": 376073, "price_change": 0.81, "volume": null}], "Ломоносовский": [{"period": "2025-10", "price": 424398, "price_change": null, "volume": null}, {"period": "2025-11", "price": 426000, "price_change": 0.38, "volume": null}, {"period": "2025-12", "price": 432297, "price_change": 1.48, "volume": null}, {"period": "2026-01", "price": 439222, "price_change": 1.6, "volume": null}, {"period": "2026-02", "price": 439151, "price_change": -0.02, "volume": null}], "Обручевский": [{"period": "2025-10", "price": 407129, "price_change": null, "volume": null}, {"period": "2025-11", "price": 424841, "price_change": 4.35, "volume": null}, {"period": "2025-12", "price": 429848, "price_change": 1.18, "volume": null}, {"period": "2026-01", "price": 433256, "price_change": 0.79, "volume": null}, {"period": "2026-02", "price": 438123, "price_change": 1.12, "volume": null}], "Северное Бутово": [{"period": "2025-10", "price": 295758, "price_change": null, "volume": null}, {"period": "2025-11", "price": 294071, "price_change": -0.57, "volume": null}, {"period": "2025-12", "price": 295537, "price_change": 0.5, "volume": null}, {"period": "2026-01", "price": 305343, "price_change": 3.32, "volume": null}, {"period": "2026-02", "price": 310543, "price_change": 1.7, "volume": null}], "Теплый Стан": [{"period": "2025-10", "price": 320082, "price_change": null, "volume": null}, {"period": "2025-11", "price": 322875, "price_change": 0.87, "volume": null}, {"period": "2025-12", "price": 328345, "price_change": 1.69, "volume": null}, {"period": "2026-01", "price": 337303, "price_change": 2.73, "volume": null}, {"period": "2026-02", "price": 342150, "price_change": 1.44, "volume": null}], "Черемушки": [{"period": "2025-10", "price": 386690, "price_change": null, "volume": null}, {"period": "2025-11", "price": 390380, "price_change": 0.95, "volume": null}, {"period": "2025-12", "price": 390450, "price_change": 0.02, "volume": null}, {"period": "2026-01", "price": 403699, "price_change": 3.39, "volume": null}, {"period": "2026-02", "price": 411155, "price_change": 1.85, "volume": null}], "Южное Бутово": [{"period": "2025-10", "price": 250053, "price_change": null, "volume": null}, {"period": "2025-11", "price": 257724, "price_change": 3.07, "volume": null}, {"period": "2025-12", "price": 257525, "price_change": -0.08, "volume": null}, {"period": "2026-01", "price": 262100, "price_change": 1.78, "volume": null}, {"period": "2026-02", "price": 273747, "price_change": 4.44, "volume": null}], "Ясенево": [{"period": "2025-10", "price": 291687, "price_change": null, "volume": null}, {"period": "2025-11", "price": 298173, "price_change": 2.22, "volume": null}, {"period": "2025-12", "price": 303756, "price_change": 1.87, "volume": null}, {"period": "2026-01", "price": 310365, "price_change": 2.18, "volume": null}, {"period": "2026-02", "price": 318118, "price_change": 2.5, "volume": null}]}, "Южный АО": {"Бирюлёво Восточное": [{"period": "2025-10", "price": 255781, "price_change": null, "volume": null}, {"period": "2025-11", "price": 258391, "price_change": 1.02, "volume": null}, {"period": "2025-12", "price": 262104, "price_change": 1.44, "volume": null}, {"period": "2026-01", "price": 269504, "price_change": 2.82, "volume": null}, {"period": "2026-02", "price": 279426, "price_change": 3.68, "volume": null}], "Бирюлёво Западное": [{"period": "2025-10", "price": 240716, "price_change": null, "volume": null}, {"period": "2025-11", "price": 242878, "price_change": 0.9, "volume": null}, {"period": "2025-12", "price": 250784, "price_change": 3.26, "volume": null}, {"period": "2026-01", "price": 256723, "price_change": 2.37, "volume": null}, {"period": "2026-02", "price": 268090, "price_change": 4.43, "volume": null}], "Братеево": [{"period": "2025-10", "price": 280939, "price_change": null, "volume": null}, {"period": "2025-11", "price": 287095, "price_change": 2.19, "volume": null}, {"period": "2025-12", "price": 289201, "price_change": 0.73, "volume": null}, {"period": "2026-01", "price": 300820, "price_change": 4.02, "volume": null}, {"period": "2026-02", "price": 307616, "price_change": 2.26, "volume": null}], "Даниловский": [{"period": "2025-10", "price": 425907, "price_change": null, "volume": null}, {"period": "2025-11", "price": 439154, "price_change": 3.11, "volume": null}, {"period": "2025-12", "price": 442931, "price_change": 0.86, "volume": null}, {"period": "2026-01", "price": 449865, "price_change": 1.57, "volume": null}, {"period": "2026-02", "price": 453203, "price_change": 0.74, "volume": null}], "Донской": [{"period": "2025-10", "price": 430270, "price_change": null, "volume": null}, {"period": "2025-11", "price": 424795, "price_change": -1.27, "volume": null}, {"period": "2025-12", "price": 437186, "price_change": 2.92, "volume": null}, {"period": "2026-01", "price": 448583, "price_change": 2.61, "volume": null}, {"period": "2026-02", "price": 458980, "price_change": 2.32, "volume": null}], "Зябликово": [{"period": "2025-10", "price": 286993, "price_change": null, "volume": null}, {"period": "2025-11", "price": 287185, "price_change": 0.07, "volume": null}, {"period": "2025-12", "price": 291326, "price_change": 1.44, "volume": null}, {"period": "2026-01", "price": 293619, "price_change": 0.79, "volume": null}, {"period": "2026-02", "price": 300768, "price_change": 2.43, "volume": null}], "Москворечье-Сабурово": [{"period": "2025-10", "price": 309499, "price_change": null, "volume": null}, {"period": "2025-11", "price": 309636, "price_change": 0.04, "volume": null}, {"period": "2025-12", "price": 313832, "price_change": 1.36, "volume": null}, {"period": "2026-01", "price": 314459, "price_change": 0.2, "volume": null}, {"period": "2026-02", "price": 320005, "price_change": 1.76, "volume": null}], "Нагатино-Садовники": [{"period": "2025-10", "price": 353419, "price_change": null, "volume": null}, {"period": "2025-11", "price": 352369, "price_change": -0.3, "volume": null}, {"period": "2025-12", "price": 367622, "price_change": 4.33, "volume": null}, {"period": "2026-01", "price": 374117, "price_change": 1.77, "volume": null}, {"period": "2026-02", "price": 370552, "price_change": -0.95, "volume": null}], "Нагатинский Затон": [{"period": "2025-10", "price": 369367, "price_change": null, "volume": null}, {"period": "2025-11", "price": 375040, "price_change": 1.54, "volume": null}, {"period": "2025-12", "price": 369515, "price_change": -1.47, "volume": null}, {"period": "2026-01", "price": 388548, "price_change": 5.15, "volume": null}, {"period": "2026-02", "price": 399730, "price_change": 2.88, "volume": null}], "Нагорный": [{"period": "2025-10", "price": 341230, "price_change": null, "volume": null}, {"period": "2025-11", "price": 348785, "price_change": 2.21, "volume": null}, {"period": "2025-12", "price": 352012, "price_change": 0.93, "volume": null}, {"period": "2026-01", "price": 361995, "price_change": 2.84, "volume": null}, {"period": "2026-02", "price": 366625, "price_change": 1.28, "volume": null}], "Орехово-Борисово Северное": [{"period": "2025-10", "price": 295754, "price_change": null, "volume": null}, {"period": "2025-11", "price": 298041, "price_change": 0.77, "volume": null}, {"period": "2025-12", "price": 307928, "price_change": 3.32, "volume": null}, {"period": "2026-01", "price": 309065, "price_change": 0.37, "volume": null}, {"period": "2026-02", "price": 313038, "price_change": 1.29, "volume": null}], "Орехово-Борисово Южное": [{"period": "2025-10", "price": 283170, "price_change": null, "volume": null}, {"period": "2025-11", "price": 287397, "price_change": 1.49, "volume": null}, {"period": "2025-12", "price": 290604, "price_change": 1.12, "volume": null}, {"period": "2026-01", "price": 301587, "price_change": 3.78, "volume": null}, {"period": "2026-02", "price": 309016, "price_change": 2.46, "volume": null}], "Царицыно": [{"period": "2025-10", "price": 306723, "price_change": null, "volume": null}, {"period": "2025-11", "price": 302912, "price_change": -1.24, "volume": null}, {"period": "2025-12", "price": 309850, "price_change": 2.29, "volume": null}, {"period": "2026-01", "price": 324687, "price_change": 4.79, "volume": null}, {"period": "2026-02", "price": 336412, "price_change": 3.61, "volume": null}], "Чертаново Северное": [{"period": "2025-10", "price": 315228, "price_change": null, "volume": null}, {"period": "2025-11", "price": 317913, "price_change": 0.85, "volume": null}, {"period": "2025-12", "price": 332423, "price_change": 4.56, "volume": null}, {"period": "2026-01", "price": 344204, "price_change": 3.54, "volume": null}, {"period": "2026-02", "price": 350974, "price_change": 1.97, "volume": null}], "Чертаново Центральное": [{"period": "2025-10", "price": 299974, "price_change": null, "volume": null}, {"period": "2025-11", "price": 304120, "price_change": 1.38, "volume": null}, {"period": "2025-12", "price": 300322, "price_change": -1.25, "volume": null}, {"period": "2026-01", "price": 302632, "price_change": 0.77, "volume": null}, {"period": "2026-02", "price": 315716, "price_change": 4.32, "volume": null}], "Чертаново Южное": [{"period": "2025-10", "price": 287683, "price_change": null, "volume": null}, {"period": "2025-11", "price": 292682, "price_change": 1.74, "volume": null}, {"period": "2025-12", "price": 297062, "price_change": 1.5, "volume": null}, {"period": "2026-01", "price": 305936, "price_change": 2.99, "volume": null}, {"period": "2026-02", "price": 311766, "price_change": 1.91, "volume": null}]}};
+
+let MOS=[], MUNI={}, GEO_AO=null, GEO_MUN=null;
+
+const fmtP=n=>new Intl.NumberFormat('ru-RU').format(Math.round(n))+' ₽';
+const fmtK=n=>n>=1e6?(n/1e6).toFixed(1)+'М':n>=1e3?Math.round(n/1e3)+'K':Math.round(n);
+const setLoad=(p,t)=>{document.getElementById('load-fill').style.width=p+'%';document.getElementById('load-txt').textContent=t;};
+
+// ── Цвет по цене (тепловая: синий->жёлтый->красный)
+function priceColor(val, min, max) {
+  if (!val || val<=0) return '#ddd9d2';
+  const t = Math.max(0, Math.min(1, (val-min)/(max-min)));
+  // светло-голубой (#a8c8d8) -> золотистый (#c9a96e) -> кирпичный (#c96e6e)
+  let r,g,b;
+  if (t < 0.5) {
+    const s = t*2;
+    r = Math.round(168 + (201-168)*s);
+    g = Math.round(200 + (169-200)*s);
+    b = Math.round(216 + (110-216)*s);
+  } else {
+    const s = (t-0.5)*2;
+    r = Math.round(201 + (201-201)*s);
+    g = Math.round(169 + (100-169)*s);
+    b = Math.round(110 + (90-110)*s);
+  }
+  return `rgb(${r},${g},${b})`;
+}
+
+function drawLegend(canvasId, minId, maxId, min, max) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createLinearGradient(0,0,160,0);
+  grad.addColorStop(0, priceColor(min,min,max));
+  grad.addColorStop(0.5, priceColor((min+max)/2,min,max));
+  grad.addColorStop(1, priceColor(max,min,max));
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,160,8);
+  document.getElementById(minId).textContent = Math.round(min/1000)+'K ₽';
+  document.getElementById(maxId).textContent = Math.round(max/1000)+'K ₽';
+}
+
+// ── GeoJSON -> SVG проекция (простая плоская)
+function projectGeo(geojson, width, height, padding=20, cropBounds=null) {
+  // cropBounds = {minLat, maxLat, minLng, maxLng} — обрезка по координатам
+  let minLng, maxLng, minLat, maxLat;
+  if (cropBounds) {
+    minLng=cropBounds.minLng; maxLng=cropBounds.maxLng;
+    minLat=cropBounds.minLat; maxLat=cropBounds.maxLat;
+  } else {
+    minLng=Infinity; maxLng=-Infinity; minLat=Infinity; maxLat=-Infinity;
+    function scanCoords(coords) {
+      if (!Array.isArray(coords)) return;
+      if (typeof coords[0]==='number') {
+        const [lng,lat]=coords;
+        if(lng<minLng)minLng=lng; if(lng>maxLng)maxLng=lng;
+        if(lat<minLat)minLat=lat; if(lat>maxLat)maxLat=lat;
+      } else coords.forEach(scanCoords);
+    }
+    geojson.features.forEach(f=>scanCoords(f.geometry.coordinates));
+  }
+
+  const latCenter=(minLat+maxLat)/2;
+  const lngCorr=Math.cos(latCenter*Math.PI/180);
+  const scaleX=(width-padding*2)/((maxLng-minLng)*lngCorr);
+  const scaleY=(height-padding*2)/(maxLat-minLat);
+  const scale=Math.min(scaleX,scaleY);
+  const mapW=(maxLng-minLng)*lngCorr*scale;
+  const mapH=(maxLat-minLat)*scale;
+  const offX=(width-mapW)/2;
+  const offY=(height-mapH)/2;
+
+  function project([lng,lat]) {
+    const x = (lng-minLng)*lngCorr*scale + offX;
+    const y = height - ((lat-minLat)*scale + offY);
+    return [x,y];
+  }
+
+  function coordsToPath(coords) {
+    if (typeof coords[0][0]==='number') {
+      return coords.map((c,i)=>{const [x,y]=project(c);return `${i===0?'M':'L'}${x.toFixed(1)},${y.toFixed(1)}`;}).join(' ')+'Z';
+    }
+    return coords.map(ring=>coordsToPath(ring)).join(' ');
+  }
+
+  return {project, coordsToPath};
+}
+
+// ── Строим SVG карту
+// Границы обрезки для карты Москвы:
+// Сверху — верхняя граница Зеленограда, снизу — нижняя граница НАО
+const MOSCOW_CROP = {minLng:36.80, maxLng:37.97, minLat:55.513, maxLat:55.99};
+
+function buildMap(svgId, geojson, priceMap, onClickDistrict, crop=true) {
+  const svg = document.getElementById(svgId);
+  if (!svg || !geojson) return;
+  svg.innerHTML = '';
+
+  const vb = svg.getAttribute('viewBox').split(' ').map(Number);
+  const W=vb[2], H=vb[3];
+
+  const features = geojson.features;
+  const {coordsToPath} = projectGeo({features}, W, H, crop ? 20 : 8, crop ? MOSCOW_CROP : null);
+
+  const prices = features.map(f=>priceMap[f.properties.name]).filter(v=>v&&v>0);
+  const minP = Math.min(...prices), maxP = Math.max(...prices);
+
+  const tt = document.getElementById('map-tt');
+
+  features.forEach(f => {
+    const name = f.properties.name;
+    const price = priceMap[name];
+    const geom = f.geometry;
+    let d = '';
+
+    if (geom.type==='Polygon') {
+      d = coordsToPath(geom.coordinates);
+    } else if (geom.type==='MultiPolygon') {
+      d = geom.coordinates.map(poly=>coordsToPath(poly)).join(' ');
+    }
+    if (!d) return;
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', d);
+    path.setAttribute('fill', priceColor(price, minP, maxP));
+    path.setAttribute('data-name', name);
+    path.setAttribute('data-price', price||0);
+
+    // Tooltip
+    path.addEventListener('mousemove', e => {
+      tt.style.display='block';
+      tt.style.left=(e.clientX+14)+'px';
+      tt.style.top=(e.clientY-10)+'px';
+      const priceStr = price ? new Intl.NumberFormat('ru-RU').format(Math.round(price))+' ₽/м²' : 'нет данных';
+      tt.innerHTML = `<div class="tt-name">${name}</div><div class="tt-price">${priceStr}</div>`;
+    });
+    path.addEventListener('mouseleave', ()=>tt.style.display='none');
+
+    if (onClickDistrict) {
+      path.addEventListener('click', ()=>onClickDistrict(name));
+    }
+
+    svg.appendChild(path);
+  });
+
+  return {minP, maxP};
+}
+
+function parseMainData(rows) {
+  if (!rows.length) return [];
+  const keys = Object.keys(rows[0]);
+  const kP=keys.find(k=>k.toLowerCase().includes('период'));
+  const kD=keys.find(k=>k.toLowerCase().includes('округ')||k.toLowerCase().includes('район'));
+  const kPr=keys.find(k=>k.toLowerCase().includes('средне')||k.toLowerCase().includes('цена'));
+  const kV=keys.find(k=>k.toLowerCase().includes('объём')||k.toLowerCase().includes('объем')||k.toLowerCase().includes('предложени'));
+  const kC=keys.find(k=>k.toLowerCase().includes('изменение цены')||k.toLowerCase().includes('прирост цены'));
+  return rows.map(r=>{
+    try{
+      let period=String(r[kP]||'').trim().slice(0,7);
+      if(!/^\d{4}-\d{2}$/.test(period))return null;
+      const district=String(r[kD]||'').trim();
+      if(!district)return null;
+      const price=parseFloat(r[kPr]);
+      if(!price||price<=0)return null;
+      const volume=parseFloat(r[kV])||0;
+      let chg=kC?parseFloat(r[kC]):null;
+      if(chg!==null&&!isNaN(chg)&&Math.abs(chg)<1&&chg!==0)chg=chg*100;
+      return{period,district,price:Math.round(price),volume:Math.round(volume),price_change:isNaN(chg)?null:Math.round(chg*100)/100};
+    }catch(e){return null;}
+  }).filter(Boolean);
+}
+
+async function loadData() {
+  document.getElementById('loading').style.display='flex';
+  document.getElementById('main').style.display='none';
+  document.getElementById('hdr-badge').textContent='ЗАГРУЗКА...';
+  try {
+    // ── Загрузка исторических данных из Google Apps Script (опционально)
+    setLoad(10,'ЗАГРУЗКА ДАННЫХ ПО МОСКВЕ...');
+    try {
+      const r1=await fetch(URL_MOS);
+      if(r1.ok){
+        const parsed=parseMainData(await r1.json());
+        if(parsed.length) MOS=parsed;
+      }
+    } catch(e){ console.warn('GAS MOS недоступен, используем локальные данные:', e.message); }
+
+    setLoad(40,'ЗАГРУЗКА ДАННЫХ ПО ОКРУГАМ...');
+    try {
+      const r2=await fetch(URL_APP1);
+      if(r2.ok) MUNI=await r2.json();
+    } catch(e){ console.warn('GAS MUNI недоступен, используем локальные данные:', e.message); }
+
+    // ── Загрузка новых данных из новой таблицы (окт 2025 — актуальный месяц)
+    setLoad(55,'ЗАГРУЗКА АКТУАЛЬНЫХ ДАННЫХ...');
+    try {
+      const newData = await new Promise((resolve, reject) => {
+        const cbName = 'gasCallback_' + Date.now();
+        const script = document.createElement('script');
+        const timer = setTimeout(() => {
+          delete window[cbName];
+          if (script.parentNode) document.head.removeChild(script);
+          reject(new Error('timeout'));
+        }, 10000);
+        window[cbName] = (data) => {
+          clearTimeout(timer);
+          delete window[cbName];
+          if (script.parentNode) document.head.removeChild(script);
+          resolve(data);
+        };
+        script.src = URL_NEW + '?callback=' + cbName;
+        script.onerror = () => { clearTimeout(timer); reject(new Error('script error')); };
+        document.head.appendChild(script);
+      });
+
+      // Округа
+      if (newData.districts) {
+        const newMosEntries = [];
+        Object.entries(newData.districts).forEach(([district, entries]) => {
+          entries.forEach(e => newMosEntries.push({
+            period: e.period, district,
+            price: e.price, volume: null, price_change: e.price_change
+          }));
+        });
+        const newMosKeys = new Set(newMosEntries.map(r => r.period + '|' + r.district));
+        MOS = MOS.filter(r => !newMosKeys.has(r.period + '|' + r.district));
+        MOS = MOS.concat(newMosEntries);
+        MOS.sort((a,b) => a.period < b.period ? -1 : a.period > b.period ? 1 : 0);
+      }
+
+      // Ключевая ставка
+      if (newData.key_rates) {
+        window.KEY_RATES_GAS = newData.key_rates;
+      }
+
+      // Муниципалитеты
+      if (newData.municipalities) {
+        Object.entries(newData.municipalities).forEach(([ao, districts]) => {
+          if (!MUNI[ao]) MUNI[ao] = {};
+          Object.entries(districts).forEach(([dist, entries]) => {
+            if (!MUNI[ao][dist]) {
+              MUNI[ao][dist] = entries;
+            } else {
+              const newPeriods = new Set(entries.map(r => r.period));
+              MUNI[ao][dist] = MUNI[ao][dist].filter(r => !newPeriods.has(r.period));
+              MUNI[ao][dist] = MUNI[ao][dist].concat(entries);
+              MUNI[ao][dist].sort((a,b) => a.period < b.period ? -1 : 1);
+            }
+          });
+        });
+      }
+    } catch(e) { console.warn('Новый GAS недоступен, используем локальные данные:', e.message); }
+
+    if(!MOS.length) throw new Error('Нет данных для отображения.');
+
+    setLoad(70,'ЗАГРУЗКА КАРТЫ...');
+    try {
+      const [r3,r4]=await Promise.all([fetch(URL_GEO_AO),fetch(URL_GEO_MUN)]);
+      if(r3.ok) GEO_AO=await r3.json();
+      if(r4.ok) GEO_MUN=await r4.json();
+    } catch(e) { console.warn('Карта не загружена:', e); }
+
+    setLoad(100,'ГОТОВО');
+    const periods=[...new Set(MOS.map(r=>r.period))].sort();
+    const latest=periods[periods.length-1];
+    document.getElementById('hdr-badge').textContent=latest||'ЗАГРУЖЕНО';
+    document.getElementById('upd-info').textContent=`Обновлено: ${new Date().toLocaleString('ru-RU')} · Данные: ${periods[0]} — ${latest}`;
+    document.getElementById('footer-info').textContent=`ДАННЫЕ: ${periods[0]} — ${latest}`;
+    ['mf','mt','df','dt2'].forEach(id=>{const el=document.getElementById(id);el.min=periods[0];el.max=latest;});
+    document.getElementById('mf').value=periods.length>30?periods[periods.length-31]:periods[0];
+    document.getElementById('mt').value=latest;
+    document.getElementById('df').value=periods.length>30?periods[periods.length-31]:periods[0];
+    document.getElementById('dt2').value=latest;
+    setTimeout(()=>{
+      document.getElementById('loading').style.display='none';
+      document.getElementById('main').style.display='block';
+      initMPills();initDSelect();dDistChange();mUpdate();
+      initRentMapSwitcher();
+    },300);
+  }catch(e){
+    document.getElementById('load-txt').innerHTML=`<div class="err">ОШИБКА:<br>${e.message}</div>`;
+    document.getElementById('hdr-badge').textContent='ОШИБКА';
+    console.error(e);
+  }
+}
+
+let CH={};
+function mkChart(id,type,data,opts){if(CH[id])CH[id].destroy();CH[id]=new Chart(document.getElementById(id),{type,data,options:opts});}
+function cdefs(){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},boxWidth:11,padding:12},position:'bottom'},tooltip:{backgroundColor:'#ffffff',borderColor:'#e2ddd6',borderWidth:1,titleColor:'#b8924a',bodyColor:'#1c1a17',titleFont:{family:'IBM Plex Mono',size:11},bodyFont:{family:'IBM Plex Sans',size:12},padding:10,mode:'index',intersect:false,itemSort:(a,b)=>b.raw-a.raw,callbacks:{label:ctx=>{const v=ctx.raw;if(v==null)return null;const lbl=ctx.dataset.label||'';if(typeof v==='number'){if(Math.abs(v)<20)return` ${lbl}: ${v>0?'+':''}${v.toFixed(1)}%`;return` ${lbl}: ${new Intl.NumberFormat('ru-RU').format(Math.round(v))} ₽`;}return` ${lbl}: ${v}`;}}}},scales:{x:{ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},maxRotation:45},grid:{color:'#f0ece5'},border:{color:'#e2ddd6'}},y:{ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10}},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}}}};}
+function mkHeatmap(el,labels,periods,map){
+  const ps=periods.slice(-12);let h='<table class="hmt"><thead><tr><th class="rh">Название</th>';
+  ps.forEach(p=>h+=`<th>${p.slice(2)}</th>`);h+='</tr></thead><tbody>';
+  labels.forEach(lbl=>{h+=`<tr><td class="rl">${lbl}</td>`;
+    ps.forEach(p=>{const v=map[lbl]?.[p];let bg='transparent',cl='#aaa5a0';
+      if(v!=null){const i=Math.min(Math.abs(v),5)/5;if(v>0){bg=`rgba(45,138,94,${.12+i*.4})`;cl='#1f6b47';}else if(v<0){bg=`rgba(192,57,43,${.12+i*.4})`;cl='#9b2c20';}}
+      h+=`<td style="background:${bg};color:${cl}">${v!=null?(v>0?'+':'')+v.toFixed(1)+'%':'—'}</td>`;});h+='</tr>';});
+  h+='</tbody></table>';document.getElementById(el).innerHTML=h;
+}
+function mkTable(el,labels,periods,pm,cm){
+  const ps=periods.slice(-18);let h='<table class="dt"><thead><tr><th>Название</th>';
+  ps.forEach(p=>h+=`<th colspan="2">${p.slice(2)}</th>`);h+='</tr><tr><th></th>';
+  ps.forEach(()=>h+='<th>₽/м²</th><th>изм.%</th>');h+='</tr></thead><tbody>';
+  const FOOTNOTE_MUNIS = {'Внуково':'*', 'Внуковское':'*'};
+  let hasFootnote = false;
+  labels.forEach(lbl=>{
+    const mark = FOOTNOTE_MUNIS[lbl]||'';
+    if(mark) hasFootnote=true;
+    h+=`<tr><td>${lbl}${mark?`<sup style="color:var(--gold)">${mark}</sup>`:''}</td>`;
+    ps.forEach(p=>{const pr=pm[lbl]?.[p],ch=cm[lbl]?.[p];
+      const ps2=pr?new Intl.NumberFormat('ru-RU').format(Math.round(pr)):'—';
+      let cs='—',cc='';if(ch!=null){cs=(ch>0?'+':'')+ch.toFixed(1)+'%';cc=ch>0?'tp':ch<0?'tn':'';}
+      h+=`<td>${ps2}</td><td class="${cc}">${cs}</td>`;});h+='</tr>';});
+  h+='</tbody></table>';
+  if(hasFootnote) h+=`<p style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-top:8px">* До 8 мая 2024 года район Внуково входил в состав Западного АО, после — в состав Новомосковского АО. Данные могут содержать показания из обоих периодов. В расчёт среднего по округу не включается. <a href="https://www.mos.ru/mayor/themes/15299/12068050/" target="_blank" style="color:var(--gold)">Подробнее →</a></p>`;
+  document.getElementById(el).innerHTML=h;
+}
+
+function mkYearCompare(canvasId,titleId,subId,labels,pm,lastPeriod){
+  const yr=parseInt(lastPeriod.slice(0,4)),mo=lastPeriod.slice(4);
+  const years=[yr-2,yr-1,yr].filter(y=>y>=2020);
+  const shortLabels=labels.map(l=>l.replace(' АО',''));
+  const moName=new Date(lastPeriod+'-01').toLocaleString('ru-RU',{month:'long'});
+  document.getElementById(titleId).textContent=`Сравнение цен — ${moName}`;
+  document.getElementById(subId).textContent=years.join(' / ')+' · ₽/м²';
+  const o=cdefs();o.scales.x.ticks.maxRotation=45;o.scales.y.ticks.callback=v=>(v/1000).toFixed(0)+'K ₽';o.plugins.legend.position='top';
+  mkChart(canvasId,'bar',{labels:shortLabels,datasets:years.map((y,i)=>({label:String(y),data:labels.map(l=>pm[l]?.[y+mo]||null),backgroundColor:YR_CLR[i]+'aa',borderColor:YR_CLR[i],borderWidth:1,borderRadius:2}))},o);
+}
+
+function mkYearCompareH(canvasId,titleId,subId,labels,pm,lastPeriod){
+  const yr=parseInt(lastPeriod.slice(0,4)),mo=lastPeriod.slice(4);
+  const years=[yr-2,yr-1,yr].filter(y=>y>=2020);
+  const moName=new Date(lastPeriod+'-01').toLocaleString('ru-RU',{month:'long'});
+  document.getElementById(titleId).textContent=`Сравнение цен — ${moName}`;
+  document.getElementById(subId).textContent=years.join(' / ')+' · ₽/м²';
+  const o=cdefs();o.indexAxis='y';o.scales.x.ticks.callback=v=>(v/1000).toFixed(0)+'K';o.scales.y.ticks.font={family:'IBM Plex Mono',size:10};o.plugins.legend.position='top';
+  mkChart(canvasId,'bar',{labels,datasets:years.map((y,i)=>({label:String(y),data:labels.map(l=>pm[l]?.[y+mo]||null),backgroundColor:YR_CLR[i]+'aa',borderColor:YR_CLR[i],borderWidth:1,borderRadius:2}))},o);
+}
+
+let rInited = false;
+function switchTab(id){
+  ['m','d','r'].forEach(x=>{document.getElementById('panel-'+x).classList.toggle('active',x===id);document.getElementById('tab-'+x).classList.toggle('active',x===id);});
+  if (id==='r' && !rInited) { rInited=true; loadRentData(); }
+}
+
+// ── МОСКВА ──
+let mOn=new Set();
+function initMPills(){
+  const ALL=[...new Set(MOS.map(r=>r.district))].sort();mOn=new Set(ALL);
+  const c=document.getElementById('m-pills');c.innerHTML='';
+  const ap=document.createElement('span');ap.className='pill pill-all on';ap.id='m-ap';ap.textContent='Все';
+  ap.onclick=()=>{if(mOn.size===ALL.length){mOn.clear();ap.classList.remove('on');}else{mOn=new Set(ALL);ap.classList.add('on');}c.querySelectorAll('.pd').forEach(p=>p.classList.toggle('on',mOn.has(p.dataset.v)));mUpdate();};
+  c.appendChild(ap);
+  ALL.forEach(d=>{const p=document.createElement('span');p.className='pill pd on';p.dataset.v=d;p.textContent=d;
+    p.onclick=()=>{mOn.has(d)?mOn.delete(d):mOn.add(d);p.classList.toggle('on',mOn.has(d));document.getElementById('m-ap').classList.toggle('on',mOn.size===ALL.length);mUpdate();};c.appendChild(p);});
+}
+
+function mUpdate(){
+  const from=document.getElementById('mf').value,to=document.getElementById('mt').value,showT=document.getElementById('m-tog').checked;
+  const rows=MOS.filter(r=>mOn.has(r.district)&&r.period>=from&&r.period<=to&&r.price>0);
+  const periods=[...new Set(rows.map(r=>r.period))].sort(),dists=[...mOn].sort();
+  const pm={},cm={},vm={};dists.forEach(d=>{pm[d]={};cm[d]={};vm[d]={};});
+  rows.forEach(r=>{if(pm[r.district]){pm[r.district][r.period]=r.price;cm[r.district][r.period]=r.price_change;vm[r.district][r.period]=r.volume;}});
+  const last=periods[periods.length-1];
+  const ld=rows.filter(r=>r.period===last);
+  const avgP=ld.length?ld.reduce((s,r)=>s+r.price,0)/ld.length:0;
+  const totV=ld.reduce((s,r)=>s+(r.volume||0),0);
+  const vc=ld.filter(r=>r.price_change!=null),avgC=vc.length?vc.reduce((s,r)=>s+r.price_change,0)/vc.length:0;
+  // mk-v убран из интерфейса
+  const cel=document.getElementById('mk-c');cel.textContent=vc.length?(avgC>0?'+':'')+avgC.toFixed(2)+'%':'—';cel.style.color=avgC>0?'var(--pos)':avgC<0?'var(--neg)':'var(--text)';
+  document.getElementById('mk-n').textContent=mOn.size;
+  document.getElementById('mk-ns').textContent=periods.length?periods[0]+' — '+last:'';
+  // Комментарий аналитика
+  const comment = last ? ANALYST_COMMENTS[last] : null;
+  document.getElementById('mk-comment-period').textContent = comment ? comment.period : (last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : '—');
+  document.getElementById('mk-comment-text').textContent = comment ? comment.text : 'Комментарий для этого периода не добавлен.';
+
+  // КАРТА — округа с ценами из листа "Данные"
+  if (GEO_AO && last) {
+    const aoPriceMap = {};
+    dists.forEach(d => { if(pm[d][last]) aoPriceMap[d]=pm[d][last]; });
+    const moName = new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'});
+    document.getElementById('m-map-sub').textContent = `₽/м² · ${moName} · нажмите на округ для перехода`;
+    const res = buildMap('m-map-svg', GEO_AO, aoPriceMap, (name)=>{
+      if(MUNI[name]) {
+        switchTab('d');
+        document.getElementById('d-sel').value = name;
+        dDistChange();
+      }
+    });
+    if (res) drawLegend('m-leg-bar','m-leg-min','m-leg-max',res.minP,res.maxP);
+  }
+
+  const o1=cdefs();o1.scales.y.ticks.callback=v=>(v/1000).toFixed(0)+'K ₽';
+  mkChart('m-c1','line',{labels:periods,datasets:dists.map((d,i)=>({label:d,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.map(p=>pm[d][p]||null),borderWidth:1.5,pointRadius:0,pointHoverRadius:4,tension:.3,spanGaps:true}))},o1);
+  const o2=cdefs();o2.scales.y.ticks.callback=v=>v.toFixed(1)+'%';
+  mkChart('m-c2','line',{labels:periods.slice(-18),datasets:dists.map((d,i)=>({label:d,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.slice(-18).map(p=>cm[d][p]??null),borderWidth:1.5,pointRadius:2,pointHoverRadius:4,tension:.2,spanGaps:true}))},o2);
+  const moName2=last?new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}):'';
+  document.getElementById('m-c3-title').textContent=`Цены по округам — ${moName2}`;
+  const o3=cdefs();o3.plugins.legend.display=false;o3.scales.y.ticks.callback=v=>(v/1000).toFixed(0)+'K';
+  mkChart('m-c3','bar',{labels:dists.map(d=>d.replace(' АО','')),datasets:[{data:dists.map(d=>pm[d][last]||0),backgroundColor:dists.map((_,i)=>CLR[i%CLR.length]+'99'),borderColor:dists.map((_,i)=>CLR[i%CLR.length]),borderWidth:1,borderRadius:3}]},o3);
+  if(last)mkYearCompare('m-c4','m-c4-title','m-c4-sub',dists,pm,last);
+  mkHeatmap('m-hm',dists,periods,cm);
+
+  // ── Гистограмма объявлений vs объектов по округам (март 2026)
+  const AO_ADS_DATA = {
+    labels: ['ЗАО','ЮВАО','ЦАО','ЮАО','САО','СВАО','СЗАО','НАО','ЮЗАО','ВАО','ТАО','ЗелАО'],
+    objects:[3497, 2577, 2968, 2774, 2691, 2276, 2294, 2179, 1873, 1903,  299,  338],
+    ads:    [6382, 6095, 5515, 5413, 5172, 4521, 4121, 3899, 3889, 3844,  559,  536],
+    ratio:  [1.82, 2.37, 1.86, 1.95, 1.92, 1.99, 1.80, 1.79, 2.08, 2.02, 1.87, 1.59]
+  };
+  const oC8 = cdefs();
+  oC8.scales.x = {ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10}},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}};
+  oC8.scales.y = {ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},callback:v=>v>=1000?(v/1000).toFixed(0)+'K':v},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}};
+  oC8.plugins.tooltip.callbacks.label = ctx => {
+    const i = ctx.dataIndex;
+    if(ctx.datasetIndex===0) return ` Объектов: ${new Intl.NumberFormat('ru-RU').format(ctx.raw)}`;
+    return ` Объявлений: ${new Intl.NumberFormat('ru-RU').format(ctx.raw)} (×${AO_ADS_DATA.ratio[i].toFixed(2)})`;
+  };
+  mkChart('m-c8','bar',{labels:AO_ADS_DATA.labels,datasets:[
+    {label:'Объектов',data:AO_ADS_DATA.objects,backgroundColor:'#4a8fa8cc',borderColor:'#4a8fa8',borderWidth:1,borderRadius:3},
+    {label:'Объявлений',data:AO_ADS_DATA.ads,backgroundColor:'#b8924a66',borderColor:'#b8924a',borderWidth:1,borderRadius:3}
+  ]},oC8);
+
+  // ── Динамика объявлений и объектов
+  const VOLUME_DATA = {
+    months:  ['2025-08','2025-09','2025-10','2025-11','2025-12','2026-01','2026-02','2026-03'],
+    ads:     [42956, 44930, 44098, 48811, 40030, 37667, 45605, 49946],
+    objects: [24302, 25348, 25605, 26174, 21142, 20548, 22981, 25669]
+  };
+  const vLabels = VOLUME_DATA.months.map(m => new Date(m+'-01').toLocaleString('ru-RU',{month:'short',year:'2-digit'}));
+  const oV = cdefs();
+  oV.scales.y = {ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},callback:v=>v>=1000?(v/1000).toFixed(0)+'K':v},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}};
+  oV.plugins.tooltip.callbacks.label = ctx => ` ${ctx.dataset.label}: ${new Intl.NumberFormat('ru-RU').format(ctx.raw)}`;
+  mkChart('m-c5','line',{labels:vLabels,datasets:[
+    {label:'Объявлений',borderColor:'#b8924a',backgroundColor:'rgba(184,146,74,.08)',fill:true,data:VOLUME_DATA.ads,borderWidth:2,pointRadius:3,pointHoverRadius:5,tension:.3},
+    {label:'Объектов',borderColor:'#4a8fa8',backgroundColor:'rgba(74,143,168,.08)',fill:true,data:VOLUME_DATA.objects,borderWidth:2,pointRadius:3,pointHoverRadius:5,tension:.3}
+  ]},oV);
+
+  // ── Средняя стоимость м² (новые vs все)
+  const PRICE2_DATA = {
+    months:  ['2025-08','2025-09','2025-10','2025-11','2025-12','2026-01','2026-02','2026-03'],
+    new_ads: [370667, 370690, 365138, 376712, 385778, 395000, 397222, 399137],
+    all_obj: [323394, 329048, 331024, 336206, 344294, 353741, 361538, 369565]
+  };
+  const p2Labels = PRICE2_DATA.months.map(m => new Date(m+'-01').toLocaleString('ru-RU',{month:'short',year:'2-digit'}));
+  const oP2 = cdefs();
+  oP2.scales.y.ticks.callback = v => (v/1000).toFixed(0)+'K ₽';
+  oP2.plugins.tooltip.callbacks.label = ctx => ctx.raw == null ? null : ` ${ctx.dataset.label}: ${new Intl.NumberFormat('ru-RU').format(ctx.raw)} ₽`;
+  mkChart('m-c6','line',{labels:p2Labels,datasets:[
+    {label:'Новые объявления',borderColor:'#b8924a',backgroundColor:'transparent',data:PRICE2_DATA.new_ads,borderWidth:2,pointRadius:3,pointHoverRadius:5,tension:.3,spanGaps:true},
+    {label:'Все объекты',borderColor:'#4a8fa8',backgroundColor:'transparent',data:PRICE2_DATA.all_obj,borderWidth:2,pointRadius:3,pointHoverRadius:5,tension:.3,spanGaps:true,borderDash:[5,3]}
+  ]},oP2);
+
+  // ── Структура по комнатности (март 2026)
+  const ROOMS_DATA = {labels:['1-комн.','2-комн.','3-комн.','4-комн.','Другие'],values:[34,33,24,7,2]};
+  const ROOMS_CLR = ['#b8924a','#4a8fa8','#7a9e7e','#a0789e','#aab4be'];
+  document.getElementById('m-c7-sub').textContent = last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : 'март 2026';
+  const oR = cdefs();
+  oR.plugins.legend.position = 'right';
+  oR.plugins.tooltip.callbacks.label = ctx => ` ${ctx.label}: ${ctx.raw}%`;
+  delete oR.scales;
+  mkChart('m-c7','doughnut',{labels:ROOMS_DATA.labels,datasets:[{data:ROOMS_DATA.values,backgroundColor:ROOMS_CLR.map(c=>c+'cc'),borderColor:ROOMS_CLR,borderWidth:1.5,hoverOffset:6}]},oR);
+
+  // ── Ключевая ставка ЦБ vs средняя цена м²
+  const RATE_DATA = {
+    months: ['2025-10','2025-11','2025-12','2026-01','2026-02','2026-03'],
+    prices: [331024,   336206,   344294,   353741,   361538,   369565],
+    rates:  [16,       16,       15.5,     15,       15,       15]
+  };
+  const rLabels = RATE_DATA.months.map(m => new Date(m+'-01').toLocaleString('ru-RU',{month:'short',year:'2-digit'}));
+  const oRate = cdefs();
+  oRate.scales = {
+    x:{ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10}},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}},
+    yPrice:{type:'linear',position:'left',ticks:{color:'#4a8fa8',font:{family:'IBM Plex Mono',size:10},callback:v=>(v/1000).toFixed(0)+'K ₽'},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}},
+    yRate:{type:'linear',position:'right',ticks:{color:'#b8924a',font:{family:'IBM Plex Mono',size:10},callback:v=>v+'%'},grid:{drawOnChartArea:false},border:{color:'#e2ddd6'}}
+  };
+  oRate.plugins.tooltip.callbacks.label = ctx => ctx.dataset.yAxisID==='yRate' ? ` Ключевая ставка: ${ctx.raw}%` : ` Средняя цена м²: ${new Intl.NumberFormat('ru-RU').format(ctx.raw)} ₽`;
+  mkChart('m-c9','line',{labels:rLabels,datasets:[
+    {label:'Средняя цена м²',data:RATE_DATA.prices,borderColor:'#4a8fa8',backgroundColor:'rgba(74,143,168,.08)',fill:true,borderWidth:2,pointRadius:4,pointHoverRadius:6,tension:.3,yAxisID:'yPrice',spanGaps:true},
+    {label:'Ключевая ставка ЦБ',data:RATE_DATA.rates,borderColor:'#b8924a',backgroundColor:'transparent',borderWidth:2,pointRadius:4,pointHoverRadius:6,tension:.1,yAxisID:'yRate',borderDash:[6,3]}
+  ]},oRate);
+
+  document.getElementById('m-tbl').classList.toggle('on',showT);
+  if(showT)mkTable('m-tbl-c',dists,periods,pm,cm);
+}
+
+function mToggleOpt(){
+  const on = document.getElementById('m-tog-opt').checked;
+  ['opt-c1','opt-c2','opt-c3','opt-c4'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList.toggle('visible',on);
+  });
+}
+
+// ── ОКРУГ ──
+let dOn=new Set();
+function initDSelect(){const sel=document.getElementById('d-sel');sel.innerHTML='';Object.keys(MUNI).sort().forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;sel.appendChild(o);});}
+function dDistChange(){
+  const dist=document.getElementById('d-sel').value,munis=Object.keys(MUNI[dist]||{}).sort();
+  dOn=new Set(munis);const c=document.getElementById('d-pills');c.innerHTML='';
+  const ap=document.createElement('span');ap.className='pill pill-all on';ap.id='d-ap';ap.textContent='Все';
+  ap.onclick=()=>{if(dOn.size===munis.length){dOn.clear();ap.classList.remove('on');}else{dOn=new Set(munis);ap.classList.add('on');}c.querySelectorAll('.pm').forEach(p=>p.classList.toggle('on',dOn.has(p.dataset.v)));dUpdate();};
+  c.appendChild(ap);
+  munis.forEach(m=>{const p=document.createElement('span');p.className='pill pm on';p.dataset.v=m;p.textContent=m;
+    p.onclick=()=>{dOn.has(m)?dOn.delete(m):dOn.add(m);p.classList.toggle('on',dOn.has(m));document.getElementById('d-ap').classList.toggle('on',dOn.size===munis.length);dUpdate();};c.appendChild(p);});
+  dUpdate();
+}
+
+function dUpdate(){
+  const dist=document.getElementById('d-sel').value,from=document.getElementById('df').value,to=document.getElementById('dt2').value,showT=document.getElementById('d-tog').checked;
+  if(!dist||!MUNI[dist])return;
+  const munis=[...dOn].sort();
+  if(!munis.length){
+    ['dk-p','dk-c','dk-n','dk-ns','dk-d','dk-ps'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
+    return;
+  }
+  const allP=new Set();
+  munis.forEach(m=>(MUNI[dist][m]||[]).forEach(r=>{if(r.period>=from&&r.period<=to&&r.price>0)allP.add(r.period);}));
+  // Если данных нет в выбранном диапазоне — показываем все доступные данные по этим районам
+  const useAllPeriods = !allP.size;
+  if(useAllPeriods){
+    munis.forEach(m=>(MUNI[dist][m]||[]).forEach(r=>{if(r.price>0)allP.add(r.period);}));
+  }
+  const periods=[...allP].sort(),pm={},cm={},vm={};
+  munis.forEach(m=>{pm[m]={};cm[m]={};vm[m]={};(MUNI[dist][m]||[]).forEach(r=>{
+    const inRange = useAllPeriods ? r.price>0 : (r.period>=from&&r.period<=to&&r.price>0);
+    if(inRange){pm[m][r.period]=r.price;cm[m][r.period]=r.price_change;vm[m][r.period]=r.volume;}
+  });});
+  const last=periods[periods.length-1];
+  const lp=munis.map(m=>pm[m][last]).filter(Boolean);
+  const avgP=lp.length?lp.reduce((a,b)=>a+b,0)/lp.length:0;
+  const vc=munis.map(m=>cm[m][last]).filter(v=>v!=null),avgC=vc.length?vc.reduce((a,b)=>a+b,0)/vc.length:0;
+  document.getElementById('dk-p').textContent=avgP?fmtP(avgP):'—';
+  const dcel=document.getElementById('dk-c');dcel.textContent=vc.length?(avgC>0?'+':'')+avgC.toFixed(2)+'%':'—';dcel.style.color=avgC>0?'var(--pos)':avgC<0?'var(--neg)':'var(--text)';
+  document.getElementById('dk-n').textContent=munis.length;
+  document.getElementById('dk-ps').textContent=last?'Данные: '+last:'';
+  document.getElementById('dk-ns').textContent=periods.length?periods[0]+' — '+last:'';
+  document.getElementById('dk-d').textContent=periods.length?(periods[0].slice(0,4)+' — '+last.slice(0,4)):'—';
+
+  // КАРТА ОКРУГА — только для округов со стандартными муниципалитетами
+  const NO_MAP_DISTS = ['Новомосковский', 'Троицкий', 'Зеленоградский АО'];
+  const dMapCard = document.querySelector('#panel-d .map-card');
+  if (NO_MAP_DISTS.includes(dist)) {
+    if (dMapCard) dMapCard.style.display='none';
+  } else {
+    if (dMapCard) dMapCard.style.display='block';
+    if (GEO_MUN && last) {
+      const distMunis = Object.keys(MUNI[dist]||{});
+      const distGeo = {
+        type:'FeatureCollection',
+        features: GEO_MUN.features.filter(f=>distMunis.includes(f.properties.name))
+      };
+      const muniPriceMap = {};
+      munis.forEach(m=>{ if(pm[m][last]) muniPriceMap[m]=pm[m][last]; });
+      document.getElementById('d-map-title').textContent=`Карта цен — ${dist}`;
+      const moName=new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'});
+      document.getElementById('d-map-sub').textContent=`₽/м² · ${moName}`;
+      const res=buildMap('d-map-svg', distGeo, muniPriceMap, null, false);
+      if(res) drawLegend('d-leg-bar','d-leg-min','d-leg-max',res.minP,res.maxP);
+    }
+  }
+
+  const o1=cdefs();o1.scales.y.ticks.callback=v=>(v/1000).toFixed(0)+'K ₽';
+  mkChart('d-c1','line',{labels:periods,datasets:munis.map((m,i)=>({label:m,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.map(p=>pm[m][p]||null),borderWidth:1.5,pointRadius:munis.length===1?3:0,pointHoverRadius:4,tension:.3,spanGaps:true}))},o1);
+  const o2=cdefs();o2.scales.y.ticks.callback=v=>v.toFixed(1)+'%';
+  mkChart('d-c2','line',{labels:periods,datasets:munis.map((m,i)=>({label:m,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.map(p=>cm[m][p]??null),borderWidth:1.5,pointRadius:2,pointHoverRadius:4,tension:.2,spanGaps:true}))},o2);
+  const moName2=last?new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}):'';
+  document.getElementById('d-c3-title').textContent=`Цены — ${moName2}`;
+  const o3=cdefs();o3.plugins.legend.display=false;o3.scales.y.ticks.callback=v=>(v/1000).toFixed(0)+'K';
+  mkChart('d-c3','bar',{labels:munis,datasets:[{data:munis.map(m=>pm[m][last]||0),backgroundColor:munis.map((_,i)=>CLR[i%CLR.length]+'99'),borderColor:munis.map((_,i)=>CLR[i%CLR.length]),borderWidth:1,borderRadius:2}]},o3);
+  if(last&&munis.length>1)mkYearCompareH('d-c4','d-c4-title','d-c4-sub',munis,pm,last);
+  else if(last&&munis.length===1){
+    // Один район — показываем сравнение по годам для него
+    mkYearCompareH('d-c4','d-c4-title','d-c4-sub',munis,pm,last);
+  }
+  mkHeatmap('d-hm',munis,periods,cm);
+  document.getElementById('d-tbl').classList.toggle('on',showT);
+  if(showT)mkTable('d-tbl-c',munis,periods,pm,cm);
+  // Сноска Внуково
+  const fnMunis = munis.filter(m=>m==='Внуково'||m==='Внуковское');
+  let fnEl = document.getElementById('d-footnote');
+  if(!fnEl){fnEl=document.createElement('p');fnEl.id='d-footnote';fnEl.style.cssText='font-family:IBM Plex Mono,monospace;font-size:10px;color:var(--muted);padding:8px 40px 0';document.getElementById('panel-d').appendChild(fnEl);}
+  const NAO_TAO = ['Новомосковский','Троицкий'];
+  const isNaoTao = NAO_TAO.includes(dist);
+  const fnVnukovo = fnMunis.length ? `<br>* <b>Внуково</b> — до 8 мая 2024 входил в состав Западного АО, после — в состав Новомосковского АО. В расчёт среднего по округу не включается.` : '';
+  const fnReform = isNaoTao ? `<br>† До 8 мая 2024 года данные собирались по старым поселениям (Внуковское, Воскресенское, Десеновское и др.). После реформы поселения были упразднены и объединены в укрупнённые районы (Коммунарка, Филимонковский, Вороново и др.). Данные разных периодов не полностью сопоставимы. <a href="https://www.mos.ru/mayor/themes/15299/12068050/" target="_blank" style="color:var(--gold)">Подробнее →</a>` : '';
+  fnEl.innerHTML = (fnVnukovo || fnReform) ? `<span style="opacity:.8">${fnVnukovo}${fnReform}</span>` : '';
+}
+
+
+// ═══════════════════════════════════════════
+// АРЕНДА
+// ═══════════════════════════════════════════
+
+// Данные аренды (встроены). Для подключения Google Apps Script:
+// const URL_RENT = 'https://script.google.com/...'; // раскомментировать
+const URL_RENT = null;
+
+// КОММЕНТАРИИ АНАЛИТИКА — АРЕНДА (редактировать здесь)
+const RENT_COMMENTS = {
+  '2026-02': {
+    period: 'Февраль 2026',
+    text: 'Комментарий для этого периода не добавлен.'
+  },
+};
+
+const CAT_NAMES = {
+  '0': 'Студии', '1': '1-комн.', '2': '2-комн.', '3': '3-комн.', '4': '4-комн.', '5': 'Многокомн.'
+};
+
+const GAS_RENT_URL = 'https://script.google.com/macros/s/AKfycbze2g5KXNqvQ0v7lRlzCwmUDUc4Bnk8m7P4GIbKWq6G8n44YGzlfVqFFRrstqUTN2VXmQ/exec';
+
+// Глобальные переменные — заполняются после загрузки из GAS
+let RENT_RAW = {};
+let RENT = {};
+let RENT_AREAS = [];
+let RENT_MONTHS = [];
+const RENT_CATS = ['0','1','2','3','4','5'];
+
+let rOn = new Set();
+let rCatOn = new Set(['1','2','3']);
+
+// Маппинг латинских названий категорий (из GAS) обратно в числовые ключи
+const CAT_KEY_MAP = {
+  'studiya': '0', '1 komn': '1', '2 komn': '2',
+  '3 komn': '3', '4 komn': '4', 'mnogokomn': '5'
+};
+
+// Конвертирует плоский массив из GAS в структуру {area: {cat: {month: price}}}
+function buildRentRawFromGAS(rows) {
+  const raw = {};
+  for (const row of rows) {
+    const area = row.area;
+    const catKey = CAT_KEY_MAP[row.category] || row.category;
+    const month = row.month;
+    const price = Number(row.average_price);
+    if (!area || !month || !price) continue;
+    if (!raw[area]) raw[area] = {};
+    if (!raw[area][catKey]) raw[area][catKey] = {};
+    raw[area][catKey][month] = price;
+  }
+  return raw;
+}
+
+async function loadRentData() {
+  try {
+    const resp = await fetch(GAS_RENT_URL + '?type=okrug');
+    const json = await resp.json();
+    if (json.status === 'ok' && json.data.length > 0) {
+      RENT_RAW = buildRentRawFromGAS(json.data);
+    } else {
+      console.warn('GAS rent: пустой ответ');
+    }
+  } catch(e) {
+    console.warn('GAS rent недоступен, данные аренды не загружены:', e);
+  }
+  RENT = buildRentData(RENT_RAW);
+  RENT_AREAS = Object.keys(RENT).sort();
+  RENT_MONTHS = [...new Set(Object.values(RENT_RAW).flatMap(a => Object.values(a).flatMap(c => Object.keys(c))))].sort();
+  rOn = new Set(RENT_AREAS);
+
+  // Инициализируем фильтры периода
+  const rentFirst = RENT_MONTHS[0], rentLast = RENT_MONTHS[RENT_MONTHS.length - 1];
+  ['rf','rt'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.min = rentFirst; el.max = rentLast; }
+  });
+  const rfEl = document.getElementById('rf');
+  const rtEl = document.getElementById('rt');
+  if (rfEl && !rfEl.value) rfEl.value = rentFirst;
+  if (rtEl && !rtEl.value) rtEl.value = rentLast;
+
+  initRentPills();
+  rUpdate();
+}
+
+function initRentPills() {
+  // Округа
+  const ap = document.createElement('span');
+  ap.className = 'pill pill-all on'; ap.id = 'r-ap'; ap.textContent = 'Все';
+  ap.onclick = () => {
+    if (rOn.size === RENT_AREAS.length) { rOn.clear(); ap.classList.remove('on'); }
+    else { rOn = new Set(RENT_AREAS); ap.classList.add('on'); }
+    document.querySelectorAll('.rp').forEach(p => p.classList.toggle('on', rOn.has(p.dataset.v)));
+    rUpdate();
+  };
+  const pc = document.getElementById('r-pills');
+  pc.innerHTML = ''; pc.appendChild(ap);
+  RENT_AREAS.forEach(a => {
+    const p = document.createElement('span'); p.className = 'pill rp on'; p.dataset.v = a;
+    p.textContent = a.replace(' АО','');
+    p.onclick = () => { rOn.has(a) ? rOn.delete(a) : rOn.add(a); p.classList.toggle('on', rOn.has(a)); document.getElementById('r-ap').classList.toggle('on', rOn.size === RENT_AREAS.length); rUpdate(); };
+    pc.appendChild(p);
+  });
+
+  // Комнатность
+  const cc = document.getElementById('r-cat-pills');
+  cc.innerHTML = '';
+  const ca = document.createElement('span'); ca.className = 'pill pill-all'; ca.id = 'r-ca'; ca.textContent = 'Все';
+  ca.onclick = () => {
+    if (rCatOn.size === RENT_CATS.length) { rCatOn.clear(); ca.classList.remove('on'); }
+    else { rCatOn = new Set(RENT_CATS); ca.classList.add('on'); }
+    document.querySelectorAll('.rcp').forEach(p => p.classList.toggle('on', rCatOn.has(p.dataset.v)));
+    rUpdate();
+  };
+  cc.appendChild(ca);
+  RENT_CATS.forEach(c => {
+    const p = document.createElement('span'); p.className = 'pill rcp' + (rCatOn.has(c) ? ' on' : ''); p.dataset.v = c;
+    p.textContent = CAT_NAMES[c];
+    p.onclick = () => { rCatOn.has(c) ? rCatOn.delete(c) : rCatOn.add(c); p.classList.toggle('on', rCatOn.has(c)); document.getElementById('r-ca').classList.toggle('on', rCatOn.size === RENT_CATS.length); rUpdate(); };
+    cc.appendChild(p);
+  });
+}
+
+function rUpdate() {
+  const from = document.getElementById('rf').value;
+  const to   = document.getElementById('rt').value;
+  const showT = document.getElementById('r-tog').checked;
+
+  const areas  = [...rOn].sort();
+  const cats   = [...rCatOn].sort();
+  const periods = RENT_MONTHS.filter(m => m >= from && m <= to);
+  const last   = periods[periods.length - 1];
+
+  // Строим pm[area_cat][month] = price, cm[area_cat][month] = change
+  // Для динамики — группируем по выбранным округам с агрегацией по комнатности
+  // Если выбрано несколько комнатностей — усредняем цены по ним для каждого округа
+  const pm = {}, cm = {};
+  areas.forEach(a => {
+    pm[a] = {}; cm[a] = {};
+    periods.forEach(m => {
+      const prices = cats.map(c => RENT[a]?.[c]?.[m]?.price).filter(Boolean);
+      const changes = cats.map(c => RENT[a]?.[c]?.[m]?.change).filter(v => v != null);
+      if (prices.length) { pm[a][m] = Math.round(prices.reduce((s,v) => s+v,0) / prices.length); }
+      if (changes.length) { cm[a][m] = Math.round(changes.reduce((s,v) => s+v,0) / changes.length * 100) / 100; }
+    });
+  });
+
+  // KPI
+  const lp = areas.map(a => pm[a][last]).filter(Boolean);
+  const avgP = lp.length ? Math.round(lp.reduce((s,v) => s+v,0) / lp.length) : 0;
+  const vc = areas.map(a => cm[a][last]).filter(v => v != null);
+  const avgC = vc.length ? Math.round(vc.reduce((s,v) => s+v,0) / vc.length * 100) / 100 : null;
+
+  document.getElementById('rk-p').textContent = avgP ? fmtP(avgP) : '—';
+  document.getElementById('rk-ps').textContent = last ? 'Данные: ' + last : '';
+  const rcel = document.getElementById('rk-c');
+  rcel.textContent = avgC != null ? (avgC > 0 ? '+' : '') + avgC.toFixed(2) + '%' : '—';
+  rcel.style.color = avgC > 0 ? 'var(--pos)' : avgC < 0 ? 'var(--neg)' : 'var(--text)';
+  document.getElementById('rk-n').textContent = areas.length;
+  document.getElementById('rk-ns').textContent = periods.length ? periods[0] + ' — ' + last : '';
+
+  // Комментарий
+  const rc = last ? RENT_COMMENTS[last] : null;
+  document.getElementById('rk-comment-period').textContent = rc ? rc.period : (last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : '—');
+  document.getElementById('rk-comment-text').textContent = rc ? rc.text : 'Комментарий для этого периода не добавлен.';
+
+  // Чарт 1 — динамика по округам
+  const o1 = cdefs(); o1.scales.y.ticks.callback = v => (v/1000).toFixed(0)+'K ₽';
+  mkChart('r-c1','line',{labels:periods,datasets:areas.map((a,i)=>({label:a,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.map(m=>pm[a][m]||null),borderWidth:1.5,pointRadius:0,pointHoverRadius:4,tension:.3,spanGaps:true}))},o1);
+
+  // Чарт 2 — изменение %
+  const o2 = cdefs(); o2.scales.y.ticks.callback = v => v.toFixed(1)+'%';
+  mkChart('r-c2','line',{labels:periods,datasets:areas.map((a,i)=>({label:a,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.map(m=>cm[a][m]??null),borderWidth:1.5,pointRadius:2,pointHoverRadius:4,tension:.2,spanGaps:true}))},o2);
+
+  // Чарт 3 — бар последний месяц
+  const moName = last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : '';
+  document.getElementById('r-c3-title').textContent = `Цены по округам — ${moName}`;
+  const o3 = cdefs(); o3.plugins.legend.display = false; o3.scales.y.ticks.callback = v => (v/1000).toFixed(0)+'K';
+  mkChart('r-c3','bar',{labels:areas.map(a=>a.replace(' АО','')),datasets:[{data:areas.map(a=>pm[a][last]||0),backgroundColor:areas.map((_,i)=>CLR[i%CLR.length]+'99'),borderColor:areas.map((_,i)=>CLR[i%CLR.length]),borderWidth:1,borderRadius:3}]},o3);
+
+  // Чарт 4 — сравнение по комнатности (горизонтальный бар, последний месяц)
+  document.getElementById('r-c4-title').textContent = `Сравнение по комнатности — ${moName}`;
+  document.getElementById('r-c4-sub').textContent = cats.map(c=>CAT_NAMES[c]).join(' · ') + ' · ₽/мес';
+  const o4 = cdefs(); o4.indexAxis = 'y'; o4.scales.x.ticks.callback = v => (v/1000).toFixed(0)+'K';
+  o4.scales.y.ticks.font = {family:'IBM Plex Mono',size:10}; o4.plugins.legend.position = 'top';
+  const catColors = ['#aab4be','#b8924a','#4a8fa8','#6e9b7e','#9b8fd4','#c96e9b'];
+  mkChart('r-c4','bar',{labels:areas,datasets:cats.map((c,i)=>({label:CAT_NAMES[c],data:areas.map(a=>RENT[a]?.[c]?.[last]?.price||null),backgroundColor:catColors[i]+'99',borderColor:catColors[i],borderWidth:1,borderRadius:2}))},o4);
+
+  // Тепловая
+  mkHeatmap('r-hm', areas, periods, cm);
+
+  // Таблица
+  document.getElementById('r-tbl').classList.toggle('on', showT);
+  if (showT) {
+    // Таблица: строки=округа, колонки=месяцы*2 (цена+изм%)
+    const ps = periods.slice(-8);
+    let h = '<table class="dt"><thead><tr><th>Округ</th>';
+    ps.forEach(p => h += `<th colspan="2">${p.slice(2)}</th>`);
+    h += '</tr><tr><th></th>'; ps.forEach(() => h += '<th>₽/мес</th><th>изм.%</th>'); h += '</tr></thead><tbody>';
+    areas.forEach(a => {
+      h += `<tr><td>${a}</td>`;
+      ps.forEach(m => {
+        const pr = pm[a][m], ch = cm[a][m];
+        const ps2 = pr ? new Intl.NumberFormat('ru-RU').format(pr) : '—';
+        let cs = '—', cc = '';
+        if (ch != null) { cs = (ch>0?'+':'')+ch.toFixed(1)+'%'; cc = ch>0?'tp':ch<0?'tn':''; }
+        h += `<td>${ps2}</td><td class="${cc}">${cs}</td>`;
+      });
+      h += '</tr>';
+    });
+    h += '</tbody></table>';
+    document.getElementById('r-tbl-c').innerHTML = h;
+  }
+
+  // КАРТА АРЕНДЫ
+  if (GEO_AO && last) buildRentMap(last);
+}
+
+// Категории для переключателя карты
+const MAP_CAT_BTNS = [
+  {label:'Все',    cats:['0','1','2','3','4','5']},
+  {label:'Студии', cats:['0']},
+  {label:'1-комн.',cats:['1']},
+  {label:'2-комн.',cats:['2']},
+  {label:'3-комн.',cats:['3']},
+  {label:'3к+',   cats:['4','5']},
+];
+let rMapCat = 0; // индекс активной кнопки
+
+function initRentMapSwitcher() {
+  const sw = document.getElementById('r-map-switcher');
+  if (!sw) return;
+  sw.innerHTML = '';
+  MAP_CAT_BTNS.forEach((btn, i) => {
+    const b = document.createElement('button');
+    b.className = 'r-map-btn' + (i === rMapCat ? ' active' : '');
+    b.textContent = btn.label;
+    b.onclick = () => {
+      rMapCat = i;
+      sw.querySelectorAll('.r-map-btn').forEach((el, j) => el.classList.toggle('active', j === i));
+      const last = document.getElementById('rt').value;
+      if (last) buildRentMap(last);
+    };
+    sw.appendChild(b);
+  });
+}
+
+function buildRentMap(last) {
+  if (!GEO_AO || !last) return;
+  const cats = MAP_CAT_BTNS[rMapCat].cats;
+  const priceMap = {};
+  RENT_AREAS.forEach(a => {
+    const prices = cats.map(c => RENT[a]?.[c]?.[last]?.price).filter(Boolean);
+    if (prices.length) priceMap[a] = Math.round(prices.reduce((s,v) => s+v,0) / prices.length);
+  });
+  const catLabel = MAP_CAT_BTNS[rMapCat].label;
+  const moName = new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'});
+  document.getElementById('r-map-title').textContent = `Карта аренды — ${catLabel}`;
+  document.getElementById('r-map-sub').textContent = `₽/мес · ${moName}`;
+  const res = buildMap('r-map-svg', GEO_AO, priceMap, null, true);
+  if (res) drawLegend('r-leg-bar','r-leg-min','r-leg-max', res.minP, res.maxP);
+}
+
+loadData();
+</script>
+</body>
+</html>
