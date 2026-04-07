@@ -992,6 +992,27 @@ function buildRentRawFromGAS(rows) {
   return raw;
 }
 
+function buildRentData(raw) {
+  const result = {};
+  for (const area of Object.keys(raw)) {
+    result[area] = {};
+    for (const cat of Object.keys(raw[area])) {
+      const months = Object.keys(raw[area][cat]).sort();
+      result[area][cat] = {};
+      months.forEach((m, i) => {
+        const price = raw[area][cat][m];
+        let change = null;
+        if (i > 0) {
+          const prev = raw[area][cat][months[i-1]];
+          if (prev && prev > 0) change = Math.round((price - prev) / prev * 10000) / 100;
+        }
+        result[area][cat][m] = { price, change };
+      });
+    }
+  }
+  return result;
+}
+
 async function loadRentData() {
   try {
     const resp = await fetch(GAS_RENT_URL + '?type=okrug');
