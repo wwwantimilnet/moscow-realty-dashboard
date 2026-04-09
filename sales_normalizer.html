@@ -338,11 +338,10 @@ function processAll() {
         if (!row[0] || !row[1]) continue;
         let period = '';
         if (row[0] instanceof Date) {
-          period = row[0].toISOString().slice(0, 7);
+          period = fmtDate(row[0]);
         } else if (typeof row[0] === 'string') {
           period = row[0].trim().slice(0, 7);
         } else if (typeof row[0] === 'number') {
-          // Excel serial date
           const d = XLSX.SSF.parse_date_code(row[0]);
           period = `${d.y}-${String(d.m).padStart(2,'0')}`;
         }
@@ -379,7 +378,7 @@ function processAll() {
       // Фаза 2: datetime в строке 0, шаг 4
       row0.forEach((v, col) => {
         if (v instanceof Date) {
-          colPeriod[col] = v.toISOString().slice(0, 7);
+          colPeriod[col] = fmtDate(v);
         }
       });
 
@@ -423,7 +422,7 @@ function processAll() {
         const headerRow = rows[headerRowIdx];
         const colPeriodOtchet = {};
         headerRow.forEach((v, col) => {
-          if (v instanceof Date) colPeriodOtchet[col] = v.toISOString().slice(0, 7);
+          if (v instanceof Date) colPeriodOtchet[col] = fmtDate(v);
         });
         // Первый блок данных (строки сразу после заголовка)
         const districtsSeen = new Set();
@@ -483,11 +482,10 @@ function processAll() {
     if (wsNewMuni) {
       const rows = XLSX.utils.sheet_to_json(wsNewMuni, { header: 1, defval: null });
       const header = rows[0] || [];
-      // Строим маппинг col → period из заголовка
-      // Нужно знать год. Берём из названия последнего месяца + порядка
-      // Стратегия: находим последний месяц из OKRUG данных
-      const allPeriods = okrug.map(r => r.period).filter(Boolean).sort();
-      const lastKnown = allPeriods[allPeriods.length - 1] || '2025-09';
+      // Берём последний период ТОЛЬКО из старого файла (до добавления новых данных)
+      // Старый файл всегда заканчивается на 2025-09 или раньше
+      const oldPeriods = okrug.filter(r => r.period <= '2025-09').map(r => r.period).sort();
+      const lastKnown = oldPeriods[oldPeriods.length - 1] || '2025-09';
       const [ly, lm] = lastKnown.split('-').map(Number);
 
       // Заголовок: [null, null, 'октябрь', 'ноябрь', ..., 'март']
@@ -553,12 +551,11 @@ function processAll() {
       for (let i = block2Start; i < rows.length; i++) {
         const row = rows[i];
         if (!row || !row[2]) continue;
-        // col 2 = period (строка), col 3 = median_price (новые), col 4 = all_obj_price
         let period = typeof row[2] === 'string' ? row[2].trim().slice(0,7) : null;
-        if (!period && row[1]) period = String(row[1]).trim().slice(0,7); // fallback
         if (!period || !/^\d{4}-\d{2}$/.test(period)) continue;
         const price_new = Math.round(parseNum(row[3]) || 0);
         const price_all = Math.round(parseNum(row[4]) || 0);
+        if (!price_new && !price_all) continue;
         if (!seen_volume.has(period)) {
           seen_volume.add(period);
           volume.push({ period, price_new, price_all });
@@ -708,6 +705,14 @@ function normalizeAO(raw) {
     'НОВОМОСКОВСКИЙ': 'Новомосковский', 'ТРОИЦКИЙ': 'Троицкий',
   };
   return capsMap[s.toUpperCase()] || SHORT_TO_LONG[s] || null;
+}
+
+// Форматирует Date в 'YYYY-MM' без UTC-сдвига
+function fmtDate(d) {
+  if (!(d instanceof Date)) return '';
+  const y = d.getFullYear();
+  const m = d.getMonth() + 1;
+  return `${y}-${String(m).padStart(2,'0')}`;
 }
 
 function parseNum(v) {
