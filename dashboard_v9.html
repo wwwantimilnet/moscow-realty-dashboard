@@ -626,6 +626,7 @@ async function loadData() {
       document.getElementById('main').style.display='block';
       initMPills();initDSelect();dDistChange();mUpdate();
       initRentMapSwitcher();
+      if(rInited){loadRentData();}
     },300);
   }catch(e){
     document.getElementById('load-txt').innerHTML=`<div class="err">ОШИБКА:<br>${e.message}</div>`;
@@ -690,7 +691,15 @@ function mkYearCompareH(canvasId,titleId,subId,labels,pm,lastPeriod){
 let rInited = false;
 function switchTab(id){
   ['m','d','r'].forEach(x=>{document.getElementById('panel-'+x).classList.toggle('active',x===id);document.getElementById('tab-'+x).classList.toggle('active',x===id);});
-  if (id==='r' && !rInited) { rInited=true; loadRentData(); }
+  if (id==='r' && !rInited) {
+    rInited=true;
+    const loader=document.createElement('div');
+    loader.id='r-loader';
+    loader.style.cssText='padding:40px;text-align:center;font-family:IBM Plex Mono,monospace;font-size:12px;color:var(--muted);letter-spacing:.08em;';
+    loader.textContent='ЗАГРУЗКА ДАННЫХ АРЕНДЫ...';
+    document.getElementById('panel-r').prepend(loader);
+    loadRentData().finally(()=>{const l=document.getElementById('r-loader');if(l)l.remove();});
+  }
 }
 
 // ── МОСКВА ──
@@ -1149,6 +1158,7 @@ function rUpdate() {
   mkChart('r-c2','bar',{labels:periods,datasets:[{data:r2avg,backgroundColor:r2avg.map(v=>v==null?'transparent':v>=0?'rgba(45,138,94,0.75)':'rgba(192,57,43,0.75)'),borderColor:r2avg.map(v=>v==null?'transparent':v>=0?'#2d8a5e':'#c0392b'),borderWidth:1,borderRadius:3}]},o2);
 
   // Чарт 3 — бар последний месяц
+  const moName = last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : '';
   document.getElementById('r-c3-title').textContent = `Цены по округам — ${moName}`;
   const o3 = cdefs(); o3.plugins.legend.display = false;
   o3.indexAxis = 'y';
