@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Нормализатор продаж</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:wght@400;600&display=swap');
+
+  :root {
+    --bg: #faf8f4;
+    --surface: #ffffff;
+    --border: #e2ddd6;
+    --text: #1a1814;
+    --muted: #8a8480;
+    --accent: #b8924a;
+    --pos: #2d8a5e;
+    --neg: #c0392b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 48px 20px;
+  }
+
+  .container { width: 100%; max-width: 680px; margin: 0 auto; }
+
+  .header { margin-bottom: 48px; }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px; font-weight: 600;
+    color: var(--text); margin-bottom: 6px;
+  }
+  .header p { font-size: 11px; color: var(--muted); letter-spacing: .05em; }
+
+  /* Секции файлов */
+  .files-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+
+  .file-slot {
+    border: 1.5px dashed var(--border);
+    border-radius: 4px;
+    padding: 24px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+    background: var(--surface);
+    position: relative;
+  }
+  .file-slot:hover, .file-slot.drag-over { border-color: var(--accent); background: #fdf9f3; }
+  .file-slot.loaded { border-style: solid; border-color: var(--pos); }
+  .file-slot.loaded .slot-icon { color: var(--pos); }
+  .file-slot input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+
+  .slot-icon { font-size: 24px; margin-bottom: 8px; opacity: .5; }
+  .file-slot.loaded .slot-icon { opacity: 1; }
+  .slot-label { font-size: 10px; color: var(--muted); letter-spacing: .06em; line-height: 1.5; }
+  .slot-name { font-size: 11px; color: var(--pos); margin-top: 6px; font-weight: 500; word-break: break-all; }
+  .slot-meta { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  /* Статус */
+  .status {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px 16px;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--surface);
+    min-height: 48px;
+    margin-bottom: 16px;
+    line-height: 1.6;
+    display: none;
+  }
+  .status.visible { display: block; }
+  .status.ok { border-color: var(--pos); color: var(--pos); }
+  .status.err { border-color: var(--neg); color: var(--neg); }
+  .status.info { border-color: var(--accent); color: var(--accent); }
+
+  /* Превью */
+  .preview {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+    margin-bottom: 16px;
+    display: none;
+  }
+  .preview.visible { display: block; }
+  .preview-head {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: .06em;
+    display: flex;
+    justify-content: space-between;
+  }
+  .preview-tabs { display: flex; border-bottom: 1px solid var(--border); }
+  .preview-tab {
+    padding: 8px 16px;
+    font-size: 10px;
+    color: var(--muted);
+    cursor: pointer;
+    letter-spacing: .05em;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .preview-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .preview-body { overflow-x: auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 10px; }
+  th { padding: 6px 10px; text-align: left; color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 5px 10px; border-bottom: 1px solid rgba(226,221,214,.5); white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* Кнопка */
+  .btn {
+    width: 100%;
+    padding: 14px;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .1em;
+    cursor: pointer;
+    transition: all .15s;
+    border-radius: 2px;
+    display: none;
+  }
+  .btn:hover { background: var(--accent); color: #fff; }
+  .btn.visible { display: block; }
+
+  .footer {
+    margin-top: 32px;
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    letter-spacing: .04em;
+  }
+
+  .sep { height: 1px; background: var(--border); margin: 20px 0; }
+
+  .stats-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .stat-pill {
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-size: 10px;
+    color: var(--muted);
+    background: var(--surface);
+  }
+  .stat-pill span { color: var(--text); font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Нормализатор продаж</h1>
+    <p>МОСКВА · ВТОРИЧНЫЙ РЫНОК · SALES_OKRUG + SALES_MUNI + SALES_VOLUME</p>
+  </div>
+
+  <!-- Два дроп-зоны -->
+  <div class="files-grid">
+
+    <div class="file-slot" id="slot-old" ondragover="slotDrag(event,'old')" ondragleave="slotLeave('old')" ondrop="slotDrop(event,'old')">
+      <input type="file" id="file-old" accept=".xlsx,.xls" onchange="fileChosen('old', this.files[0])">
+      <div class="slot-icon" id="icon-old">📂</div>
+      <div class="slot-label">ИСТОРИЧЕСКИЙ ОТЧЁТ<br><span style="opacity:.6">фев 2020 — сен 2025</span></div>
+      <div class="slot-name" id="name-old"></div>
+      <div class="slot-meta" id="meta-old"></div>
+    </div>
+
+    <div class="file-slot" id="slot-new" ondragover="slotDrag(event,'new')" ondragleave="slotLeave('new')" ondrop="slotDrop(event,'new')">
+      <input type="file" id="file-new" accept=".xlsx,.xls" onchange="fileChosen('new', this.files[0])">
+      <div class="slot-icon" id="icon-new">📂</div>
+      <div class="slot-label">НОВЫЙ ОТЧЁТ<br><span style="opacity:.6">окт 2025 → сейчас</span></div>
+      <div class="slot-name" id="name-new"></div>
+      <div class="slot-meta" id="meta-new"></div>
+    </div>
+
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <div class="stats-row" id="stats-row"></div>
+
+  <!-- Превью результата -->
+  <div class="preview" id="preview">
+    <div class="preview-head">
+      <span>РЕЗУЛЬТАТ НОРМАЛИЗАЦИИ</span>
+      <span id="preview-info"></span>
+    </div>
+    <div class="preview-tabs">
+      <div class="preview-tab active" onclick="switchTab('okrug')">SALES_OKRUG</div>
+      <div class="preview-tab" onclick="switchTab('muni')">SALES_MUNI</div>
+      <div class="preview-tab" onclick="switchTab('volume')">SALES_VOLUME</div>
+    </div>
+    <div class="preview-body" id="preview-body"></div>
+  </div>
+
+  <button class="btn" id="dl-btn" onclick="downloadResult()">↓ СКАЧАТЬ SALES_NORMALIZED.XLSX</button>
+
+  <div class="footer">Данные не покидают браузер · Обработка на стороне клиента</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// МАППИНГ КОРОТКИХ НАЗВАНИЙ → ДЛИННЫЕ
+// ══════════════════════════════════════════════════════
+const SHORT_TO_LONG = {
+  'ВАО': 'Восточный АО',
+  'ЗАО': 'Западный АО',
+  'ЦАО': 'Центральный АО',
+  'САО': 'Северный АО',
+  'СВАО': 'Северо-Восточный АО',
+  'СЗАО': 'Северо-Западный АО',
+  'ЮАО': 'Южный АО',
+  'ЮЗАО': 'Юго-Западный АО',
+  'ЮВАО': 'Юго-Восточный АО',
+  'ЗелАО': 'Зеленоградский АО',
+  'Новомосковский': 'Новомосковский',
+  'Троицкий': 'Троицкий',
+  // Старый формат (на случай)
+  'Восточный АО': 'Восточный АО',
+  'Западный АО': 'Западный АО',
+  'Центральный АО': 'Центральный АО',
+  'Северный АО': 'Северный АО',
+  'Северо-Восточный АО': 'Северо-Восточный АО',
+  'Северо-Западный АО': 'Северо-Западный АО',
+  'Южный АО': 'Южный АО',
+  'Юго-Западный АО': 'Юго-Западный АО',
+  'Юго-Восточный АО': 'Юго-Восточный АО',
+  'Зеленоградский АО': 'Зеленоградский АО',
+};
+
+// Месяцы на русском → номер
+const RU_MONTHS = {
+  'январь':1,'февраль':2,'март':3,'апрель':4,'май':5,'июнь':6,
+  'июль':7,'август':8,'сентябрь':9,'октябрь':10,'ноябрь':11,'декабрь':12
+};
+
+// ══════════════════════════════════════════════════════
+// СОСТОЯНИЕ
+// ══════════════════════════════════════════════════════
+let wbOld = null, wbNew = null;
+let result = { okrug: [], muni: [], volume: [] };
+let resultWb = null;
+let activeTab = 'okrug';
+
+// ══════════════════════════════════════════════════════
+// DRAG & DROP
+// ══════════════════════════════════════════════════════
+function slotDrag(e, id) { e.preventDefault(); document.getElementById('slot-' + id).classList.add('drag-over'); }
+function slotLeave(id) { document.getElementById('slot-' + id).classList.remove('drag-over'); }
+function slotDrop(e, id) {
+  e.preventDefault();
+  document.getElementById('slot-' + id).classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f) fileChosen(id, f);
+}
+
+function fileChosen(id, file) {
+  if (!file) return;
+  setSlotLoading(id, file.name);
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'array', cellDates: true });
+      if (id === 'old') { wbOld = wb; validateOld(file.name); }
+      else { wbNew = wb; validateNew(file.name); }
+      if (wbOld && wbNew) processAll();
+      else if (wbOld || wbNew) setStatus('info', 'Загрузите второй файл для начала нормализации');
+    } catch(err) {
+      setStatus('err', 'Ошибка чтения файла: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function setSlotLoading(id, name) {
+  document.getElementById('name-' + id).textContent = name;
+  document.getElementById('meta-' + id).textContent = 'обработка...';
+}
+
+function validateOld(name) {
+  const sheets = wbOld.SheetNames;
+  const hasData = sheets.includes('Данные');
+  const hasMuni = sheets.includes('приложение1 цены');
+  const ok = hasData;
+  document.getElementById('slot-old').classList.toggle('loaded', ok);
+  document.getElementById('icon-old').textContent = ok ? '✓' : '⚠';
+  document.getElementById('meta-old').textContent = ok
+    ? `Данные: ✓ · Районы: ${hasMuni ? '✓' : '—'}`
+    : 'Не найден лист «Данные»';
+}
+
+function validateNew(name) {
+  const sheets = wbNew.SheetNames;
+  const hasOtchet = sheets.includes('отчет');
+  const hasMuni = sheets.includes('приложение цены по районам');
+  const hasDin = sheets.includes('динамика новых');
+  const hasData = sheets.includes('данные');
+  const ok = hasOtchet;
+  document.getElementById('slot-new').classList.toggle('loaded', ok);
+  document.getElementById('icon-new').textContent = ok ? '✓' : '⚠';
+  document.getElementById('meta-new').textContent = ok
+    ? `отчет: ✓ · районы: ${hasMuni ? '✓' : '—'} · динамика: ${hasDin ? '✓' : '—'} · данные: ${hasData ? '✓' : '—'}`
+    : 'Не найден лист «отчет»';
+}
+
+// ══════════════════════════════════════════════════════
+// ОСНОВНАЯ ОБРАБОТКА
+// ══════════════════════════════════════════════════════
+function processAll() {
+  try {
+    setStatus('info', 'Нормализация...');
+
+    const okrug = [];
+    const muni = [];
+    const volume = [];
+    const seen_okrug = new Set();
+    const seen_muni = new Set();
+    const seen_volume = new Set();
+
+    // ── 1. СТАРЫЙ ФАЙЛ — лист «Данные» (округа, фев 2020 — сен 2025)
+    const wsOldData = wbOld.Sheets['Данные'];
+    if (wsOldData) {
+      const rows = XLSX.utils.sheet_to_json(wsOldData, { header: 1, defval: null });
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row[0] || !row[1]) continue;
+        let period = '';
+        if (row[0] instanceof Date) {
+          period = row[0].toISOString().slice(0, 7);
+        } else if (typeof row[0] === 'string') {
+          period = row[0].trim().slice(0, 7);
+        } else if (typeof row[0] === 'number') {
+          // Excel serial date
+          const d = XLSX.SSF.parse_date_code(row[0]);
+          period = `${d.y}-${String(d.m).padStart(2,'0')}`;
+        }
+        if (!/^\d{4}-\d{2}$/.test(period)) continue;
+        const district = normalizeDistrict(String(row[1]).trim());
+        if (!district) continue;
+        const volume_val = parseNum(row[2]);
+        const price = parseNum(row[3]);
+        if (!price) continue;
+        const key = period + '|' + district;
+        if (!seen_okrug.has(key)) {
+          seen_okrug.add(key);
+          okrug.push({ period, district, price: Math.round(price), volume: Math.round(volume_val || 0) });
+        }
+      }
+    }
+
+    // ── 2. СТАРЫЙ ФАЙЛ — лист «приложение1 цены» (районы, 2020-02 — 2025-09)
+    const wsOldMuni = wbOld.Sheets['приложение1 цены'];
+    if (wsOldMuni) {
+      const rows = XLSX.utils.sheet_to_json(wsOldMuni, { header: 1, defval: null });
+      // Строка 0 — даты (datetime или пусто), строка 1 — цена/кол-во
+      const row0 = rows[0] || [];
+      // Строим маппинг col → period
+      // Фаза 1: col 1,2=фев2020; col 3,4=мар2020... (шаг 2, без дат) до col 59
+      const colPeriod = {};
+      let baseYear = 2020, baseMonth = 2;
+      for (let i = 0; i < 30; i++) {
+        const col = 1 + i * 2;
+        let y = baseYear, m = baseMonth + i;
+        while (m > 12) { m -= 12; y++; }
+        colPeriod[col] = `${y}-${String(m).padStart(2,'0')}`;
+      }
+      // Фаза 2: datetime в строке 0, шаг 4
+      row0.forEach((v, col) => {
+        if (v instanceof Date) {
+          colPeriod[col] = v.toISOString().slice(0, 7);
+        }
+      });
+
+      let currentAO = null;
+      for (let i = 3; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || !row[0]) continue;
+        const val0 = String(row[0]).trim();
+        // Заголовок АО — строка где col0 = название АО, col1 = null
+        if (!row[1] && row[1] !== 0) {
+          const ao = normalizeAO(val0);
+          if (ao) { currentAO = ao; continue; }
+        }
+        if (!currentAO) continue;
+        const districtRaw = val0;
+        if (!districtRaw || districtRaw.toUpperCase() === districtRaw) continue; // пропускаем заголовки CAPS
+
+        for (const [col, period] of Object.entries(colPeriod)) {
+          const c = parseInt(col);
+          const price = parseNum(row[c]);
+          if (!price || price < 50000) continue;
+          const key = period + '|' + currentAO + '|' + districtRaw;
+          if (!seen_muni.has(key)) {
+            seen_muni.add(key);
+            muni.push({ period, ao: currentAO, district: districtRaw, price: Math.round(price) });
+          }
+        }
+      }
+    }
+
+    // ── 3. НОВЫЙ ФАЙЛ — лист «отчет» (объявления + объекты последнего месяца)
+    // + лист «динамика новых» (предпоследний и последний месяц)
+    const newAds = {}; // key period|district → {ads, objects}
+
+    const wsNewDin = wbNew.Sheets['динамика новых'];
+    if (wsNewDin) {
+      const rows = XLSX.utils.sheet_to_json(wsNewDin, { header: 1, defval: null });
+      for (let i = 2; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row) continue;
+        // Блок 1: col 0=period, 1=district, 2=ads, 3=objects
+        if (row[0] && row[1] && parseNum(row[2])) {
+          const period = String(row[0]).trim().slice(0,7);
+          const district = normalizeDistrict(String(row[1]).trim());
+          if (district && /^\d{4}-\d{2}$/.test(period)) {
+            newAds[period + '|' + district] = { ads: Math.round(parseNum(row[2])||0), objects: Math.round(parseNum(row[3])||0) };
+          }
+        }
+        // Блок 2: col 6=period, 7=district, 8=ads, 9=objects
+        if (row[6] && row[7] && parseNum(row[8])) {
+          const period = String(row[6]).trim().slice(0,7);
+          const district = normalizeDistrict(String(row[7]).trim());
+          if (district && /^\d{4}-\d{2}$/.test(period)) {
+            newAds[period + '|' + district] = { ads: Math.round(parseNum(row[8])||0), objects: Math.round(parseNum(row[9])||0) };
+          }
+        }
+      }
+    }
+
+    // Данные о ценах из нового отчёта — берём из EXTRA_MOS логики:
+    // новый файл не содержит цены по округам напрямую — они в GAS
+    // Но объявления/объекты — добавляем в SALES_OKRUG как доп поля
+    Object.entries(newAds).forEach(([key, val]) => {
+      const [period, district] = key.split('|');
+      const existing = okrug.find(r => r.period === period && r.district === district);
+      if (existing) {
+        existing.ads = val.ads;
+        existing.objects = val.objects;
+      } else {
+        if (!seen_okrug.has(key)) {
+          seen_okrug.add(key);
+          okrug.push({ period, district, price: 0, volume: val.ads, ads: val.ads, objects: val.objects });
+        }
+      }
+    });
+
+    // ── 4. НОВЫЙ ФАЙЛ — лист «приложение цены по районам» (районы, последние ~6 мес)
+    const wsNewMuni = wbNew.Sheets['приложение цены по районам'];
+    if (wsNewMuni) {
+      const rows = XLSX.utils.sheet_to_json(wsNewMuni, { header: 1, defval: null });
+      const header = rows[0] || [];
+      // Строим маппинг col → period из заголовка
+      // Нужно знать год. Берём из названия последнего месяца + порядка
+      // Стратегия: находим последний месяц из OKRUG данных
+      const allPeriods = okrug.map(r => r.period).filter(Boolean).sort();
+      const lastKnown = allPeriods[allPeriods.length - 1] || '2025-09';
+      const [ly, lm] = lastKnown.split('-').map(Number);
+
+      // Заголовок: [null, null, 'октябрь', 'ноябрь', ..., 'март']
+      const monthCols = [];
+      header.forEach((v, col) => {
+        if (col < 2) return;
+        const mName = typeof v === 'string' ? v.trim().toLowerCase() : null;
+        if (mName && RU_MONTHS[mName]) monthCols.push({ col, mName, mNum: RU_MONTHS[mName] });
+      });
+
+      // Определяем года для каждого месяца в заголовке
+      // Последний месяц = lastKnown + 1 (данные продолжают)
+      // Идём справа налево
+      const colPeriodNew = {};
+      if (monthCols.length > 0) {
+        // Последний месяц — вычислим: lastKnown это сен 2025, след = окт 2025
+        let curY = ly, curM = lm + 1;
+        if (curM > 12) { curM = 1; curY++; }
+        // Если в заголовке первый месяц = октябрь, всё сходится
+        // Назначим периоды слева направо начиная с первого месяца в заголовке
+        const firstMNum = monthCols[0].mNum;
+        // Первый месяц = okт 2025 (месяц после последнего в старом)
+        let y = curY, m = curM;
+        // Если первый заголовок != ожидаемый месяц, скорректируем
+        while (m !== firstMNum) { m++; if (m > 12) { m = 1; y++; } }
+        monthCols.forEach(({ col, mNum }) => {
+          colPeriodNew[col] = `${y}-${String(m).padStart(2,'0')}`;
+          m++; if (m > 12) { m = 1; y++; }
+        });
+      }
+
+      let currentAO = null;
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || !row[0]) continue;
+        const ao = normalizeAO(String(row[0]).trim());
+        if (ao) { currentAO = ao; }
+        const districtRaw = typeof row[1] === 'string' ? row[1].trim() : null;
+        if (!districtRaw || !currentAO) continue;
+        for (const [col, period] of Object.entries(colPeriodNew)) {
+          const price = parseNum(row[parseInt(col)]);
+          if (!price || price < 50000) continue;
+          const key = period + '|' + currentAO + '|' + districtRaw;
+          if (!seen_muni.has(key)) {
+            seen_muni.add(key);
+            muni.push({ period, ao: currentAO, district: districtRaw, price: Math.round(price) });
+          }
+        }
+      }
+    }
+
+    // ── 5. НОВЫЙ ФАЙЛ — лист «данные» (суммарно по Москве — объявления/объекты)
+    const wsNewData = wbNew.Sheets['данные'];
+    if (wsNewData) {
+      const rows = XLSX.utils.sheet_to_json(wsNewData, { header: 1, defval: null });
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row[1] || !row[2]) continue;
+        const period = String(row[1]).trim().slice(0,7);
+        if (!/^\d{4}-\d{2}$/.test(period)) continue;
+        const ads = Math.round(parseNum(row[2]) || 0);
+        const objects = Math.round(parseNum(row[3]) || 0);
+        if (!seen_volume.has(period)) {
+          seen_volume.add(period);
+          volume.push({ period, ads, objects });
+        }
+      }
+    }
+
+    // Сортировка
+    okrug.sort((a,b) => a.period < b.period ? -1 : a.period > b.period ? 1 : a.district < b.district ? -1 : 1);
+    muni.sort((a,b) => a.period < b.period ? -1 : a.period > b.period ? 1 : a.ao < b.ao ? -1 : a.ao > b.ao ? 1 : a.district < b.district ? -1 : 1);
+    volume.sort((a,b) => a.period < b.period ? -1 : 1);
+
+    result = { okrug, muni, volume };
+    buildResultWb();
+    renderStats();
+    renderPreview(activeTab);
+
+    const periods_ok = [...new Set(okrug.map(r=>r.period))].sort();
+    const periods_mu = [...new Set(muni.map(r=>r.period))].sort();
+    setStatus('ok',
+      `Готово · SALES_OKRUG: ${okrug.length} строк (${periods_ok[0]} — ${periods_ok[periods_ok.length-1]}) · ` +
+      `SALES_MUNI: ${muni.length} строк (${periods_mu[0]} — ${periods_mu[periods_mu.length-1]}) · ` +
+      `SALES_VOLUME: ${volume.length} строк`
+    );
+    document.getElementById('dl-btn').classList.add('visible');
+    document.getElementById('preview').classList.add('visible');
+
+  } catch(err) {
+    setStatus('err', 'Ошибка обработки: ' + err.message);
+    console.error(err);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// ПОСТРОЕНИЕ XLSX
+// ══════════════════════════════════════════════════════
+function buildResultWb() {
+  const wb = XLSX.utils.book_new();
+
+  const okrugData = [['period','district','price','volume']];
+  result.okrug.forEach(r => okrugData.push([r.period, r.district, r.price, r.volume || 0]));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(okrugData), 'SALES_Okrug');
+
+  const muniData = [['period','ao','district','price']];
+  result.muni.forEach(r => muniData.push([r.period, r.ao, r.district, r.price]));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(muniData), 'SALES_Muni');
+
+  const volData = [['period','ads','objects']];
+  result.volume.forEach(r => volData.push([r.period, r.ads, r.objects]));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(volData), 'SALES_Volume');
+
+  resultWb = wb;
+}
+
+function downloadResult() {
+  if (!resultWb) return;
+  XLSX.writeFile(resultWb, 'sales_normalized.xlsx');
+}
+
+// ══════════════════════════════════════════════════════
+// ПРЕВЬЮ
+// ══════════════════════════════════════════════════════
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.preview-tab').forEach((el, i) => {
+    el.classList.toggle('active', ['okrug','muni','volume'][i] === tab);
+  });
+  renderPreview(tab);
+}
+
+function renderPreview(tab) {
+  const body = document.getElementById('preview-body');
+  const rows = tab === 'okrug' ? result.okrug : tab === 'muni' ? result.muni : result.volume;
+  const preview = [...rows.slice(0,5), null, ...rows.slice(-3)];
+
+  if (tab === 'okrug') {
+    let h = '<table><thead><tr><th>period</th><th>district</th><th>price</th><th>volume</th></tr></thead><tbody>';
+    preview.forEach(r => {
+      if (!r) { h += '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:4px">···</td></tr>'; return; }
+      h += `<tr><td>${r.period}</td><td>${r.district}</td><td class="num">${r.price.toLocaleString('ru-RU')}</td><td class="num">${(r.volume||0).toLocaleString('ru-RU')}</td></tr>`;
+    });
+    body.innerHTML = h + '</tbody></table>';
+  } else if (tab === 'muni') {
+    let h = '<table><thead><tr><th>period</th><th>ao</th><th>district</th><th>price</th></tr></thead><tbody>';
+    preview.forEach(r => {
+      if (!r) { h += '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:4px">···</td></tr>'; return; }
+      h += `<tr><td>${r.period}</td><td>${r.ao}</td><td>${r.district}</td><td class="num">${r.price.toLocaleString('ru-RU')}</td></tr>`;
+    });
+    body.innerHTML = h + '</tbody></table>';
+  } else {
+    let h = '<table><thead><tr><th>period</th><th>ads</th><th>objects</th></tr></thead><tbody>';
+    preview.forEach(r => {
+      if (!r) { h += '<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:4px">···</td></tr>'; return; }
+      h += `<tr><td>${r.period}</td><td class="num">${r.ads.toLocaleString('ru-RU')}</td><td class="num">${r.objects.toLocaleString('ru-RU')}</td></tr>`;
+    });
+    body.innerHTML = h + '</tbody></table>';
+  }
+
+  document.getElementById('preview-info').textContent = `${rows.length} строк`;
+}
+
+function renderStats() {
+  const ok = result.okrug;
+  const mu = result.muni;
+  const periods_ok = [...new Set(ok.map(r=>r.period))].sort();
+  const districts_ok = [...new Set(ok.map(r=>r.district))];
+  const ao_mu = [...new Set(mu.map(r=>r.ao))];
+  const districts_mu = [...new Set(mu.map(r=>r.district))];
+
+  const row = document.getElementById('stats-row');
+  row.innerHTML = [
+    `<div class="stat-pill">Периодов (округа): <span>${periods_ok.length}</span></div>`,
+    `<div class="stat-pill">Округов: <span>${districts_ok.length}</span></div>`,
+    `<div class="stat-pill">Районов: <span>${districts_mu.length}</span></div>`,
+    `<div class="stat-pill">АО в районах: <span>${ao_mu.length}</span></div>`,
+    `<div class="stat-pill">Объём (последний): <span>${(ok.filter(r=>r.period===periods_ok[periods_ok.length-1]).reduce((s,r)=>s+(r.volume||0),0)/1000).toFixed(1)}K</span></div>`,
+  ].join('');
+}
+
+// ══════════════════════════════════════════════════════
+// УТИЛИТЫ
+// ══════════════════════════════════════════════════════
+function normalizeDistrict(raw) {
+  if (!raw) return null;
+  // Убираем «мусорные» строки
+  if (raw.length > 60) return null;
+  return SHORT_TO_LONG[raw] || null;
+}
+
+function normalizeAO(raw) {
+  if (!raw) return null;
+  const s = raw.trim();
+  // Длинный формат с разным регистром
+  const lower = s.toLowerCase().replace('ао','АО').trim();
+  // Прямой маппинг
+  for (const [k, v] of Object.entries(SHORT_TO_LONG)) {
+    if (s === k || s.toUpperCase() === k.toUpperCase() ||
+        s.toLowerCase() === k.toLowerCase()) return v;
+  }
+  // CAPS → нормальный
+  const capsMap = {
+    'ВОСТОЧНЫЙ АО': 'Восточный АО', 'ЗАПАДНЫЙ АО': 'Западный АО',
+    'ЦЕНТРАЛЬНЫЙ АО': 'Центральный АО', 'СЕВЕРНЫЙ АО': 'Северный АО',
+    'СЕВЕРО-ВОСТОЧНЫЙ АО': 'Северо-Восточный АО', 'СЕВЕРО-ЗАПАДНЫЙ АО': 'Северо-Западный АО',
+    'ЮЖНЫЙ АО': 'Южный АО', 'ЮГО-ЗАПАДНЫЙ': 'Юго-Западный АО',
+    'ЮГО-ВОСТОЧНЫЙ АО': 'Юго-Восточный АО', 'ЗЕЛЕНОГРАДСКИЙ АО': 'Зеленоградский АО',
+    'НОВОМОСКОВСКИЙ': 'Новомосковский', 'ТРОИЦКИЙ': 'Троицкий',
+  };
+  return capsMap[s.toUpperCase()] || SHORT_TO_LONG[s] || null;
+}
+
+function parseNum(v) {
+  if (v === null || v === undefined || v === '') return null;
+  if (typeof v === 'number') return isNaN(v) || !isFinite(v) ? null : v;
+  const s = String(v).replace(/\s/g,'').replace(',','.');
+  if (s === '-' || s === '—' || s === '') return null;
+  const n = parseFloat(s);
+  return isNaN(n) ? null : n;
+}
+
+function setStatus(type, msg) {
+  const el = document.getElementById('status');
+  el.className = 'status visible ' + type;
+  el.textContent = msg;
+}
+</script>
+</body>
+</html>
