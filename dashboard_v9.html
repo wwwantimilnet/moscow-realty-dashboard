@@ -287,7 +287,7 @@ footer{padding:14px 40px;border-top:1px solid var(--border);font-family:'IBM Ple
       </div>
       <div class="card full"><div class="ct">Динамика аренды по округам</div><div class="cs">₽/мес · средневзвешенная цена</div><div class="cw tall"><canvas id="r-c1"></canvas></div></div>
       <div class="card"><div class="ct">Изменение цены к предыдущему месяцу</div><div class="cs">% · по округам</div><div class="cw"><canvas id="r-c2"></canvas></div></div>
-      <div class="card"><div class="ct" id="r-c3-title">Цены по округам — последний месяц</div><div class="cs">₽/мес</div><div class="cw"><canvas id="r-c3"></canvas></div></div>
+      <div class="card"><div class="ct" id="r-c3-title">Цены по округам — последний месяц</div><div class="cs">₽/мес</div><div class="cw htall"><canvas id="r-c3"></canvas></div></div>
       <div class="card full"><div class="ct" id="r-c4-title">Сравнение по комнатности</div><div class="cs" id="r-c4-sub">₽/мес · последний месяц · по округам</div><div class="cw tall"><canvas id="r-c4"></canvas></div></div>
       <div class="card full"><div class="ct">Тепловая карта изменений цен</div><div class="cs">% к предыдущему месяцу</div><div class="hm-wrap"><div id="r-hm"></div></div></div>
     </div>
@@ -1142,14 +1142,20 @@ function rUpdate() {
   mkChart('r-c1','line',{labels:periods,datasets:areas.map((a,i)=>({label:a,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.map(m=>pm[a][m]||null),borderWidth:1.5,pointRadius:0,pointHoverRadius:4,tension:.3,spanGaps:true}))},o1);
 
   // Чарт 2 — изменение %
-  const o2 = cdefs(); o2.scales.y.ticks.callback = v => v.toFixed(1)+'%';
-  mkChart('r-c2','line',{labels:periods,datasets:areas.map((a,i)=>({label:a,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.map(m=>cm[a][m]??null),borderWidth:1.5,pointRadius:2,pointHoverRadius:4,tension:.2,spanGaps:true}))},o2);
+  const o2 = cdefs();
+  o2.scales.y.ticks.callback = v => v.toFixed(1)+'%';
+  o2.plugins.legend.display = false;
+  const r2avg = periods.map(p=>{const vals=areas.map(a=>cm[a][p]).filter(v=>v!=null);return vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length*100)/100:null;});
+  mkChart('r-c2','bar',{labels:periods,datasets:[{data:r2avg,backgroundColor:r2avg.map(v=>v==null?'transparent':v>=0?'rgba(45,138,94,0.75)':'rgba(192,57,43,0.75)'),borderColor:r2avg.map(v=>v==null?'transparent':v>=0?'#2d8a5e':'#c0392b'),borderWidth:1,borderRadius:3}]},o2);
 
   // Чарт 3 — бар последний месяц
-  const moName = last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : '';
   document.getElementById('r-c3-title').textContent = `Цены по округам — ${moName}`;
-  const o3 = cdefs(); o3.plugins.legend.display = false; o3.scales.y.ticks.callback = v => (v/1000).toFixed(0)+'K';
-  mkChart('r-c3','bar',{labels:areas.map(a=>a.replace(' АО','')),datasets:[{data:areas.map(a=>pm[a][last]||0),backgroundColor:areas.map((_,i)=>CLR[i%CLR.length]+'99'),borderColor:areas.map((_,i)=>CLR[i%CLR.length]),borderWidth:1,borderRadius:3}]},o3);
+  const o3 = cdefs(); o3.plugins.legend.display = false;
+  o3.indexAxis = 'y';
+  o3.scales.x = {ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},callback:v=>(v/1000).toFixed(0)+'K'},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}};
+  o3.scales.y = {ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10}},grid:{display:false},border:{color:'#e2ddd6'}};
+  const r3sorted = areas.map((a,i)=>({a,v:pm[a][last]||0,i})).sort((x,y)=>y.v-x.v);
+  mkChart('r-c3','bar',{labels:r3sorted.map(s=>s.a.replace(' АО','')),datasets:[{data:r3sorted.map(s=>s.v),backgroundColor:r3sorted.map(s=>CLR[s.i%CLR.length]+'99'),borderColor:r3sorted.map(s=>CLR[s.i%CLR.length]),borderWidth:1,borderRadius:3}]},o3);
 
   // Чарт 4 — сравнение по комнатности (горизонтальный бар, последний месяц)
   document.getElementById('r-c4-title').textContent = `Сравнение по комнатности — ${moName}`;
