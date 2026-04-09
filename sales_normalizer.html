@@ -539,20 +539,24 @@ function processAll() {
     const wsNewData = wbNew.Sheets['данные'];
     if (wsNewData) {
       const rows = XLSX.utils.sheet_to_json(wsNewData, { header: 1, defval: null });
-      // Ищем заголовок второго блока: строка с 'month' или 'median_price'
+      // Ищем заголовок второго блока: строка содержащая 'median' в любой колонке
       let block2Start = -1;
       for (let i = 10; i < rows.length; i++) {
         const row = rows[i] || [];
         if (row.some(v => typeof v === 'string' && v.toLowerCase().includes('median'))) {
-          block2Start = i + 1; break;
+          block2Start = i + 2; // +2: пропускаем строку заголовка и пустую строку 45
+          break;
         }
       }
-      if (block2Start < 0) block2Start = 45; // fallback
+      if (block2Start < 0) block2Start = 45;
       for (let i = block2Start; i < rows.length; i++) {
         const row = rows[i];
-        if (!row || !row[2]) continue;
-        let period = typeof row[2] === 'string' ? row[2].trim().slice(0,7) : null;
-        if (!period || !/^\d{4}-\d{2}$/.test(period)) continue;
+        if (!row) continue;
+        // Ищем period в col[2] (строка формата YYYY-MM)
+        const periodRaw = row[2];
+        if (!periodRaw || typeof periodRaw !== 'string') continue;
+        const period = periodRaw.trim().slice(0, 7);
+        if (!/^\d{4}-\d{2}$/.test(period)) continue;
         const price_new = Math.round(parseNum(row[3]) || 0);
         const price_all = Math.round(parseNum(row[4]) || 0);
         if (!price_new && !price_all) continue;
