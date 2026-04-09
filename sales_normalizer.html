@@ -410,50 +410,72 @@ function processAll() {
       }
     }
 
-    // ── 3. НОВЫЙ ФАЙЛ — лист «отчет» (объявления + объекты последнего месяца)
-    // + лист «динамика новых» (предпоследний и последний месяц)
-    const newAds = {}; // key period|district → {ads, objects}
+    // ── 3a. НОВЫЙ ФАЙЛ — лист «отчет», таблица цен строки 71+ (окт 2025 — март 2026)
+    const wsNewOtchet = wbNew.Sheets['отчет'];
+    if (wsNewOtchet) {
+      const rows = XLSX.utils.sheet_to_json(wsNewOtchet, { header: 1, defval: null });
+      // Ищем строку с datetime-заголовком (окт2025+)
+      let headerRowIdx = -1;
+      for (let i = 60; i < Math.min(rows.length, 85); i++) {
+        if ((rows[i] || []).some(v => v instanceof Date)) { headerRowIdx = i; break; }
+      }
+      if (headerRowIdx >= 0) {
+        const headerRow = rows[headerRowIdx];
+        const colPeriodOtchet = {};
+        headerRow.forEach((v, col) => {
+          if (v instanceof Date) colPeriodOtchet[col] = v.toISOString().slice(0, 7);
+        });
+        // Первый блок данных (строки сразу после заголовка)
+        const districtsSeen = new Set();
+        for (let i = headerRowIdx + 1; i < Math.min(rows.length, headerRowIdx + 60); i++) {
+          const row = rows[i] || [];
+          if (!row[0] || typeof row[0] !== 'string') continue;
+          const district = normalizeAO(row[0].trim());
+          if (!district) continue;
+          for (const [col, period] of Object.entries(colPeriodOtchet)) {
+            const price = parseNum(row[parseInt(col)]);
+            if (!price || price < 50000) continue;
+            const key = period + '|' + district;
+            const existing = okrug.find(r => r.period === period && r.district === district);
+            if (existing) {
+              // Второй блок (строки 118+) точнее — перезаписываем
+              existing.price = Math.round(price);
+            } else if (!seen_okrug.has(key)) {
+              seen_okrug.add(key);
+              okrug.push({ period, district, price: Math.round(price), volume: 0 });
+            }
+          }
+        }
+      }
+    }
 
+    // ── 3b. НОВЫЙ ФАЙЛ — лист «динамика новых» (объявления/объекты, 2 месяца)
+    const newAds = {};
     const wsNewDin = wbNew.Sheets['динамика новых'];
     if (wsNewDin) {
       const rows = XLSX.utils.sheet_to_json(wsNewDin, { header: 1, defval: null });
       for (let i = 2; i < rows.length; i++) {
         const row = rows[i];
         if (!row) continue;
-        // Блок 1: col 0=period, 1=district, 2=ads, 3=objects
         if (row[0] && row[1] && parseNum(row[2])) {
           const period = String(row[0]).trim().slice(0,7);
           const district = normalizeDistrict(String(row[1]).trim());
-          if (district && /^\d{4}-\d{2}$/.test(period)) {
-            newAds[period + '|' + district] = { ads: Math.round(parseNum(row[2])||0), objects: Math.round(parseNum(row[3])||0) };
-          }
+          if (district && /^\d{4}-\d{2}$/.test(period))
+            newAds[period+'|'+district] = { ads: Math.round(parseNum(row[2])||0), objects: Math.round(parseNum(row[3])||0) };
         }
-        // Блок 2: col 6=period, 7=district, 8=ads, 9=objects
         if (row[6] && row[7] && parseNum(row[8])) {
           const period = String(row[6]).trim().slice(0,7);
           const district = normalizeDistrict(String(row[7]).trim());
-          if (district && /^\d{4}-\d{2}$/.test(period)) {
-            newAds[period + '|' + district] = { ads: Math.round(parseNum(row[8])||0), objects: Math.round(parseNum(row[9])||0) };
-          }
+          if (district && /^\d{4}-\d{2}$/.test(period))
+            newAds[period+'|'+district] = { ads: Math.round(parseNum(row[8])||0), objects: Math.round(parseNum(row[9])||0) };
         }
       }
     }
-
-    // Данные о ценах из нового отчёта — берём из EXTRA_MOS логики:
-    // новый файл не содержит цены по округам напрямую — они в GAS
-    // Но объявления/объекты — добавляем в SALES_OKRUG как доп поля
+    // Проставляем ads/objects в строки OKRUG
     Object.entries(newAds).forEach(([key, val]) => {
       const [period, district] = key.split('|');
       const existing = okrug.find(r => r.period === period && r.district === district);
-      if (existing) {
-        existing.ads = val.ads;
-        existing.objects = val.objects;
-      } else {
-        if (!seen_okrug.has(key)) {
-          seen_okrug.add(key);
-          okrug.push({ period, district, price: 0, volume: val.ads, ads: val.ads, objects: val.objects });
-        }
-      }
+      if (existing) { existing.ads = val.ads; existing.objects = val.objects; }
     });
 
     // ── 4. НОВЫЙ ФАЙЛ — лист «приложение цены по районам» (районы, последние ~6 мес)
@@ -476,24 +498,20 @@ function processAll() {
         if (mName && RU_MONTHS[mName]) monthCols.push({ col, mName, mNum: RU_MONTHS[mName] });
       });
 
-      // Определяем года для каждого месяца в заголовке
-      // Последний месяц = lastKnown + 1 (данные продолжают)
-      // Идём справа налево
+      // Определяем год: идём слева направо, отслеживаем переход через декабрь
       const colPeriodNew = {};
       if (monthCols.length > 0) {
-        // Последний месяц — вычислим: lastKnown это сен 2025, след = окт 2025
-        let curY = ly, curM = lm + 1;
-        if (curM > 12) { curM = 1; curY++; }
-        // Если в заголовке первый месяц = октябрь, всё сходится
-        // Назначим периоды слева направо начиная с первого месяца в заголовке
+        // Стартовая точка: первый месяц в заголовке должен идти сразу после lastKnown
         const firstMNum = monthCols[0].mNum;
-        // Первый месяц = okт 2025 (месяц после последнего в старом)
-        let y = curY, m = curM;
-        // Если первый заголовок != ожидаемый месяц, скорректируем
-        while (m !== firstMNum) { m++; if (m > 12) { m = 1; y++; } }
-        monthCols.forEach(({ col, mNum }) => {
-          colPeriodNew[col] = `${y}-${String(m).padStart(2,'0')}`;
-          m++; if (m > 12) { m = 1; y++; }
+        let startY = ly, startM = lm + 1;
+        if (startM > 12) { startM = 1; startY++; }
+        // Если первый заголовок не совпадает с ожидаемым — ищем ближайший совпадающий вперёд
+        while (startM !== firstMNum) { startM++; if (startM > 12) { startM = 1; startY++; } }
+        // Теперь идём по месяцам заголовка строго последовательно
+        let curY = startY, curM = startM;
+        monthCols.forEach(({ col }) => {
+          colPeriodNew[col] = `${curY}-${String(curM).padStart(2,'0')}`;
+          curM++; if (curM > 12) { curM = 1; curY++; }
         });
       }
 
@@ -517,20 +535,33 @@ function processAll() {
       }
     }
 
-    // ── 5. НОВЫЙ ФАЙЛ — лист «данные» (суммарно по Москве — объявления/объекты)
+    // ── 5. НОВЫЙ ФАЙЛ — лист «данные», блок 2 (строки ~44+): month / median_price / all_objects
+    // Блок 1 (строки 2-9): объявлений / объектов — это счётчики
+    // Блок 2 (строки ~46-53): month / median_price / new_ads / all_obj — это цены и объекты
     const wsNewData = wbNew.Sheets['данные'];
     if (wsNewData) {
       const rows = XLSX.utils.sheet_to_json(wsNewData, { header: 1, defval: null });
-      for (let i = 1; i < rows.length; i++) {
+      // Ищем заголовок второго блока: строка с 'month' или 'median_price'
+      let block2Start = -1;
+      for (let i = 10; i < rows.length; i++) {
+        const row = rows[i] || [];
+        if (row.some(v => typeof v === 'string' && v.toLowerCase().includes('median'))) {
+          block2Start = i + 1; break;
+        }
+      }
+      if (block2Start < 0) block2Start = 45; // fallback
+      for (let i = block2Start; i < rows.length; i++) {
         const row = rows[i];
-        if (!row[1] || !row[2]) continue;
-        const period = String(row[1]).trim().slice(0,7);
-        if (!/^\d{4}-\d{2}$/.test(period)) continue;
-        const ads = Math.round(parseNum(row[2]) || 0);
-        const objects = Math.round(parseNum(row[3]) || 0);
+        if (!row || !row[2]) continue;
+        // col 2 = period (строка), col 3 = median_price (новые), col 4 = all_obj_price
+        let period = typeof row[2] === 'string' ? row[2].trim().slice(0,7) : null;
+        if (!period && row[1]) period = String(row[1]).trim().slice(0,7); // fallback
+        if (!period || !/^\d{4}-\d{2}$/.test(period)) continue;
+        const price_new = Math.round(parseNum(row[3]) || 0);
+        const price_all = Math.round(parseNum(row[4]) || 0);
         if (!seen_volume.has(period)) {
           seen_volume.add(period);
-          volume.push({ period, ads, objects });
+          volume.push({ period, price_new, price_all });
         }
       }
     }
@@ -575,8 +606,8 @@ function buildResultWb() {
   result.muni.forEach(r => muniData.push([r.period, r.ao, r.district, r.price]));
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(muniData), 'SALES_Muni');
 
-  const volData = [['period','ads','objects']];
-  result.volume.forEach(r => volData.push([r.period, r.ads, r.objects]));
+  const volData = [['period','price_new','price_all']];
+  result.volume.forEach(r => volData.push([r.period, r.price_new || 0, r.price_all || 0]));
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(volData), 'SALES_Volume');
 
   resultWb = wb;
@@ -618,10 +649,10 @@ function renderPreview(tab) {
     });
     body.innerHTML = h + '</tbody></table>';
   } else {
-    let h = '<table><thead><tr><th>period</th><th>ads</th><th>objects</th></tr></thead><tbody>';
+    let h = '<table><thead><tr><th>period</th><th>price_new</th><th>price_all</th></tr></thead><tbody>';
     preview.forEach(r => {
       if (!r) { h += '<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:4px">···</td></tr>'; return; }
-      h += `<tr><td>${r.period}</td><td class="num">${r.ads.toLocaleString('ru-RU')}</td><td class="num">${r.objects.toLocaleString('ru-RU')}</td></tr>`;
+      h += `<tr><td>${r.period}</td><td class="num">${(r.price_new||0).toLocaleString('ru-RU')}</td><td class="num">${(r.price_all||0).toLocaleString('ru-RU')}</td></tr>`;
     });
     body.innerHTML = h + '</tbody></table>';
   }
