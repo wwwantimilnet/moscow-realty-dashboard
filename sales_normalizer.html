@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Нормализатор продаж</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Нормализатор продаж v1.3</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:wght@400;600&display=swap');
@@ -272,7 +275,7 @@ function fileChosen(id, file) {
   const reader = new FileReader();
   reader.onload = e => {
     try {
-      const wb = XLSX.read(e.target.result, { type: 'array', cellDates: true });
+      const wb = XLSX.read(e.target.result, { type: 'array' });
       if (id === 'old') { wbOld = wb; validateOld(file.name); }
       else { wbNew = wb; validateNew(file.name); }
       if (wbOld && wbNew) processAll();
@@ -332,18 +335,16 @@ function processAll() {
     // ── 1. СТАРЫЙ ФАЙЛ — лист «Данные» (округа, фев 2020 — сен 2025)
     const wsOldData = wbOld.Sheets['Данные'];
     if (wsOldData) {
-      const rows = XLSX.utils.sheet_to_json(wsOldData, { header: 1, defval: null });
+      const rows = XLSX.utils.sheet_to_json(wsOldData, { header: 1, defval: null, raw: true });
       for (let i = 1; i < rows.length; i++) {
         const row = rows[i];
         if (!row[0] || !row[1]) continue;
         let period = '';
-        if (row[0] instanceof Date) {
-          period = fmtDate(row[0]);
-        } else if (typeof row[0] === 'string') {
-          period = row[0].trim().slice(0, 7);
-        } else if (typeof row[0] === 'number') {
+        if (typeof row[0] === 'number' && row[0] > 40000 && row[0] < 55000) {
           const d = XLSX.SSF.parse_date_code(row[0]);
           period = `${d.y}-${String(d.m).padStart(2,'0')}`;
+        } else if (typeof row[0] === 'string') {
+          period = row[0].trim().slice(0, 7);
         }
         if (!/^\d{4}-\d{2}$/.test(period)) continue;
         const district = normalizeDistrict(String(row[1]).trim());
@@ -362,11 +363,8 @@ function processAll() {
     // ── 2. СТАРЫЙ ФАЙЛ — лист «приложение1 цены» (районы, 2020-02 — 2025-09)
     const wsOldMuni = wbOld.Sheets['приложение1 цены'];
     if (wsOldMuni) {
-      const rows = XLSX.utils.sheet_to_json(wsOldMuni, { header: 1, defval: null });
-      // Строка 0 — даты (datetime или пусто), строка 1 — цена/кол-во
+      const rows = XLSX.utils.sheet_to_json(wsOldMuni, { header: 1, defval: null, raw: true });
       const row0 = rows[0] || [];
-      // Строим маппинг col → period
-      // Фаза 1: col 1,2=фев2020; col 3,4=мар2020... (шаг 2, без дат) до col 59
       const colPeriod = {};
       let baseYear = 2020, baseMonth = 2;
       for (let i = 0; i < 30; i++) {
@@ -375,10 +373,11 @@ function processAll() {
         while (m > 12) { m -= 12; y++; }
         colPeriod[col] = `${y}-${String(m).padStart(2,'0')}`;
       }
-      // Фаза 2: datetime в строке 0, шаг 4
+      // Фаза 2: serial numbers в строке 0
       row0.forEach((v, col) => {
-        if (v instanceof Date) {
-          colPeriod[col] = fmtDate(v);
+        if (typeof v === 'number' && v > 40000 && v < 55000) {
+          const d = XLSX.SSF.parse_date_code(v);
+          colPeriod[col] = `${d.y}-${String(d.m).padStart(2,'0')}`;
         }
       });
 
@@ -412,20 +411,26 @@ function processAll() {
     // ── 3a. НОВЫЙ ФАЙЛ — лист «отчет», таблица цен строки 71+ (окт 2025 — март 2026)
     const wsNewOtchet = wbNew.Sheets['отчет'];
     if (wsNewOtchet) {
-      const rows = XLSX.utils.sheet_to_json(wsNewOtchet, { header: 1, defval: null });
-      // Ищем строку с datetime-заголовком (окт2025+)
+      // raw:true — даты приходят как serial numbers, без UTC-конвертации
+      const rows = XLSX.utils.sheet_to_json(wsNewOtchet, { header: 1, defval: null, raw: true });
       let headerRowIdx = -1;
       for (let i = 60; i < Math.min(rows.length, 85); i++) {
-        if ((rows[i] || []).some(v => v instanceof Date)) { headerRowIdx = i; break; }
+        const row = rows[i] || [];
+        if (row.some(v => typeof v === 'number' && v > 40000 && v < 55000)) {
+          headerRowIdx = i; break;
+        }
       }
       if (headerRowIdx >= 0) {
         const headerRow = rows[headerRowIdx];
         const colPeriodOtchet = {};
+        console.log('[отчет] first serial:', headerRow.find(v => typeof v === 'number' && v > 40000));
         headerRow.forEach((v, col) => {
-          if (v instanceof Date) colPeriodOtchet[col] = fmtDate(v);
+          if (typeof v === 'number' && v > 40000 && v < 55000) {
+            const d = XLSX.SSF.parse_date_code(v);
+            colPeriodOtchet[col] = `${d.y}-${String(d.m).padStart(2,'0')}`;
+          }
         });
-        // Первый блок данных (строки сразу после заголовка)
-        const districtsSeen = new Set();
+        console.log('[отчет] headerRowIdx:', headerRowIdx, 'colPeriodOtchet:', JSON.stringify(colPeriodOtchet));
         for (let i = headerRowIdx + 1; i < Math.min(rows.length, headerRowIdx + 60); i++) {
           const row = rows[i] || [];
           if (!row[0] || typeof row[0] !== 'string') continue;
@@ -437,7 +442,6 @@ function processAll() {
             const key = period + '|' + district;
             const existing = okrug.find(r => r.period === period && r.district === district);
             if (existing) {
-              // Второй блок (строки 118+) точнее — перезаписываем
               existing.price = Math.round(price);
             } else if (!seen_okrug.has(key)) {
               seen_okrug.add(key);
@@ -445,6 +449,9 @@ function processAll() {
             }
           }
         }
+        console.log('[отчет] okrug после парсинга:', okrug.length, 'строк');
+      } else {
+        console.warn('[отчет] заголовок с датами не найден!');
       }
     }
 
@@ -549,16 +556,25 @@ function processAll() {
         }
       }
       if (block2Start < 0) block2Start = 45;
+      console.log('[данные] block2Start:', block2Start);
       for (let i = block2Start; i < rows.length; i++) {
         const row = rows[i];
         if (!row) continue;
-        // Ищем period в col[2] (строка формата YYYY-MM)
-        const periodRaw = row[2];
-        if (!periodRaw || typeof periodRaw !== 'string') continue;
-        const period = periodRaw.trim().slice(0, 7);
-        if (!/^\d{4}-\d{2}$/.test(period)) continue;
-        const price_new = Math.round(parseNum(row[3]) || 0);
-        const price_all = Math.round(parseNum(row[4]) || 0);
+        // period может быть в col[2] (строка '2025-08') или col[1] (число 1,2,...)
+        // ищем первую ячейку похожую на YYYY-MM
+        let period = null;
+        for (let c = 1; c <= 3; c++) {
+          const v = row[c];
+          if (typeof v === 'string' && /^\d{4}-\d{2}/.test(v.trim())) {
+            period = v.trim().slice(0, 7); break;
+          }
+        }
+        if (!period) continue;
+        // price_new в следующей колонке после period, price_all через одну
+        const pidx = [1,2,3].find(c => typeof row[c] === 'string' && /^\d{4}-\d{2}/.test(row[c]));
+        const price_new = Math.round(parseNum(row[pidx + 1]) || 0);
+        const price_all = Math.round(parseNum(row[pidx + 2]) || 0);
+        console.log(`[данные] row ${i}: period=${period} price_new=${price_new} price_all=${price_all}`);
         if (!price_new && !price_all) continue;
         if (!seen_volume.has(period)) {
           seen_volume.add(period);
