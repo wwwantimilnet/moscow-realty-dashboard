@@ -486,10 +486,26 @@ async function loadData() {
     // ── Загрузка данных продаж из Google Sheets через GAS
     setLoad(15,'ЗАГРУЗКА ДАННЫХ ПО ОКРУГАМ...');
     try {
-      const r = await fetch(URL_SALES + '?type=all');
-      if (r.ok) {
-        const json = await r.json();
-        if (json.status === 'ok') {
+      // GAS требует JSONP из-за CORS
+      const json = await new Promise((resolve, reject) => {
+        const cbName = 'salesCb_' + Date.now();
+        const script = document.createElement('script');
+        const timer = setTimeout(() => {
+          delete window[cbName];
+          if (script.parentNode) document.head.removeChild(script);
+          reject(new Error('timeout'));
+        }, 15000);
+        window[cbName] = (data) => {
+          clearTimeout(timer);
+          delete window[cbName];
+          if (script.parentNode) document.head.removeChild(script);
+          resolve(data);
+        };
+        script.src = URL_SALES + '?type=all&callback=' + cbName;
+        script.onerror = () => { clearTimeout(timer); reject(new Error('script error')); };
+        document.head.appendChild(script);
+      });
+      if (json.status === 'ok') {
           // SALES_Okrug → MOS
           if (json.okrug && json.okrug.length) {
             MOS = json.okrug.map(row => ({
@@ -529,6 +545,8 @@ async function loadData() {
       }
     } catch(e) { console.warn('GAS продажи недоступен:', e.message); }
 
+    console.log('MOS после загрузки:', MOS.length, 'строк');
+
     setLoad(70,'ЗАГРУЗКА КАРТЫ...');
     try {
       const [r3,r4]=await Promise.all([fetch(URL_GEO_AO),fetch(URL_GEO_MUN)]);
@@ -537,12 +555,6 @@ async function loadData() {
     } catch(e) { console.warn('Карта не загружена:', e); }
 
     if(!MOS.length) throw new Error('Нет данных для отображения.');
-
-    setLoad(70,'ЗАГРУЗКА КАРТЫ...');
-    try {
-      const [r3,r4]=await Promise.all([fetch(URL_GEO_AO),fetch(URL_GEO_MUN)]);
-      if(r3.ok) GEO_AO=await r3.json();
-      if(r4.ok) GEO_MUN=await r4.json();
     } catch(e) { console.warn('Карта не загружена:', e); }
 
     setLoad(100,'ГОТОВО');
