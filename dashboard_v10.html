@@ -528,15 +528,17 @@ async function loadData() {
           delete window[cbName];
           if (script.parentNode) document.head.removeChild(script);
           reject(new Error('timeout'));
-        }, 15000);
+        }, 30000);
         window[cbName] = (data) => {
           clearTimeout(timer);
           delete window[cbName];
           if (script.parentNode) document.head.removeChild(script);
+          console.log('GAS ответил, строк okrug:', data && data.okrug ? data.okrug.length : 'нет');
           resolve(data);
         };
         script.src = URL_SALES + '?type=all&callback=' + cbName;
-        script.onerror = () => { clearTimeout(timer); reject(new Error('script error')); };
+        console.log('GAS запрос:', script.src);
+        script.onerror = (e) => { clearTimeout(timer); console.error('GAS script error:', e); reject(new Error('script error')); };
         document.head.appendChild(script);
       });
       if (json.status === 'ok') {
