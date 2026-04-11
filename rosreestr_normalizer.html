@@ -311,43 +311,37 @@ function processAll(wb) {
 }
 
 // ── УФРС (переходы прав) ────────────────────────────
-// Источник: Лист1 (2014–2024) + Данные2М (добавляет 2025–2026)
-// Лист1 структура: row[2] = заголовок с годами (col[4..N] = 2014,2015,...),
-//                  row[3..14] = янв..дек, col[3] = месяц, col[4..N] = значения
+// XLSX.js читает Лист1 иначе чем openpyxl:
+// row[0] = заголовок годов (col[3]=2014, col[4]=2015, ...)
+// row[1..12] = данные янв..дек (без колонки с названием месяца)
+// Нет отдельной колонки месяца — месяц = индекс строки (0=янв, 1=фев, ...)
+// Данные2М дополняет 2025–2026
 function parseUrfrs(wb) {
   const rows = sheetToArr(wb.Sheets['Лист1']);
   const map = {};
 
-  // Найдём строку с заголовком годов: ищем строку где есть число 2014
+  // Найдём строку-заголовок где есть год 2014
   let headerRowIdx = -1;
-  for (let i = 0; i < Math.min(rows.length, 10); i++) {
+  for (let i = 0; i < Math.min(rows.length, 5); i++) {
     if (rows[i] && rows[i].some(v => v == 2014 || v === '2014')) { headerRowIdx = i; break; }
   }
-  if (headerRowIdx < 0) headerRowIdx = 2;
+  if (headerRowIdx < 0) headerRowIdx = 0;
 
   const headerRow = rows[headerRowIdx];
-  // Найти колонку месяца (col с 'янв' в следующей строке)
-  const dataRow0 = rows[headerRowIdx + 1] || [];
-  let monthCol = -1;
-  for (let c = 0; c < dataRow0.length; c++) {
-    if (dataRow0[c] === 'янв' || dataRow0[c] === 'фев') { monthCol = c; break; }
-  }
-  if (monthCol < 0) monthCol = 3;
-
-  // Собираем года: col > monthCol где значение — число 2014..2030
+  // Собираем года и их колонки
   const years = [];
-  for (let c = monthCol + 1; c < headerRow.length; c++) {
+  for (let c = 0; c < headerRow.length; c++) {
     const y = parseInt(String(headerRow[c] || ''));
     if (!isNaN(y) && y >= 2014 && y <= 2030) years.push({ col: c, year: y });
   }
 
-  // Данные: 12 строк подряд после заголовка
+  // Строки данных: сразу после заголовка, каждая строка = месяц по порядку
+  const MONTH_NAMES = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
   for (let mi = 0; mi < 12; mi++) {
     const row = rows[headerRowIdx + 1 + mi];
     if (!row) continue;
-    const monStr = String(row[monthCol] || '').trim();
-    const monthNum = RU_MONTHS[monStr];
-    if (!monthNum) continue; // пропуск если не месяц
+    // Проверяем что это строка данных — ищем числовое значение в колонках годов
+    const monthNum = mi + 1;
     for (const { col, year } of years) {
       const v = parseNum(row[col]);
       if (v === null || v <= 0) continue;
@@ -368,7 +362,8 @@ function parseUrfrs(wb) {
     if (!row || !row[0]) continue;
     let dt = row[0], period = '';
     if (dt instanceof Date) {
-      period = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`;
+      // Используем UTC методы чтобы избежать timezone сдвига
+      period = `${dt.getUTCFullYear()}-${String(dt.getUTCMonth()+1).padStart(2,'0')}`;
     } else {
       const m = String(dt).match(/(\d{4})-(\d{2})/);
       if (m) period = `${m[1]}-${m[2]}`;
@@ -468,7 +463,7 @@ function parsePriceMsk(wb) {
     const row = dRows[i];
     if (!row || !row[0]) continue;
     let dt = row[0], period = '';
-    if (dt instanceof Date) period = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`;
+    if (dt instanceof Date) period = `${dt.getUTCFullYear()}-${String(dt.getUTCMonth()+1).padStart(2,'0')}`;
     else { const m = String(dt).match(/(\d{4})-(\d{2})/); if (m) period = `${m[1]}-${m[2]}`; }
     if (!period) continue;
     const v = round2(row[budCol]);
@@ -559,58 +554,69 @@ function parsePriceMo(wb) {
 }
 
 // ── ДИАПАЗОН ЦЕН МО ─────────────────────────────────
+// Данные2МО реальная структура колонок (XLSX.js):
+// col[0]=дата, col[12]=95%дороже(верхняя) k1, col[13]=k2, col[14]=k3
+// col[15]=95%дешевле(нижняя) k1, col[16]=k2, col[17]=k3
+// col[18]=средний чек k1, col[19]=k2, col[20]=k3
+// Для графика: low=col15, mid=col18, high=col12
 function parseRangeMo(wb) {
-  // Данные2МО: col[0]=дата, 12=5%k1, 13=5%k2, 14=5%k3, 15=95%k1, 16=95%k2, 17=95%k3, 18=avg_k1, 19=avg_k2, 20=avg_k3
   const wsD = wb.Sheets['Данные2МО'];
   const rows = sheetToArr(wsD);
-  const hdr = rows[0];
-  // Определяем колонки по заголовку
-  // Заголовок: ['Дата', 'до 6 млн', '6-9 млн', ..., '95% 1-комн дороже', ..., 'средний чек 1-комн', ...]
-  let cols = { k1_low:-1, k1_mid:-1, k1_high:-1, k2_low:-1, k2_mid:-1, k2_high:-1, k3_low:-1, k3_mid:-1, k3_high:-1 };
+  const hdr = rows[0] || [];
+
+  // Определяем колонки динамически по заголовку
+  let k1_high=-1, k2_high=-1, k3_high=-1; // "дороже" = верхняя граница
+  let k1_low=-1,  k2_low=-1,  k3_low=-1;  // "дешевле" = нижняя граница
+  let k1_mid=-1,  k2_mid=-1,  k3_mid=-1;  // средний чек
+
   for (let c = 0; c < hdr.length; c++) {
     const v = String(hdr[c] || '').toLowerCase();
-    if (v.includes('5-й перцентиль') && v.includes('1-комн')) cols.k1_low = c;
-    if (v.includes('5-й перцентиль') && v.includes('2-комн')) cols.k2_low = c;
-    if (v.includes('5-й перцентиль') && v.includes('3-комн')) cols.k3_low = c;
-    if (v.includes('95-й перцентиль') && v.includes('1-комн')) cols.k1_high = c;
-    if (v.includes('95-й перцентиль') && v.includes('2-комн')) cols.k2_high = c;
-    if (v.includes('95-й перцентиль') && v.includes('3-комн')) cols.k3_high = c;
-    if (v.includes('средний чек 1-комн')) cols.k1_mid = c;
-    if (v.includes('средний чек 2-комн')) cols.k2_mid = c;
-    if (v.includes('средний чек 3-комн')) cols.k3_mid = c;
+    // «95% дороже X» = X нижняя граница (дешевле не бывает)
+    // «95% дешевле X» = X верхняя граница (дороже не бывает)
+    if (v.includes('дороже') && v.includes('1-комн'))   k1_low = c;
+    if (v.includes('дороже') && v.includes('2-комн'))   k2_low = c;
+    if (v.includes('дороже') && v.includes('3-комн'))   k3_low = c;
+    if (v.includes('дешевле') && v.includes('1-комн'))  k1_high = c;
+    if (v.includes('дешевле') && v.includes('2-комн'))  k2_high = c;
+    if (v.includes('дешевле') && v.includes('3-комн'))  k3_high = c;
+    if (v.includes('средний чек 1-комн')) k1_mid = c;
+    if (v.includes('средний чек 2-комн')) k2_mid = c;
+    if (v.includes('средний чек 3-комн')) k3_mid = c;
   }
-  // Fallback по позиции (Данные2МО структура известна)
-  if (cols.k1_low < 0)  cols.k1_low  = 12;
-  if (cols.k2_low < 0)  cols.k2_low  = 13;
-  if (cols.k3_low < 0)  cols.k3_low  = 14;
-  if (cols.k1_high < 0) cols.k1_high = 15;
-  if (cols.k2_high < 0) cols.k2_high = 16;
-  if (cols.k3_high < 0) cols.k3_high = 17;
-  if (cols.k1_mid < 0)  cols.k1_mid  = 18;
-  if (cols.k2_mid < 0)  cols.k2_mid  = 19;
-  if (cols.k3_mid < 0)  cols.k3_mid  = 20;
+  // Fallback
+  if (k1_high < 0) k1_high = 12; if (k2_high < 0) k2_high = 13; if (k3_high < 0) k3_high = 14;
+  if (k1_low  < 0) k1_low  = 15; if (k2_low  < 0) k2_low  = 16; if (k3_low  < 0) k3_low  = 17;
+  if (k1_mid  < 0) k1_mid  = 18; if (k2_mid  < 0) k2_mid  = 19; if (k3_mid  < 0) k3_mid  = 20;
 
   const out = [];
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
     if (!row || !row[0]) continue;
-    let dt = row[0]; let period = '';
-    if (dt instanceof Date) period = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`;
-    else { const m = String(dt).match(/(\d{4})-(\d{2})/); if (m) period = `${m[1]}-${m[2]}`; }
+    let dt = row[0], period = '';
+    if (dt instanceof Date) {
+      period = `${dt.getUTCFullYear()}-${String(dt.getUTCMonth()+1).padStart(2,'0')}`;
+    } else {
+      const m = String(dt).match(/(\d{4})-(\d{2})/);
+      if (m) period = `${m[1]}-${m[2]}`;
+    }
     if (!period) continue;
 
-    const k1_low  = round2(row[cols.k1_low]);
-    const k1_mid  = round2(row[cols.k1_mid]);
-    const k1_high = round2(row[cols.k1_high]);
-    const k2_low  = round2(row[cols.k2_low]);
-    const k2_mid  = round2(row[cols.k2_mid]);
-    const k2_high = round2(row[cols.k2_high]);
-    const k3_low  = round2(row[cols.k3_low]);
-    const k3_mid  = round2(row[cols.k3_mid]);
-    const k3_high = round2(row[cols.k3_high]);
+    const k1_l = round2(row[k1_low]);
+    const k1_m = round2(row[k1_mid]);
+    const k1_h = round2(row[k1_high]);
+    const k2_l = round2(row[k2_low]);
+    const k2_m = round2(row[k2_mid]);
+    const k2_h = round2(row[k2_high]);
+    const k3_l = round2(row[k3_low]);
+    const k3_m = round2(row[k3_mid]);
+    const k3_h = round2(row[k3_high]);
 
-    if (k1_mid === null && k2_mid === null) continue;
-    out.push({ period, k1_low, k1_mid, k1_high, k2_low, k2_mid, k2_high, k3_low, k3_mid, k3_high });
+    if (k1_m === null && k2_m === null) continue;
+    out.push({ period,
+      k1_low: k1_l, k1_mid: k1_m, k1_high: k1_h,
+      k2_low: k2_l, k2_mid: k2_m, k2_high: k2_h,
+      k3_low: k3_l, k3_mid: k3_m, k3_high: k3_h
+    });
   }
   return out.sort((a,b) => a.period < b.period ? -1 : 1);
 }
