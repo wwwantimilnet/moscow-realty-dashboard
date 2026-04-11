@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Нормализатор Росреестра v1.4</title>
+<title>Нормализатор Росреестра v1.5</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:wght@400;600&display=swap');
@@ -141,7 +141,7 @@
 
   <div class="header">
     <h1>Нормализатор Росреестра</h1>
-    <p>Загрузите файл «Данные_для_отчетов_по_росреестру_ММ_ГГГГ.xlsx» → получите готовый файл для заливки в Google Sheets &nbsp;·&nbsp; <span style="color:var(--accent)">v1.4</span></p>
+    <p>Загрузите файл «Данные_для_отчетов_по_росреестру_ММ_ГГГГ.xlsx» → получите готовый файл для заливки в Google Sheets &nbsp;·&nbsp; <span style="color:var(--accent)">v1.5</span></p>
   </div>
 
   <div class="file-slot" id="slot"
@@ -697,6 +697,16 @@ function buildResultWb() {
     });
 
     ws['!ref'] = XLSX.utils.encode_range(range);
+
+    // Форматируем колонку period (col 0) как текст (@) — защита от интерпретации как даты в Sheets
+    ws['!cols'] = [{ wch: 10 }];
+    if (!ws['!formats']) ws['!formats'] = {};
+    // Явно задаём формат @ (текст) для всех ячеек колонки period
+    for (let ri = 0; ri <= data.length; ri++) {
+      const cellAddr = XLSX.utils.encode_cell({ r: ri, c: 0 });
+      if (ws[cellAddr]) ws[cellAddr].z = '@';
+    }
+
     XLSX.utils.book_append_sheet(resultWb, ws, t.label);
   });
 }
