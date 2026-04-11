@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Нормализатор Росреестра v1.2</title>
+<title>Нормализатор Росреестра v1.3</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:wght@400;600&display=swap');
@@ -141,7 +141,7 @@
 
   <div class="header">
     <h1>Нормализатор Росреестра</h1>
-    <p>Загрузите файл «Данные_для_отчетов_по_росреестру_ММ_ГГГГ.xlsx» → получите готовый файл для заливки в Google Sheets &nbsp;·&nbsp; <span style="color:var(--accent)">v1.2</span></p>
+    <p>Загрузите файл «Данные_для_отчетов_по_росреестру_ММ_ГГГГ.xlsx» → получите готовый файл для заливки в Google Sheets &nbsp;·&nbsp; <span style="color:var(--accent)">v1.3</span></p>
   </div>
 
   <div class="file-slot" id="slot"
@@ -675,7 +675,31 @@ function buildResultWb() {
   resultWb = XLSX.utils.book_new();
   TABS.forEach(t => {
     const cols = COLUMNS[t.id];
-    const ws = XLSX.utils.json_to_sheet(result[t.id], { header: cols });
+    const data = result[t.id];
+
+    // Строим лист вручную чтобы принудительно задать тип 's' (string) для period
+    // Иначе Google Sheets интерпретирует '2014-01' как дату и сдвигает на месяц
+    const ws = {};
+    const range = { s: { r: 0, c: 0 }, e: { r: data.length, c: cols.length - 1 } };
+
+    // Заголовки
+    cols.forEach((col, ci) => {
+      ws[XLSX.utils.encode_cell({ r: 0, c: ci })] = { t: 's', v: col };
+    });
+
+    // Данные
+    data.forEach((row, ri) => {
+      cols.forEach((col, ci) => {
+        const v = row[col];
+        if (v === null || v === undefined) return;
+        const cell = col === 'period'
+          ? { t: 's', v: String(v) }           // period — всегда строка
+          : { t: 'n', v: Number(v) };           // числа — числовой тип
+        ws[XLSX.utils.encode_cell({ r: ri + 1, c: ci })] = cell;
+      });
+    });
+
+    ws['!ref'] = XLSX.utils.encode_range(range);
     XLSX.utils.book_append_sheet(resultWb, ws, t.label);
   });
 }
