@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Нормализатор Росреестра v1.0</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:wght@400;600&display=swap');
+
+  :root {
+    --bg: #faf8f4;
+    --surface: #ffffff;
+    --border: #e2ddd6;
+    --text: #1a1814;
+    --muted: #8a8480;
+    --accent: #b8924a;
+    --pos: #2d8a5e;
+    --neg: #c0392b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 48px 20px;
+  }
+
+  .container { width: 100%; max-width: 720px; margin: 0 auto; }
+
+  .header { margin-bottom: 40px; }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px; font-weight: 600;
+    color: var(--text); margin-bottom: 6px;
+  }
+  .header p { font-size: 11px; color: var(--muted); letter-spacing: .05em; }
+
+  /* Слот файла */
+  .file-slot {
+    border: 1.5px dashed var(--border);
+    border-radius: 4px;
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+    background: var(--surface);
+    position: relative;
+    margin-bottom: 24px;
+  }
+  .file-slot:hover, .file-slot.drag-over { border-color: var(--accent); background: #fdf9f3; }
+  .file-slot.loaded { border-style: solid; border-color: var(--pos); }
+  .file-slot input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+
+  .slot-icon { font-size: 28px; margin-bottom: 8px; opacity: .4; }
+  .file-slot.loaded .slot-icon { opacity: 1; }
+  .slot-label { font-size: 10px; color: var(--muted); letter-spacing: .06em; line-height: 1.6; text-transform: uppercase; }
+  .slot-name { font-size: 12px; color: var(--pos); margin-top: 8px; font-weight: 500; }
+  .slot-meta { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+  /* Статус */
+  .status {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 12px 16px;
+    font-size: 11px;
+    background: var(--surface);
+    margin-bottom: 16px;
+    line-height: 1.7;
+    display: none;
+  }
+  .status.visible { display: block; }
+  .status.ok  { border-color: var(--pos); color: var(--pos); }
+  .status.err { border-color: var(--neg); color: var(--neg); }
+  .status.info { border-color: var(--accent); color: var(--accent); }
+
+  /* Превью */
+  .preview { display: none; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 20px; }
+  .preview.visible { display: block; }
+
+  .preview-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 10px; letter-spacing: .06em; color: var(--muted);
+  }
+  .preview-head span:last-child { color: var(--accent); }
+
+  .preview-tabs { display: flex; border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .preview-tab {
+    padding: 10px 16px; font-size: 10px; letter-spacing: .05em;
+    cursor: pointer; color: var(--muted); white-space: nowrap;
+    border-bottom: 2px solid transparent; transition: all .15s;
+  }
+  .preview-tab:hover { color: var(--text); }
+  .preview-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .preview-body { padding: 12px 16px; overflow-x: auto; max-height: 320px; overflow-y: auto; }
+
+  table { border-collapse: collapse; font-size: 11px; width: 100%; }
+  th {
+    text-align: left; padding: 4px 10px 6px 0;
+    color: var(--muted); font-weight: 500; font-size: 10px;
+    letter-spacing: .05em; border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  td { padding: 5px 10px 5px 0; border-bottom: 1px solid #f0ece6; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { color: var(--accent); font-weight: 500; }
+
+  /* Статистика */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 4px; padding: 14px 16px;
+  }
+  .stat-label { font-size: 9px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 4px; }
+  .stat-value { font-size: 20px; color: var(--accent); font-weight: 500; }
+
+  /* Кнопка */
+  .btn {
+    display: block; width: 100%;
+    background: var(--accent); color: #fff;
+    border: none; border-radius: 4px;
+    padding: 14px; font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+    cursor: pointer; transition: opacity .2s;
+    display: none;
+  }
+  .btn:hover { opacity: .85; }
+  .btn.visible { display: block; }
+
+  .footer { margin-top: 32px; font-size: 10px; color: var(--muted); text-align: center; letter-spacing: .04em; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Нормализатор Росреестра</h1>
+    <p>Загрузите файл «Данные_для_отчетов_по_росреестру_ММ_ГГГГ.xlsx» → получите готовый файл для заливки в Google Sheets</p>
+  </div>
+
+  <div class="file-slot" id="slot"
+    ondragover="slotDrag(event)" ondragleave="slotLeave()" ondrop="slotDrop(event)">
+    <input type="file" accept=".xlsx" onchange="fileChosen(this.files[0])">
+    <div class="slot-icon" id="slot-icon">📂</div>
+    <div class="slot-label">Файл данных Росреестра<br>перетащите или нажмите</div>
+    <div class="slot-name" id="slot-name"></div>
+    <div class="slot-meta" id="slot-meta"></div>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <div class="stats-row" id="stats-row" style="display:none">
+    <div class="stat-card"><div class="stat-label">Москва УФРС</div><div class="stat-value" id="st-urfrs">—</div></div>
+    <div class="stat-card"><div class="stat-label">Бюджет МСК</div><div class="stat-value" id="st-bud-msk">—</div></div>
+    <div class="stat-card"><div class="stat-label">Бюджет МО</div><div class="stat-value" id="st-bud-mo">—</div></div>
+    <div class="stat-card"><div class="stat-label">Диапазон МО</div><div class="stat-value" id="st-range-mo">—</div></div>
+  </div>
+
+  <div class="preview" id="preview">
+    <div class="preview-head">
+      <span>РЕЗУЛЬТАТ НОРМАЛИЗАЦИИ</span>
+      <span id="preview-info"></span>
+    </div>
+    <div class="preview-tabs" id="preview-tabs"></div>
+    <div class="preview-body" id="preview-body"></div>
+  </div>
+
+  <button class="btn" id="dl-btn" onclick="downloadResult()">↓ Скачать ROSREESTR_NORMALIZED.XLSX</button>
+
+  <div class="footer">Данные не покидают браузер · Обработка на стороне клиента</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// СОСТОЯНИЕ
+// ══════════════════════════════════════════════════════
+let result = null;  // { urfrs, budget_msk, typo_msk, price_msk, budget_mo, typo_mo, price_mo, range_mo }
+let activeTab = 'urfrs';
+let resultWb = null;
+
+const TABS = [
+  { id: 'urfrs',      label: 'URFRS_Moscow' },
+  { id: 'budget_msk', label: 'BUDGET_Moscow' },
+  { id: 'typo_msk',   label: 'TYPO_Moscow' },
+  { id: 'price_msk',  label: 'PRICE_Moscow' },
+  { id: 'budget_mo',  label: 'BUDGET_MO' },
+  { id: 'typo_mo',    label: 'TYPO_MO' },
+  { id: 'price_mo',   label: 'PRICE_MO' },
+  { id: 'range_mo',   label: 'RANGE_MO' },
+];
+
+const RU_MONTHS = {
+  'янв':1,'фев':2,'мар':3,'апр':4,'май':5,'июн':6,
+  'июл':7,'авг':8,'сен':9,'окт':10,'ноя':11,'дек':12
+};
+
+// ══════════════════════════════════════════════════════
+// DRAG & DROP
+// ══════════════════════════════════════════════════════
+function slotDrag(e) { e.preventDefault(); document.getElementById('slot').classList.add('drag-over'); }
+function slotLeave() { document.getElementById('slot').classList.remove('drag-over'); }
+function slotDrop(e) {
+  e.preventDefault();
+  document.getElementById('slot').classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f) fileChosen(f);
+}
+
+function fileChosen(file) {
+  if (!file) return;
+  document.getElementById('slot-name').textContent = file.name;
+  document.getElementById('slot-meta').textContent = 'обработка...';
+  setStatus('info', 'Читаю файл...');
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'array', cellDates: true });
+      validateAndProcess(file.name, wb);
+    } catch(err) {
+      setStatus('err', 'Ошибка чтения: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ══════════════════════════════════════════════════════
+// ВАЛИДАЦИЯ
+// ══════════════════════════════════════════════════════
+function validateAndProcess(name, wb) {
+  const required = ['Данные2М', 'своды', 'Лист1', 'сводыМО', 'Данные2МО'];
+  const missing = required.filter(s => !wb.SheetNames.includes(s));
+  if (missing.length) {
+    setStatus('err', `Не найдены листы: ${missing.join(', ')}`);
+    document.getElementById('slot-meta').textContent = 'ошибка структуры';
+    return;
+  }
+  const found = required.map(s => wb.SheetNames.includes(s) ? '✓' : '—').join(' · ');
+  document.getElementById('slot').classList.add('loaded');
+  document.getElementById('slot-icon').textContent = '✓';
+  document.getElementById('slot-meta').textContent = found;
+  setStatus('info', 'Нормализую...');
+  setTimeout(() => processAll(wb), 30);
+}
+
+// ══════════════════════════════════════════════════════
+// УТИЛИТЫ
+// ══════════════════════════════════════════════════════
+function parseNum(v) {
+  if (v === null || v === undefined || v === '') return null;
+  if (typeof v === 'number') return isNaN(v) || !isFinite(v) ? null : v;
+  const s = String(v).replace(/\s/g,'').replace(',','.');
+  const n = parseFloat(s);
+  return isNaN(n) ? null : n;
+}
+
+function round4(v) {
+  const n = parseNum(v);
+  return n === null ? null : Math.round(n * 10000) / 10000;
+}
+
+function round2(v) {
+  const n = parseNum(v);
+  return n === null ? null : Math.round(n * 100) / 100;
+}
+
+function sheetToArr(ws) {
+  return XLSX.utils.sheet_to_json(ws, { header: 1, defval: null, raw: true });
+}
+
+// ══════════════════════════════════════════════════════
+// ОСНОВНАЯ ОБРАБОТКА
+// ══════════════════════════════════════════════════════
+function processAll(wb) {
+  try {
+    result = {
+      urfrs:      parseUrfrs(wb),
+      budget_msk: parseBudgetMsk(wb),
+      typo_msk:   parseTypoMsk(wb),
+      price_msk:  parsePriceMsk(wb),
+      budget_mo:  parseBudgetMo(wb),
+      typo_mo:    parseTypoMo(wb),
+      price_mo:   parsePriceMo(wb),
+      range_mo:   parseRangeMo(wb),
+    };
+
+    // Статистика
+    document.getElementById('st-urfrs').textContent    = result.urfrs.length;
+    document.getElementById('st-bud-msk').textContent  = result.budget_msk.length;
+    document.getElementById('st-bud-mo').textContent   = result.budget_mo.length;
+    document.getElementById('st-range-mo').textContent = result.range_mo.length;
+    document.getElementById('stats-row').style.display = 'grid';
+
+    // Итоги
+    const totals = Object.values(result).reduce((s, arr) => s + arr.length, 0);
+    setStatus('ok', `Готово · ${totals} строк по ${Object.keys(result).length} листам`);
+
+    buildPreview();
+    buildResultWb();
+
+    document.getElementById('dl-btn').classList.add('visible');
+  } catch(err) {
+    setStatus('err', 'Ошибка обработки: ' + err.message + '\n' + err.stack);
+    console.error(err);
+  }
+}
+
+// ── УФРС (переходы прав) ────────────────────────────
+// Источник: Лист1 (2014–2024) + Данные2М (2014–сейчас, добавляет 2025-2026)
+function parseUrfrs(wb) {
+  const rows = sheetToArr(wb.Sheets['Лист1']);
+  // Строки 3–14 (индексы 2–13): янв–дек, столбцы 4–15 = 2014–2024
+  const MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+  // Заголовочная строка: row[2], col[4] = '2014'
+  const headerRow = rows[2];
+  if (!headerRow) return [];
+
+  // Найти колонку начала годов
+  let yearStartCol = -1;
+  for (let c = 0; c < headerRow.length; c++) {
+    if (headerRow[c] == '2014' || headerRow[c] === 2014) { yearStartCol = c; break; }
+  }
+  if (yearStartCol < 0) yearStartCol = 4;
+
+  const years = [];
+  for (let c = yearStartCol; c < headerRow.length; c++) {
+    const y = parseInt(headerRow[c]);
+    if (!isNaN(y) && y >= 2014 && y <= 2030) years.push({ col: c, year: y });
+  }
+
+  const map = {}; // period → rights
+
+  // Лист1: исторические данные
+  for (let mi = 0; mi < 12; mi++) {
+    const row = rows[3 + mi];
+    if (!row) continue;
+    for (const { col, year } of years) {
+      const v = parseNum(row[col]);
+      if (v === null || v <= 0) continue;
+      const period = `${year}-${String(mi + 1).padStart(2,'0')}`;
+      map[period] = Math.round(v);
+    }
+  }
+
+  // Данные2М: добавляем/обновляем свежие данные (2025–2026)
+  const wsD = wb.Sheets['Данные2М'];
+  const dRows = sheetToArr(wsD);
+  // header row[0]: col[22] = 'зарегистрировано прав купли-продажи мены...'
+  const headerD = dRows[0];
+  let urfrsCol = -1;
+  for (let c = 0; c < headerD.length; c++) {
+    const v = String(headerD[c] || '');
+    if (v.toLowerCase().includes('зарегистрировано прав')) { urfrsCol = c; break; }
+  }
+  if (urfrsCol < 0) urfrsCol = 22;
+
+  for (let i = 1; i < dRows.length; i++) {
+    const row = dRows[i];
+    if (!row || !row[0]) continue;
+    let dt = row[0];
+    let period = '';
+    if (dt instanceof Date) {
+      period = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`;
+    } else {
+      const m = String(dt).match(/(\d{4})-(\d{2})/);
+      if (m) period = `${m[1]}-${m[2]}`;
+    }
+    if (!period) continue;
+    const v = parseNum(row[urfrsCol]);
+    if (v !== null && v > 0) map[period] = Math.round(v);
+  }
+
+  return Object.entries(map)
+    .sort(([a],[b]) => a < b ? -1 : 1)
+    .map(([period, rights]) => ({ period, rights }));
+}
+
+// ── БЮДЖЕТ МОСКВА (структура продаж по бюджету) ─────
+function parseBudgetMsk(wb) {
+  const rows = sheetToArr(wb.Sheets['своды']);
+  // Данные с row[3], год в col[0] (или None + продолжение), месяц в col[1]
+  // Колонки бюджета: 2=lt9, 3=b9_12, 4=b12_15, 5=b15_30, 6=gt30
+  const out = [];
+  let year = null;
+
+  for (let i = 3; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row) continue;
+
+    if (row[0] && String(row[0]).match(/^\d{4}$/)) year = parseInt(row[0]);
+    if (!year) continue;
+
+    const mon = row[1];
+    if (!mon || !RU_MONTHS[String(mon).trim()]) continue;
+    const m = RU_MONTHS[String(mon).trim()];
+    const period = `${year}-${String(m).padStart(2,'0')}`;
+
+    const lt9   = round4(row[2]);
+    const b9_12 = round4(row[3]);
+    const b12_15 = round4(row[4]);
+    const b15_30 = round4(row[5]);
+    const gt30  = round4(row[6]);
+
+    if (lt9 === null && b9_12 === null) continue;
+    out.push({ period, lt9, b9_12, b12_15, b15_30, gt30 });
+  }
+  return out;
+}
+
+// ── ТИПОЛОГИЯ МОСКВА ────────────────────────────────
+function parseTypoMsk(wb) {
+  const rows = sheetToArr(wb.Sheets['своды']);
+  // Типология: col[9]=год, col[10]=месяц, col[11]=комнаты, col[12]=k1, col[13]=k2, col[14]=k3, col[15]=multi
+  const out = [];
+  let year = null;
+
+  for (let i = 3; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row) continue;
+
+    // год может быть в col[0] или col[9]
+    if (row[0] && String(row[0]).match(/^\d{4}$/)) year = parseInt(row[0]);
+    if (row[9] && String(row[9]).match(/^\d{4}$/)) year = parseInt(row[9]);
+    if (!year) continue;
+
+    // Месяц в col[10]
+    const mon = row[10];
+    if (!mon || !RU_MONTHS[String(mon).trim()]) continue;
+    const m = RU_MONTHS[String(mon).trim()];
+    const period = `${year}-${String(m).padStart(2,'0')}`;
+
+    const rooms = round4(row[11]);
+    const k1    = round4(row[12]);
+    const k2    = round4(row[13]);
+    const k3    = round4(row[14]);
+    const multi = round4(row[15]);
+
+    if (k1 === null && k2 === null) continue;
+    out.push({ period, rooms, k1, k2, k3, multi });
+  }
+  return out;
+}
+
+// ── ЦЕНЫ МОСКВА ─────────────────────────────────────
+function parsePriceMsk(wb) {
+  // Из своды: col[17]=год, col[18]=месяц, col[19]=avg_k1, col[20]=avg_k2
+  // col[21] = avg_k3 (нет в превью — проверим)
+  // + средний бюджет из Данные2М col[21]
+  const rows = sheetToArr(wb.Sheets['своды']);
+  const map = {}; // period → {avg_k1, avg_k2, avg_k3}
+  let year = null;
+
+  for (let i = 3; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row) continue;
+    if (row[0] && String(row[0]).match(/^\d{4}$/)) year = parseInt(row[0]);
+    if (row[17] && String(row[17]).match(/^\d{4}$/)) year = parseInt(row[17]);
+    if (!year) continue;
+
+    const mon = row[18];
+    if (!mon || !RU_MONTHS[String(mon).trim()]) continue;
+    const m = RU_MONTHS[String(mon).trim()];
+    const period = `${year}-${String(m).padStart(2,'0')}`;
+
+    const avg_k1 = round2(row[19]);
+    const avg_k2 = round2(row[20]);
+    const avg_k3 = round2(row[21]);
+    if (avg_k1 === null && avg_k2 === null) continue;
+    map[period] = { avg_k1, avg_k2, avg_k3, avg_budget: null };
+  }
+
+  // avg_budget из Данные2М col[21] (Средний бюджет покупки)
+  const wsD = wb.Sheets['Данные2М'];
+  const dRows = sheetToArr(wsD);
+  const hdr = dRows[0];
+  let budCol = -1;
+  for (let c = 0; c < hdr.length; c++) {
+    const v = String(hdr[c] || '');
+    if (v.toLowerCase().includes('средний бюджет')) { budCol = c; break; }
+  }
+  if (budCol < 0) budCol = 21;
+
+  for (let i = 1; i < dRows.length; i++) {
+    const row = dRows[i];
+    if (!row || !row[0]) continue;
+    let dt = row[0]; let period = '';
+    if (dt instanceof Date) period = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`;
+    else { const m = String(dt).match(/(\d{4})-(\d{2})/); if (m) period = `${m[1]}-${m[2]}`; }
+    if (!period) continue;
+    const v = round2(row[budCol]);
+    if (v === null) continue;
+    if (!map[period]) map[period] = { avg_k1: null, avg_k2: null, avg_k3: null };
+    map[period].avg_budget = v;
+  }
+
+  return Object.entries(map)
+    .sort(([a],[b]) => a < b ? -1 : 1)
+    .map(([period, d]) => ({ period, ...d }));
+}
+
+// ── БЮДЖЕТ МО ───────────────────────────────────────
+function parseBudgetMo(wb) {
+  const rows = sheetToArr(wb.Sheets['сводыМО']);
+  // сводыМО: данные с row[4], год в row[4] col[0], месяц строками ниже col[0]
+  // cols: 1=lt6, 2=b6_9, 3=b9_12, 4=b12_15, 5=gt15
+  const out = [];
+  let year = null;
+
+  for (let i = 4; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row) continue;
+    const c0 = String(row[0] || '').trim();
+    if (c0.match(/^\d{4}$/)) { year = parseInt(c0); continue; }
+    if (!year) continue;
+    if (!RU_MONTHS[c0]) continue;
+    const m = RU_MONTHS[c0];
+    const period = `${year}-${String(m).padStart(2,'0')}`;
+
+    const lt6   = round4(row[1]);
+    const b6_9  = round4(row[2]);
+    const b9_12 = round4(row[3]);
+    const b12_15 = round4(row[4]);
+    const gt15  = round4(row[5]);
+
+    if (lt6 === null && b6_9 === null) continue;
+    if (c0 === 'Общий итог') continue;
+    out.push({ period, lt6, b6_9, b9_12, b12_15, gt15 });
+  }
+  return out;
+}
+
+// ── ТИПОЛОГИЯ МО ────────────────────────────────────
+function parseTypoMo(wb) {
+  const rows = sheetToArr(wb.Sheets['сводыМО']);
+  // cols: 7=год/месяц метка, 8=комнаты, 9=k1, 10=k2, 11=k3, 12=multi
+  const out = [];
+  let year = null;
+
+  for (let i = 4; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row) continue;
+    const c0 = String(row[0] || '').trim();
+    const c7 = String(row[7] || '').trim();
+
+    if (c0.match(/^\d{4}$/)) { year = parseInt(c0); continue; }
+    if (c7.match(/^\d{4}$/)) { year = parseInt(c7); }
+    if (!year) continue;
+
+    const mon = c7 && RU_MONTHS[c7] ? c7 : (RU_MONTHS[c0] ? c0 : null);
+    if (!mon) continue;
+    const m = RU_MONTHS[mon];
+    const period = `${year}-${String(m).padStart(2,'0')}`;
+
+    const rooms = round4(row[8]);
+    const k1    = round4(row[9]);
+    const k2    = round4(row[10]);
+    const k3    = round4(row[11]);
+    const multi = round4(row[12]);
+
+    if (k1 === null && k2 === null) continue;
+    if (mon === 'Общий итог') continue;
+    out.push({ period, rooms, k1, k2, k3, multi });
+  }
+  return out;
+}
+
+// ── ЦЕНЫ МО ─────────────────────────────────────────
+function parsePriceMo(wb) {
+  const rows = sheetToArr(wb.Sheets['сводыМО']);
+  // cols: 14=метка, 15=avg_k1, 16=avg_k2, 17=avg_k3
+  const out = [];
+  let year = null;
+
+  for (let i = 4; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row) continue;
+    const c0 = String(row[0] || '').trim();
+    const c14 = String(row[14] || '').trim();
+
+    if (c0.match(/^\d{4}$/)) { year = parseInt(c0); continue; }
+    if (c14.match(/^\d{4}$/)) { year = parseInt(c14); }
+    if (!year) continue;
+
+    const mon = c14 && RU_MONTHS[c14] ? c14 : (RU_MONTHS[c0] ? c0 : null);
+    if (!mon || mon === 'Общий итог') continue;
+    const m = RU_MONTHS[mon];
+    const period = `${year}-${String(m).padStart(2,'0')}`;
+
+    const avg_k1 = round2(row[15]);
+    const avg_k2 = round2(row[16]);
+    const avg_k3 = round2(row[17]);
+
+    if (avg_k1 === null && avg_k2 === null) continue;
+    out.push({ period, avg_k1, avg_k2, avg_k3 });
+  }
+  return out;
+}
+
+// ── ДИАПАЗОН ЦЕН МО ─────────────────────────────────
+function parseRangeMo(wb) {
+  // Данные2МО: col[0]=дата, 12=5%k1, 13=5%k2, 14=5%k3, 15=95%k1, 16=95%k2, 17=95%k3, 18=avg_k1, 19=avg_k2, 20=avg_k3
+  const wsD = wb.Sheets['Данные2МО'];
+  const rows = sheetToArr(wsD);
+  const hdr = rows[0];
+  // Определяем колонки по заголовку
+  // Заголовок: ['Дата', 'до 6 млн', '6-9 млн', ..., '95% 1-комн дороже', ..., 'средний чек 1-комн', ...]
+  let cols = { k1_low:-1, k1_mid:-1, k1_high:-1, k2_low:-1, k2_mid:-1, k2_high:-1, k3_low:-1, k3_mid:-1, k3_high:-1 };
+  for (let c = 0; c < hdr.length; c++) {
+    const v = String(hdr[c] || '').toLowerCase();
+    if (v.includes('5-й перцентиль') && v.includes('1-комн')) cols.k1_low = c;
+    if (v.includes('5-й перцентиль') && v.includes('2-комн')) cols.k2_low = c;
+    if (v.includes('5-й перцентиль') && v.includes('3-комн')) cols.k3_low = c;
+    if (v.includes('95-й перцентиль') && v.includes('1-комн')) cols.k1_high = c;
+    if (v.includes('95-й перцентиль') && v.includes('2-комн')) cols.k2_high = c;
+    if (v.includes('95-й перцентиль') && v.includes('3-комн')) cols.k3_high = c;
+    if (v.includes('средний чек 1-комн')) cols.k1_mid = c;
+    if (v.includes('средний чек 2-комн')) cols.k2_mid = c;
+    if (v.includes('средний чек 3-комн')) cols.k3_mid = c;
+  }
+  // Fallback по позиции (Данные2МО структура известна)
+  if (cols.k1_low < 0)  cols.k1_low  = 12;
+  if (cols.k2_low < 0)  cols.k2_low  = 13;
+  if (cols.k3_low < 0)  cols.k3_low  = 14;
+  if (cols.k1_high < 0) cols.k1_high = 15;
+  if (cols.k2_high < 0) cols.k2_high = 16;
+  if (cols.k3_high < 0) cols.k3_high = 17;
+  if (cols.k1_mid < 0)  cols.k1_mid  = 18;
+  if (cols.k2_mid < 0)  cols.k2_mid  = 19;
+  if (cols.k3_mid < 0)  cols.k3_mid  = 20;
+
+  const out = [];
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row || !row[0]) continue;
+    let dt = row[0]; let period = '';
+    if (dt instanceof Date) period = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`;
+    else { const m = String(dt).match(/(\d{4})-(\d{2})/); if (m) period = `${m[1]}-${m[2]}`; }
+    if (!period) continue;
+
+    const k1_low  = round2(row[cols.k1_low]);
+    const k1_mid  = round2(row[cols.k1_mid]);
+    const k1_high = round2(row[cols.k1_high]);
+    const k2_low  = round2(row[cols.k2_low]);
+    const k2_mid  = round2(row[cols.k2_mid]);
+    const k2_high = round2(row[cols.k2_high]);
+    const k3_low  = round2(row[cols.k3_low]);
+    const k3_mid  = round2(row[cols.k3_mid]);
+    const k3_high = round2(row[cols.k3_high]);
+
+    if (k1_mid === null && k2_mid === null) continue;
+    out.push({ period, k1_low, k1_mid, k1_high, k2_low, k2_mid, k2_high, k3_low, k3_mid, k3_high });
+  }
+  return out.sort((a,b) => a.period < b.period ? -1 : 1);
+}
+
+// ══════════════════════════════════════════════════════
+// ПРЕВЬЮ
+// ══════════════════════════════════════════════════════
+const COLUMNS = {
+  urfrs:      ['period','rights'],
+  budget_msk: ['period','lt9','b9_12','b12_15','b15_30','gt30'],
+  typo_msk:   ['period','rooms','k1','k2','k3','multi'],
+  price_msk:  ['period','avg_k1','avg_k2','avg_k3','avg_budget'],
+  budget_mo:  ['period','lt6','b6_9','b9_12','b12_15','gt15'],
+  typo_mo:    ['period','rooms','k1','k2','k3','multi'],
+  price_mo:   ['period','avg_k1','avg_k2','avg_k3'],
+  range_mo:   ['period','k1_low','k1_mid','k1_high','k2_low','k2_mid','k2_high','k3_low','k3_mid','k3_high'],
+};
+
+function buildPreview() {
+  const preview = document.getElementById('preview');
+  preview.classList.add('visible');
+
+  // Вкладки
+  const tabsEl = document.getElementById('preview-tabs');
+  tabsEl.innerHTML = '';
+  TABS.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'preview-tab' + (t.id === activeTab ? ' active' : '');
+    div.textContent = t.label + ` (${result[t.id].length})`;
+    div.onclick = () => { activeTab = t.id; buildPreview(); };
+    tabsEl.appendChild(div);
+  });
+
+  // Таблица
+  const data = result[activeTab];
+  const cols = COLUMNS[activeTab];
+  const total = data.length;
+  document.getElementById('preview-info').textContent = `${total} строк · последняя: ${data[total-1]?.period || '—'}`;
+
+  const preview5 = data.slice(-8); // последние 8 строк
+  let html = '<table><tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr>';
+  for (const row of preview5) {
+    html += '<tr>' + cols.map(c => {
+      const v = row[c];
+      return `<td>${v === null || v === undefined ? '—' : v}</td>`;
+    }).join('') + '</tr>';
+  }
+  html += '</table>';
+  document.getElementById('preview-body').innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════
+// СБОРКА XLSX
+// ══════════════════════════════════════════════════════
+function buildResultWb() {
+  resultWb = XLSX.utils.book_new();
+  TABS.forEach(t => {
+    const cols = COLUMNS[t.id];
+    const ws = XLSX.utils.json_to_sheet(result[t.id], { header: cols });
+    XLSX.utils.book_append_sheet(resultWb, ws, t.label);
+  });
+}
+
+function downloadResult() {
+  if (!resultWb) return;
+  XLSX.writeFile(resultWb, 'ROSREESTR_NORMALIZED.xlsx');
+}
+
+// ══════════════════════════════════════════════════════
+// СТАТУС
+// ══════════════════════════════════════════════════════
+function setStatus(type, msg) {
+  const el = document.getElementById('status');
+  el.className = 'status visible ' + type;
+  el.textContent = msg;
+}
+</script>
+</body>
+</html>
