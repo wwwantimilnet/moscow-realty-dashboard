@@ -311,59 +311,62 @@ function processAll(wb) {
 }
 
 // ── УФРС (переходы прав) ────────────────────────────
-// Источник: Лист1 (2014–2024) + Данные2М (2014–сейчас, добавляет 2025-2026)
+// Источник: Лист1 (2014–2024) + Данные2М (добавляет 2025–2026)
+// Лист1 структура: row[2] = заголовок с годами (col[4..N] = 2014,2015,...),
+//                  row[3..14] = янв..дек, col[3] = месяц, col[4..N] = значения
 function parseUrfrs(wb) {
   const rows = sheetToArr(wb.Sheets['Лист1']);
-  // Строки 3–14 (индексы 2–13): янв–дек, столбцы 4–15 = 2014–2024
-  const MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
-  // Заголовочная строка: row[2], col[4] = '2014'
-  const headerRow = rows[2];
-  if (!headerRow) return [];
+  const map = {};
 
-  // Найти колонку начала годов
-  let yearStartCol = -1;
-  for (let c = 0; c < headerRow.length; c++) {
-    if (headerRow[c] == '2014' || headerRow[c] === 2014) { yearStartCol = c; break; }
+  // Найдём строку с заголовком годов: ищем строку где есть число 2014
+  let headerRowIdx = -1;
+  for (let i = 0; i < Math.min(rows.length, 10); i++) {
+    if (rows[i] && rows[i].some(v => v == 2014 || v === '2014')) { headerRowIdx = i; break; }
   }
-  if (yearStartCol < 0) yearStartCol = 4;
+  if (headerRowIdx < 0) headerRowIdx = 2;
 
+  const headerRow = rows[headerRowIdx];
+  // Найти колонку месяца (col с 'янв' в следующей строке)
+  const dataRow0 = rows[headerRowIdx + 1] || [];
+  let monthCol = -1;
+  for (let c = 0; c < dataRow0.length; c++) {
+    if (dataRow0[c] === 'янв' || dataRow0[c] === 'фев') { monthCol = c; break; }
+  }
+  if (monthCol < 0) monthCol = 3;
+
+  // Собираем года: col > monthCol где значение — число 2014..2030
   const years = [];
-  for (let c = yearStartCol; c < headerRow.length; c++) {
-    const y = parseInt(headerRow[c]);
+  for (let c = monthCol + 1; c < headerRow.length; c++) {
+    const y = parseInt(String(headerRow[c] || ''));
     if (!isNaN(y) && y >= 2014 && y <= 2030) years.push({ col: c, year: y });
   }
 
-  const map = {}; // period → rights
-
-  // Лист1: исторические данные
+  // Данные: 12 строк подряд после заголовка
   for (let mi = 0; mi < 12; mi++) {
-    const row = rows[3 + mi];
+    const row = rows[headerRowIdx + 1 + mi];
     if (!row) continue;
+    const monStr = String(row[monthCol] || '').trim();
+    const monthNum = RU_MONTHS[monStr];
+    if (!monthNum) continue; // пропуск если не месяц
     for (const { col, year } of years) {
       const v = parseNum(row[col]);
       if (v === null || v <= 0) continue;
-      const period = `${year}-${String(mi + 1).padStart(2,'0')}`;
+      const period = `${year}-${String(monthNum).padStart(2,'0')}`;
       map[period] = Math.round(v);
     }
   }
 
-  // Данные2М: добавляем/обновляем свежие данные (2025–2026)
+  // Данные2М: добавляем/обновляем (2025–2026)
   const wsD = wb.Sheets['Данные2М'];
   const dRows = sheetToArr(wsD);
-  // header row[0]: col[22] = 'зарегистрировано прав купли-продажи мены...'
-  const headerD = dRows[0];
-  let urfrsCol = -1;
-  for (let c = 0; c < headerD.length; c++) {
-    const v = String(headerD[c] || '');
-    if (v.toLowerCase().includes('зарегистрировано прав')) { urfrsCol = c; break; }
-  }
+  const headerD = dRows[0] || [];
+  let urfrsCol = headerD.findIndex(v => String(v||'').toLowerCase().includes('зарегистрировано прав'));
   if (urfrsCol < 0) urfrsCol = 22;
 
   for (let i = 1; i < dRows.length; i++) {
     const row = dRows[i];
     if (!row || !row[0]) continue;
-    let dt = row[0];
-    let period = '';
+    let dt = row[0], period = '';
     if (dt instanceof Date) {
       period = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`;
     } else {
@@ -380,32 +383,30 @@ function parseUrfrs(wb) {
     .map(([period, rights]) => ({ period, rights }));
 }
 
-// ── БЮДЖЕТ МОСКВА (структура продаж по бюджету) ─────
+// ── БЮДЖЕТ МОСКВА ───────────────────────────────────
+// своды: год в col[0] только для первой строки года (остальные None)
+//        месяц ВСЕГДА в col[1]
 function parseBudgetMsk(wb) {
   const rows = sheetToArr(wb.Sheets['своды']);
-  // Данные с row[3], год в col[0] (или None + продолжение), месяц в col[1]
-  // Колонки бюджета: 2=lt9, 3=b9_12, 4=b12_15, 5=b15_30, 6=gt30
   const out = [];
   let year = null;
 
   for (let i = 3; i < rows.length; i++) {
     const row = rows[i];
     if (!row) continue;
-
-    if (row[0] && String(row[0]).match(/^\d{4}$/)) year = parseInt(row[0]);
+    // Год обновляем при появлении числа в col[0]
+    if (row[0] !== null && String(row[0]).match(/^\d{4}$/)) year = parseInt(row[0]);
     if (!year) continue;
+    // Месяц всегда в col[1]
+    const mon = String(row[1] || '').trim();
+    if (!RU_MONTHS[mon]) continue;
+    const period = `${year}-${String(RU_MONTHS[mon]).padStart(2,'0')}`;
 
-    const mon = row[1];
-    if (!mon || !RU_MONTHS[String(mon).trim()]) continue;
-    const m = RU_MONTHS[String(mon).trim()];
-    const period = `${year}-${String(m).padStart(2,'0')}`;
-
-    const lt9   = round4(row[2]);
-    const b9_12 = round4(row[3]);
+    const lt9    = round4(row[2]);
+    const b9_12  = round4(row[3]);
     const b12_15 = round4(row[4]);
     const b15_30 = round4(row[5]);
-    const gt30  = round4(row[6]);
-
+    const gt30   = round4(row[6]);
     if (lt9 === null && b9_12 === null) continue;
     out.push({ period, lt9, b9_12, b12_15, b15_30, gt30 });
   }
@@ -413,33 +414,28 @@ function parseBudgetMsk(wb) {
 }
 
 // ── ТИПОЛОГИЯ МОСКВА ────────────────────────────────
+// своды: год в col[0] / col[9] первой строки, месяц в col[1] / col[10]
 function parseTypoMsk(wb) {
   const rows = sheetToArr(wb.Sheets['своды']);
-  // Типология: col[9]=год, col[10]=месяц, col[11]=комнаты, col[12]=k1, col[13]=k2, col[14]=k3, col[15]=multi
   const out = [];
   let year = null;
 
   for (let i = 3; i < rows.length; i++) {
     const row = rows[i];
     if (!row) continue;
-
-    // год может быть в col[0] или col[9]
-    if (row[0] && String(row[0]).match(/^\d{4}$/)) year = parseInt(row[0]);
-    if (row[9] && String(row[9]).match(/^\d{4}$/)) year = parseInt(row[9]);
+    if (row[0] !== null && String(row[0]).match(/^\d{4}$/)) year = parseInt(row[0]);
+    if (row[9] !== null && String(row[9]).match(/^\d{4}$/)) year = parseInt(row[9]);
     if (!year) continue;
-
-    // Месяц в col[10]
-    const mon = row[10];
-    if (!mon || !RU_MONTHS[String(mon).trim()]) continue;
-    const m = RU_MONTHS[String(mon).trim()];
-    const period = `${year}-${String(m).padStart(2,'0')}`;
+    // Месяц в col[10] (типология), если нет — col[1]
+    const mon = String(row[10] || row[1] || '').trim();
+    if (!RU_MONTHS[mon]) continue;
+    const period = `${year}-${String(RU_MONTHS[mon]).padStart(2,'0')}`;
 
     const rooms = round4(row[11]);
     const k1    = round4(row[12]);
     const k2    = round4(row[13]);
     const k3    = round4(row[14]);
     const multi = round4(row[15]);
-
     if (k1 === null && k2 === null) continue;
     out.push({ period, rooms, k1, k2, k3, multi });
   }
@@ -447,25 +443,22 @@ function parseTypoMsk(wb) {
 }
 
 // ── ЦЕНЫ МОСКВА ─────────────────────────────────────
+// своды col[17]=год (первая строка), col[18]=месяц, col[19]=avg_k1, col[20]=avg_k2, col[21]=avg_k3
+// avg_budget из Данные2М
 function parsePriceMsk(wb) {
-  // Из своды: col[17]=год, col[18]=месяц, col[19]=avg_k1, col[20]=avg_k2
-  // col[21] = avg_k3 (нет в превью — проверим)
-  // + средний бюджет из Данные2М col[21]
   const rows = sheetToArr(wb.Sheets['своды']);
-  const map = {}; // period → {avg_k1, avg_k2, avg_k3}
+  const map = {};
   let year = null;
 
   for (let i = 3; i < rows.length; i++) {
     const row = rows[i];
     if (!row) continue;
-    if (row[0] && String(row[0]).match(/^\d{4}$/)) year = parseInt(row[0]);
-    if (row[17] && String(row[17]).match(/^\d{4}$/)) year = parseInt(row[17]);
+    if (row[0] !== null && String(row[0]).match(/^\d{4}$/)) year = parseInt(row[0]);
+    if (row[17] !== null && String(row[17]).match(/^\d{4}$/)) year = parseInt(row[17]);
     if (!year) continue;
-
-    const mon = row[18];
-    if (!mon || !RU_MONTHS[String(mon).trim()]) continue;
-    const m = RU_MONTHS[String(mon).trim()];
-    const period = `${year}-${String(m).padStart(2,'0')}`;
+    const mon = String(row[18] || row[1] || '').trim();
+    if (!RU_MONTHS[mon]) continue;
+    const period = `${year}-${String(RU_MONTHS[mon]).padStart(2,'0')}`;
 
     const avg_k1 = round2(row[19]);
     const avg_k2 = round2(row[20]);
@@ -474,21 +467,17 @@ function parsePriceMsk(wb) {
     map[period] = { avg_k1, avg_k2, avg_k3, avg_budget: null };
   }
 
-  // avg_budget из Данные2М col[21] (Средний бюджет покупки)
+  // avg_budget из Данные2М
   const wsD = wb.Sheets['Данные2М'];
   const dRows = sheetToArr(wsD);
-  const hdr = dRows[0];
-  let budCol = -1;
-  for (let c = 0; c < hdr.length; c++) {
-    const v = String(hdr[c] || '');
-    if (v.toLowerCase().includes('средний бюджет')) { budCol = c; break; }
-  }
+  const hdr = dRows[0] || [];
+  let budCol = hdr.findIndex(v => String(v||'').toLowerCase().includes('средний бюджет'));
   if (budCol < 0) budCol = 21;
 
   for (let i = 1; i < dRows.length; i++) {
     const row = dRows[i];
     if (!row || !row[0]) continue;
-    let dt = row[0]; let period = '';
+    let dt = row[0], period = '';
     if (dt instanceof Date) period = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`;
     else { const m = String(dt).match(/(\d{4})-(\d{2})/); if (m) period = `${m[1]}-${m[2]}`; }
     if (!period) continue;
@@ -504,10 +493,12 @@ function parsePriceMsk(wb) {
 }
 
 // ── БЮДЖЕТ МО ───────────────────────────────────────
+// сводыМО: строки данных с row[4]
+// Год — отдельная строка: c0='2025' без данных
+// Месяц — отдельная строка: c0='янв' с данными
+// Cols: 1=lt6, 2=b6_9, 3=b9_12, 4=b12_15, 5=gt15
 function parseBudgetMo(wb) {
   const rows = sheetToArr(wb.Sheets['сводыМО']);
-  // сводыМО: данные с row[4], год в row[4] col[0], месяц строками ниже col[0]
-  // cols: 1=lt6, 2=b6_9, 3=b9_12, 4=b12_15, 5=gt15
   const out = [];
   let year = null;
 
@@ -515,29 +506,27 @@ function parseBudgetMo(wb) {
     const row = rows[i];
     if (!row) continue;
     const c0 = String(row[0] || '').trim();
-    if (c0.match(/^\d{4}$/)) { year = parseInt(c0); continue; }
+    // Строка с годом (без данных)
+    if (/^\d{4}$/.test(c0)) { year = parseInt(c0); continue; }
     if (!year) continue;
-    if (!RU_MONTHS[c0]) continue;
-    const m = RU_MONTHS[c0];
-    const period = `${year}-${String(m).padStart(2,'0')}`;
+    if (!RU_MONTHS[c0]) continue; // не месяц и не год — пропуск
+    const period = `${year}-${String(RU_MONTHS[c0]).padStart(2,'0')}`;
 
-    const lt6   = round4(row[1]);
-    const b6_9  = round4(row[2]);
-    const b9_12 = round4(row[3]);
+    const lt6    = round4(row[1]);
+    const b6_9   = round4(row[2]);
+    const b9_12  = round4(row[3]);
     const b12_15 = round4(row[4]);
-    const gt15  = round4(row[5]);
-
+    const gt15   = round4(row[5]);
     if (lt6 === null && b6_9 === null) continue;
-    if (c0 === 'Общий итог') continue;
     out.push({ period, lt6, b6_9, b9_12, b12_15, gt15 });
   }
   return out;
 }
 
 // ── ТИПОЛОГИЯ МО ────────────────────────────────────
+// Аналогичная структура, cols: 8=комнаты, 9=k1, 10=k2, 11=k3, 12=multi
 function parseTypoMo(wb) {
   const rows = sheetToArr(wb.Sheets['сводыМО']);
-  // cols: 7=год/месяц метка, 8=комнаты, 9=k1, 10=k2, 11=k3, 12=multi
   const out = [];
   let year = null;
 
@@ -545,34 +534,28 @@ function parseTypoMo(wb) {
     const row = rows[i];
     if (!row) continue;
     const c0 = String(row[0] || '').trim();
-    const c7 = String(row[7] || '').trim();
-
-    if (c0.match(/^\d{4}$/)) { year = parseInt(c0); continue; }
-    if (c7.match(/^\d{4}$/)) { year = parseInt(c7); }
+    if (/^\d{4}$/.test(c0)) { year = parseInt(c0); continue; }
     if (!year) continue;
-
-    const mon = c7 && RU_MONTHS[c7] ? c7 : (RU_MONTHS[c0] ? c0 : null);
-    if (!mon) continue;
-    const m = RU_MONTHS[mon];
-    const period = `${year}-${String(m).padStart(2,'0')}`;
+    // Для типологии месяц может быть в col[7] или col[0]
+    const mon = RU_MONTHS[c0] ? c0 : String(row[7] || '').trim();
+    if (!RU_MONTHS[mon]) continue;
+    const period = `${year}-${String(RU_MONTHS[mon]).padStart(2,'0')}`;
 
     const rooms = round4(row[8]);
     const k1    = round4(row[9]);
     const k2    = round4(row[10]);
     const k3    = round4(row[11]);
     const multi = round4(row[12]);
-
     if (k1 === null && k2 === null) continue;
-    if (mon === 'Общий итог') continue;
     out.push({ period, rooms, k1, k2, k3, multi });
   }
   return out;
 }
 
 // ── ЦЕНЫ МО ─────────────────────────────────────────
+// Cols: 14=метка (месяц), 15=avg_k1, 16=avg_k2, 17=avg_k3
 function parsePriceMo(wb) {
   const rows = sheetToArr(wb.Sheets['сводыМО']);
-  // cols: 14=метка, 15=avg_k1, 16=avg_k2, 17=avg_k3
   const out = [];
   let year = null;
 
@@ -580,21 +563,15 @@ function parsePriceMo(wb) {
     const row = rows[i];
     if (!row) continue;
     const c0 = String(row[0] || '').trim();
-    const c14 = String(row[14] || '').trim();
-
-    if (c0.match(/^\d{4}$/)) { year = parseInt(c0); continue; }
-    if (c14.match(/^\d{4}$/)) { year = parseInt(c14); }
+    if (/^\d{4}$/.test(c0)) { year = parseInt(c0); continue; }
     if (!year) continue;
-
-    const mon = c14 && RU_MONTHS[c14] ? c14 : (RU_MONTHS[c0] ? c0 : null);
-    if (!mon || mon === 'Общий итог') continue;
-    const m = RU_MONTHS[mon];
-    const period = `${year}-${String(m).padStart(2,'0')}`;
+    const mon = RU_MONTHS[c0] ? c0 : String(row[14] || '').trim();
+    if (!RU_MONTHS[mon] || mon === 'Общий итог') continue;
+    const period = `${year}-${String(RU_MONTHS[mon]).padStart(2,'0')}`;
 
     const avg_k1 = round2(row[15]);
     const avg_k2 = round2(row[16]);
     const avg_k3 = round2(row[17]);
-
     if (avg_k1 === null && avg_k2 === null) continue;
     out.push({ period, avg_k1, avg_k2, avg_k3 });
   }
