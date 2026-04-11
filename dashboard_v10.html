@@ -667,6 +667,8 @@ async function loadData() {
       // Грузим аренду сразу (не ждём открытия вкладки)
       rInited = true;
       loadRentData();
+      // Восстанавливаем состояние из URL
+      restoreFromURL();
     },300);
   }catch(e){
     document.getElementById('load-txt').innerHTML=`<div class="err">ОШИБКА:<br>${e.message}</div>`;
@@ -736,6 +738,7 @@ function mkYearCompareH(canvasId,titleId,subId,labels,pm,lastPeriod){
 let rInited = false;
 function switchTab(id){
   ['m','d','r'].forEach(x=>{document.getElementById('panel-'+x).classList.toggle('active',x===id);document.getElementById('tab-'+x).classList.toggle('active',x===id);});
+  pushURL();
 }
 
 // ── МОСКВА ──
@@ -869,6 +872,7 @@ function _mUpdate(){
 
   document.getElementById('m-tbl').classList.toggle('on',showT);
   if(showT)mkTable('m-tbl-c',dists,periods,pm,cm);
+  pushURL();
 }
 
 function mToggleOpt(){
@@ -975,6 +979,7 @@ function _dUpdate(){
   const fnVnukovo = fnMunis.length ? `<br>* <b>Внуково</b> — до 8 мая 2024 входил в состав Западного АО, после — в состав Новомосковского АО. В расчёт среднего по округу не включается.` : '';
   const fnReform = isNaoTao ? `<br>† До 8 мая 2024 года данные собирались по старым поселениям (Внуковское, Воскресенское, Десеновское и др.). После реформы поселения были упразднены и объединены в укрупнённые районы (Коммунарка, Филимонковский, Вороново и др.). Данные разных периодов не полностью сопоставимы. <a href="https://www.mos.ru/mayor/themes/15299/12068050/" target="_blank" style="color:var(--gold)">Подробнее →</a>` : '';
   fnEl.innerHTML = (fnVnukovo || fnReform) ? `<span style="opacity:.8">${fnVnukovo}${fnReform}</span>` : '';
+  pushURL();
 }
 
 
@@ -1220,6 +1225,7 @@ function _rUpdate() {
 
   // КАРТА АРЕНДЫ
   if (GEO_AO && last) buildRentMap(last);
+  pushURL();
 }
 
 // Категории для переключателя карты
@@ -1371,6 +1377,61 @@ async function exportChart(canvasId, btn) {
     btn.textContent = origText;
     btn.disabled = false;
   }, 'image/png');
+}
+
+// ═══════════════════════════════════════════
+// PERMALINK — состояние фильтров в URL
+// ═══════════════════════════════════════════
+
+function pushURL() {
+  const sp = new URLSearchParams();
+  // Определяем активную вкладку
+  const tab = ['m','d','r'].find(x => document.getElementById('panel-'+x).classList.contains('active')) || 'm';
+  sp.set('tab', tab);
+  if (tab === 'm') {
+    sp.set('from', document.getElementById('mf').value);
+    sp.set('to',   document.getElementById('mt').value);
+  } else if (tab === 'd') {
+    const dist = document.getElementById('d-sel').value;
+    if (dist) sp.set('dist', dist);
+    sp.set('from', document.getElementById('df').value);
+    sp.set('to',   document.getElementById('dt2').value);
+  } else if (tab === 'r') {
+    sp.set('from', document.getElementById('rf').value);
+    sp.set('to',   document.getElementById('rt').value);
+  }
+  history.replaceState(null, '', '?' + sp.toString());
+}
+
+function restoreFromURL() {
+  const sp = new URLSearchParams(location.search);
+  if (!sp.has('tab')) return; // чистый URL — ничего не делаем
+
+  const tab  = sp.get('tab');
+  const from = sp.get('from');
+  const to   = sp.get('to');
+  const dist = sp.get('dist');
+
+  if (tab === 'd' && dist) {
+    const sel = document.getElementById('d-sel');
+    if (sel && [...sel.options].some(o => o.value === dist)) {
+      sel.value = dist;
+      if (from) document.getElementById('df').value  = from;
+      if (to)   document.getElementById('dt2').value = to;
+      dDistChange();
+    }
+    switchTab('d');
+  } else if (tab === 'r') {
+    if (from) document.getElementById('rf').value = from;
+    if (to)   document.getElementById('rt').value = to;
+    switchTab('r');
+    rUpdate();
+  } else {
+    // tab === 'm' или неизвестная
+    if (from) document.getElementById('mf').value = from;
+    if (to)   document.getElementById('mt').value = to;
+    mUpdate();
+  }
 }
 
 loadData();
