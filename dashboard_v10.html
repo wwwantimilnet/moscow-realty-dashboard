@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Рынок недвижимости Москвы</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@2.3.0/build/chartjs-chart-treemap.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#faf8f4;--surface:#ffffff;--s2:#f3f0eb;--border:#e2ddd6;--gold:#b8924a;--blue:#4a8fa8;--text:#1c1a17;--muted:#7a7268;--pos:#2d8a5e;--neg:#c0392b;}
@@ -849,65 +848,10 @@ function _mUpdate(){
     {label:'Все объекты',borderColor:'#4a8fa8',backgroundColor:'transparent',data:PRICE2_DATA.all_obj,borderWidth:2,pointRadius:3,pointHoverRadius:5,tension:.3,spanGaps:true,borderDash:[5,3]}
   ]},oP2);
 
-  // ── Структура по комнатности — тримап
+  // ── Структура по комнатности — тримап (нативный canvas)
   document.getElementById('m-c7-sub').textContent = last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : 'март 2026';
-  if(CH['m-c7']) CH['m-c7'].destroy();
-  CH['m-c7'] = new Chart(document.getElementById('m-c7'), {
-    type: 'treemap',
-    data: {
-      datasets: [{
-        label: 'Комнатность',
-        tree: ROOMS_DATA.labels.map((lbl,i) => ({label: lbl, value: ROOMS_DATA.values[i]})),
-        key: 'value',
-        backgroundColor: ctx => {
-          if (!ctx.raw) return 'transparent';
-          return ROOMS_CLR[ctx.dataIndex % ROOMS_CLR.length] + 'cc';
-        },
-        borderColor: ctx => {
-          if (!ctx.raw) return 'transparent';
-          return ROOMS_CLR[ctx.dataIndex % ROOMS_CLR.length];
-        },
-        borderWidth: 1.5,
-        borderRadius: 3,
-        labels: {
-          display: true,
-          formatter: ctx => {
-            if (!ctx.raw || !ctx.raw._data) return '';
-            return [ctx.raw._data.label, ctx.raw._data.value + '%'];
-          },
-          color: ['#1c1a17', '#7a7268'],
-          font: [
-            {family: 'IBM Plex Sans', size: 13, weight: '400'},
-            {family: 'IBM Plex Mono', size: 11}
-          ],
-          padding: 6,
-          position: 'middle',
-          align: 'center',
-        },
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {display: false},
-        tooltip: {
-          backgroundColor: '#ffffff',
-          borderColor: '#e2ddd6',
-          borderWidth: 1,
-          titleColor: '#b8924a',
-          bodyColor: '#1c1a17',
-          titleFont: {family: 'IBM Plex Mono', size: 11},
-          bodyFont: {family: 'IBM Plex Sans', size: 12},
-          padding: 10,
-          callbacks: {
-            title: ctx => ctx[0]?.raw?._data?.label || '',
-            label: ctx => ` ${ctx.raw._data.value}% новых объектов`,
-          }
-        }
-      }
-    }
-  });
+  if(CH['m-c7']) { CH['m-c7'].destroy(); delete CH['m-c7']; }
+  drawTreemap('m-c7', ROOMS_DATA.labels.map((lbl,i)=>({label:lbl, value:ROOMS_DATA.values[i]})), ROOMS_CLR);
 
   // ── Ключевая ставка ЦБ vs средняя цена м²
   const rLabels = RATE_DATA.months.map(m => new Date(m+'-01').toLocaleString('ru-RU',{month:'short',year:'2-digit'}));
@@ -1430,6 +1374,168 @@ async function exportChart(canvasId, btn) {
     btn.textContent = origText;
     btn.disabled = false;
   }, 'image/png');
+}
+
+// ═══════════════════════════════════════════
+// ТРИМАП — нативный canvas, без зависимостей
+// ═══════════════════════════════════════════
+function drawTreemap(canvasId, items, colors) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
+  // Squarified treemap layout
+  function squarify(items, x, y, w, h) {
+    if (!items.length) return [];
+    const total = items.reduce((s,d) => s+d.value, 0);
+    const rects = [];
+
+    function layoutRow(row, x, y, w, h, horiz) {
+      const rowSum = row.reduce((s,d) => s+d.value, 0);
+      let pos = horiz ? x : y;
+      row.forEach(d => {
+        const size = (d.value / rowSum) * (horiz ? w : h);
+        rects.push(horiz
+          ? {item:d, x:pos, y, w:size, h}
+          : {item:d, x, y:pos, w, h:size});
+        pos += size;
+      });
+    }
+
+    function worst(row, len) {
+      const s = row.reduce((a,b) => a+b.value, 0);
+      const rowTotal = items.reduce((a,b) => a+b.value, 0);
+      const scale = (w*h) / rowTotal;
+      const scaled = row.map(d => d.value * scale);
+      const scaledLen = s * scale / len;
+      const max = Math.max(...scaled);
+      const min = Math.min(...scaled);
+      return Math.max(scaledLen*scaledLen/min, max/scaledLen/scaledLen);
+    }
+
+    const sorted = [...items].sort((a,b) => b.value - a.value);
+    const scale = (w*h) / total;
+
+    function process(items, x, y, w, h) {
+      if (!items.length) return;
+      const horiz = w >= h;
+      const len = horiz ? h : w;
+      let row = [];
+      let i = 0;
+      while (i < items.length) {
+        const next = [...row, items[i]];
+        if (!row.length || worst(next, len) <= worst(row, len)) {
+          row.push(items[i++]);
+        } else {
+          layoutRow(row, x, y, w, h, horiz);
+          const rowSum = row.reduce((s,d) => s+d.value, 0);
+          const rowSize = rowSum * scale / len;
+          if (horiz) { x += rowSize; w -= rowSize; }
+          else       { y += rowSize; h -= rowSize; }
+          row = [];
+        }
+      }
+      if (row.length) layoutRow(row, x, y, w, h, horiz);
+    }
+
+    process(sorted, x, y, w, h);
+    return rects;
+  }
+
+  function render() {
+    const dpr = window.devicePixelRatio || 1;
+    const W = canvas.offsetWidth;
+    const H = canvas.offsetHeight;
+    canvas.width  = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width  = W + 'px';
+    canvas.style.height = H + 'px';
+
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, W, H);
+
+    const PAD = 3;
+    const rects = squarify(items, 0, 0, W, H);
+
+    rects.forEach((r, i) => {
+      const clr = colors[i % colors.length];
+      const rx = r.x + PAD, ry = r.y + PAD;
+      const rw = r.w - PAD*2, rh = r.h - PAD*2;
+      if (rw < 2 || rh < 2) return;
+
+      // Прямоугольник со скруглёнными углами
+      const rad = 4;
+      ctx.beginPath();
+      ctx.moveTo(rx+rad, ry);
+      ctx.lineTo(rx+rw-rad, ry);
+      ctx.arcTo(rx+rw, ry, rx+rw, ry+rad, rad);
+      ctx.lineTo(rx+rw, ry+rh-rad);
+      ctx.arcTo(rx+rw, ry+rh, rx+rw-rad, ry+rh, rad);
+      ctx.lineTo(rx+rad, ry+rh);
+      ctx.arcTo(rx, ry+rh, rx, ry+rh-rad, rad);
+      ctx.lineTo(rx, ry+rad);
+      ctx.arcTo(rx, ry, rx+rad, ry, rad);
+      ctx.closePath();
+      ctx.fillStyle = clr + 'cc';
+      ctx.fill();
+      ctx.strokeStyle = clr;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Текст — только если блок достаточно большой
+      if (rw < 40 || rh < 30) return;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const cx = rx + rw/2;
+      const cy = ry + rh/2;
+
+      if (rh >= 52) {
+        // Два ряда: название + %
+        ctx.fillStyle = '#1c1a17';
+        ctx.font = `400 ${Math.min(13, rw/6)}px 'IBM Plex Sans', sans-serif`;
+        ctx.fillText(r.item.label, cx, cy - 10);
+        ctx.fillStyle = '#7a7268';
+        ctx.font = `400 ${Math.min(11, rw/7)}px 'IBM Plex Mono', monospace`;
+        ctx.fillText(r.item.value + '%', cx, cy + 10);
+      } else {
+        // Один ряд: название + %
+        ctx.fillStyle = '#1c1a17';
+        ctx.font = `400 ${Math.min(12, rw/6)}px 'IBM Plex Sans', sans-serif`;
+        ctx.fillText(r.item.label + ' ' + r.item.value + '%', cx, cy);
+      }
+    });
+
+    // Сохраняем rects для tooltip
+    canvas._tmRects = rects;
+    canvas._tmDpr = dpr;
+  }
+
+  render();
+
+  // Tooltip
+  const tt = document.getElementById('map-tt');
+  canvas.onmousemove = e => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const hit = (canvas._tmRects||[]).find(r =>
+      mx >= r.x+3 && mx <= r.x+r.w-3 && my >= r.y+3 && my <= r.y+r.h-3
+    );
+    if (hit) {
+      tt.style.display = 'block';
+      tt.style.left = (e.clientX+14)+'px';
+      tt.style.top  = (e.clientY-10)+'px';
+      tt.innerHTML = `<div class="tt-name">${hit.item.label}</div><div class="tt-price">${hit.item.value}% новых объектов</div>`;
+    } else {
+      tt.style.display = 'none';
+    }
+  };
+  canvas.onmouseleave = () => { tt.style.display='none'; };
+
+  // Перерисовка при изменении размера контейнера
+  if (canvas._tmObserver) canvas._tmObserver.disconnect();
+  canvas._tmObserver = new ResizeObserver(() => render());
+  canvas._tmObserver.observe(canvas.parentElement);
 }
 
 // ═══════════════════════════════════════════
