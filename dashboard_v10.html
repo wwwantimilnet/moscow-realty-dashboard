@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Рынок недвижимости Москвы</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@2.3.0/build/chartjs-chart-treemap.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#faf8f4;--surface:#ffffff;--s2:#f3f0eb;--border:#e2ddd6;--gold:#b8924a;--blue:#4a8fa8;--text:#1c1a17;--muted:#7a7268;--pos:#2d8a5e;--neg:#c0392b;}
@@ -198,7 +199,7 @@ footer{padding:14px 40px;border-top:1px solid var(--border);font-family:'IBM Ple
         <div class="split-comment"><div class="sc-lbl">КОММЕНТАРИЙ</div><div class="sc-text" id="m-sc1">За последние полгода количество новых объектов, выходивших на рынок ежемесячно, было неоднородным. Максимальный прирост новых объектов наблюдался в ноябре — около 26 тысяч. В январе прирост составил всего 20 тысяч. В феврале рынок дошёл до отметки 23 тысячи новых объектов в месяц, и в марте можно снова наблюдать пиковые значения — 25,6 тысяч.</div></div>
       </div>
       <div class="card full card-split">
-        <div class="split-chart"><div class="card-head-row"><div class="card-titles"><div class="ct">Структура новых объектов по комнатности</div><div class="cs" id="m-c7-sub">март 2026</div></div><button class="export-btn" onclick="exportChart('m-c7',this)">↓ PNG</button></div><div class="cw"><canvas id="m-c7"></canvas></div></div>
+        <div class="split-chart"><div class="card-head-row"><div class="card-titles"><div class="ct">Структура новых объектов по комнатности</div><div class="cs" id="m-c7-sub">март 2026</div></div><button class="export-btn" onclick="exportChart('m-c7',this)">↓ PNG</button></div><div class="cw tall"><canvas id="m-c7"></canvas></div></div>
         <div class="split-comment"><div class="sc-lbl">КОММЕНТАРИЙ</div><div class="sc-text">В марте на рынок вышло больше всего однокомнатных квартир — 34%, двушек чуть меньше — 33%, трёхкомнатных — 24%, четырёхкомнатных — 7%, доля остальных около 2%.</div></div>
       </div>
       <div class="card full card-split">
@@ -848,13 +849,65 @@ function _mUpdate(){
     {label:'Все объекты',borderColor:'#4a8fa8',backgroundColor:'transparent',data:PRICE2_DATA.all_obj,borderWidth:2,pointRadius:3,pointHoverRadius:5,tension:.3,spanGaps:true,borderDash:[5,3]}
   ]},oP2);
 
-  // ── Структура по комнатности
+  // ── Структура по комнатности — тримап
   document.getElementById('m-c7-sub').textContent = last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : 'март 2026';
-  const oR = cdefs();
-  oR.plugins.legend.position = 'right';
-  oR.plugins.tooltip.callbacks.label = ctx => ` ${ctx.label}: ${ctx.raw}%`;
-  delete oR.scales;
-  mkChart('m-c7','doughnut',{labels:ROOMS_DATA.labels,datasets:[{data:ROOMS_DATA.values,backgroundColor:ROOMS_CLR.map(c=>c+'cc'),borderColor:ROOMS_CLR,borderWidth:1.5,hoverOffset:6}]},oR);
+  if(CH['m-c7']) CH['m-c7'].destroy();
+  CH['m-c7'] = new Chart(document.getElementById('m-c7'), {
+    type: 'treemap',
+    data: {
+      datasets: [{
+        label: 'Комнатность',
+        tree: ROOMS_DATA.labels.map((lbl,i) => ({label: lbl, value: ROOMS_DATA.values[i]})),
+        key: 'value',
+        backgroundColor: ctx => {
+          if (!ctx.raw) return 'transparent';
+          return ROOMS_CLR[ctx.dataIndex % ROOMS_CLR.length] + 'cc';
+        },
+        borderColor: ctx => {
+          if (!ctx.raw) return 'transparent';
+          return ROOMS_CLR[ctx.dataIndex % ROOMS_CLR.length];
+        },
+        borderWidth: 1.5,
+        borderRadius: 3,
+        labels: {
+          display: true,
+          formatter: ctx => {
+            if (!ctx.raw || !ctx.raw._data) return '';
+            return [ctx.raw._data.label, ctx.raw._data.value + '%'];
+          },
+          color: ['#1c1a17', '#7a7268'],
+          font: [
+            {family: 'IBM Plex Sans', size: 13, weight: '400'},
+            {family: 'IBM Plex Mono', size: 11}
+          ],
+          padding: 6,
+          position: 'middle',
+          align: 'center',
+        },
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {display: false},
+        tooltip: {
+          backgroundColor: '#ffffff',
+          borderColor: '#e2ddd6',
+          borderWidth: 1,
+          titleColor: '#b8924a',
+          bodyColor: '#1c1a17',
+          titleFont: {family: 'IBM Plex Mono', size: 11},
+          bodyFont: {family: 'IBM Plex Sans', size: 12},
+          padding: 10,
+          callbacks: {
+            title: ctx => ctx[0]?.raw?._data?.label || '',
+            label: ctx => ` ${ctx.raw._data.value}% новых объектов`,
+          }
+        }
+      }
+    }
+  });
 
   // ── Ключевая ставка ЦБ vs средняя цена м²
   const rLabels = RATE_DATA.months.map(m => new Date(m+'-01').toLocaleString('ru-RU',{month:'short',year:'2-digit'}));
