@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Нормализатор Росреестра v1.0</title>
+<title>Нормализатор Росреестра v1.2</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:wght@400;600&display=swap');
@@ -141,7 +141,7 @@
 
   <div class="header">
     <h1>Нормализатор Росреестра</h1>
-    <p>Загрузите файл «Данные_для_отчетов_по_росреестру_ММ_ГГГГ.xlsx» → получите готовый файл для заливки в Google Sheets</p>
+    <p>Загрузите файл «Данные_для_отчетов_по_росреестру_ММ_ГГГГ.xlsx» → получите готовый файл для заливки в Google Sheets &nbsp;·&nbsp; <span style="color:var(--accent)">v1.2</span></p>
   </div>
 
   <div class="file-slot" id="slot"
@@ -682,7 +682,8 @@ function buildResultWb() {
 
 function downloadResult() {
   if (!resultWb) return;
-  XLSX.writeFile(resultWb, 'ROSREESTR_NORMALIZED.xlsx');
+  const ts = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(resultWb, `ROSREESTR_NORMALIZED_${ts}.xlsx`);
 }
 
 // ══════════════════════════════════════════════════════
