@@ -113,6 +113,15 @@ select option{background:var(--surface);color:var(--text);}
 .card-head-row .card-titles{flex:1;min-width:0;}
 .export-btn{flex-shrink:0;border:1px solid var(--border);padding:3px 9px;cursor:pointer;font-size:10px;color:var(--muted);background:transparent;font-family:'IBM Plex Mono',monospace;letter-spacing:.05em;transition:.15s;white-space:nowrap;margin-top:2px;}
 .export-btn:hover{border-color:var(--gold);color:var(--gold);}
+.waffle-wrap{display:flex;gap:20px;align-items:flex-start;padding:10px 0;flex-wrap:wrap;}
+.waffle-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;flex-shrink:0;}
+.waffle-cell{width:22px;height:22px;border-radius:3px;cursor:default;transition:opacity .1s;}
+.waffle-cell:hover{opacity:.75;}
+.waffle-legend{display:flex;flex-direction:column;gap:7px;padding-top:1px;}
+.waffle-leg-row{display:flex;align-items:center;gap:7px;}
+.waffle-leg-dot{width:11px;height:11px;border-radius:2px;flex-shrink:0;}
+.waffle-leg-lbl{font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);}
+.waffle-leg-val{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);font-weight:500;margin-left:4px;}
 footer{padding:14px 40px;border-top:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
 @media(max-width:860px){
   .header,.ctrl-bar,.tog-row,.tbl-sec,.upd-bar{padding:14px 16px;}
@@ -198,7 +207,7 @@ footer{padding:14px 40px;border-top:1px solid var(--border);font-family:'IBM Ple
         <div class="split-comment"><div class="sc-lbl">КОММЕНТАРИЙ</div><div class="sc-text" id="m-sc1">За последние полгода количество новых объектов, выходивших на рынок ежемесячно, было неоднородным. Максимальный прирост новых объектов наблюдался в ноябре — около 26 тысяч. В январе прирост составил всего 20 тысяч. В феврале рынок дошёл до отметки 23 тысячи новых объектов в месяц, и в марте можно снова наблюдать пиковые значения — 25,6 тысяч.</div></div>
       </div>
       <div class="card full card-split">
-        <div class="split-chart"><div class="card-head-row"><div class="card-titles"><div class="ct">Структура новых объектов по комнатности</div><div class="cs" id="m-c7-sub">март 2026</div></div><button class="export-btn" onclick="exportChart('m-c7',this)">↓ PNG</button></div><div class="cw tall"><canvas id="m-c7"></canvas></div></div>
+        <div class="split-chart"><div class="card-head-row"><div class="card-titles"><div class="ct">Структура новых объектов по комнатности</div><div class="cs" id="m-c7-sub">март 2026</div></div><button class="export-btn" onclick="exportWaffle('m-c7',this)">↓ PNG</button></div><div class="waffle-wrap" id="m-c7"></div></div>
         <div class="split-comment"><div class="sc-lbl">КОММЕНТАРИЙ</div><div class="sc-text">В марте на рынок вышло больше всего однокомнатных квартир — 34%, двушек чуть меньше — 33%, трёхкомнатных — 24%, четырёхкомнатных — 7%, доля остальных около 2%.</div></div>
       </div>
       <div class="card full card-split">
@@ -848,10 +857,9 @@ function _mUpdate(){
     {label:'Все объекты',borderColor:'#4a8fa8',backgroundColor:'transparent',data:PRICE2_DATA.all_obj,borderWidth:2,pointRadius:3,pointHoverRadius:5,tension:.3,spanGaps:true,borderDash:[5,3]}
   ]},oP2);
 
-  // ── Структура по комнатности — тримап (нативный canvas)
+  // ── Структура по комнатности — waffle chart
   document.getElementById('m-c7-sub').textContent = last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : 'март 2026';
-  if(CH['m-c7']) { CH['m-c7'].destroy(); delete CH['m-c7']; }
-  drawTreemap('m-c7', ROOMS_DATA.labels.map((lbl,i)=>({label:lbl, value:ROOMS_DATA.values[i]})), ROOMS_CLR);
+  drawWaffle('m-c7', ROOMS_DATA.labels.map((lbl,i)=>({label:lbl, value:ROOMS_DATA.values[i]})), ROOMS_CLR);
 
   // ── Ключевая ставка ЦБ vs средняя цена м²
   const rLabels = RATE_DATA.months.map(m => new Date(m+'-01').toLocaleString('ru-RU',{month:'short',year:'2-digit'}));
@@ -1377,165 +1385,166 @@ async function exportChart(canvasId, btn) {
 }
 
 // ═══════════════════════════════════════════
-// ТРИМАП — нативный canvas, без зависимостей
+// WAFFLE CHART
 // ═══════════════════════════════════════════
-function drawTreemap(canvasId, items, colors) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas) return;
+function drawWaffle(elId, items, colors) {
+  const wrap = document.getElementById(elId);
+  if (!wrap) return;
 
-  // Squarified treemap layout
-  function squarify(items, x, y, w, h) {
-    if (!items.length) return [];
-    const total = items.reduce((s,d) => s+d.value, 0);
-    const rects = [];
-
-    function layoutRow(row, x, y, w, h, horiz) {
-      const rowSum = row.reduce((s,d) => s+d.value, 0);
-      let pos = horiz ? x : y;
-      row.forEach(d => {
-        const size = (d.value / rowSum) * (horiz ? w : h);
-        rects.push(horiz
-          ? {item:d, x:pos, y, w:size, h}
-          : {item:d, x, y:pos, w, h:size});
-        pos += size;
-      });
-    }
-
-    function worst(row, len) {
-      const s = row.reduce((a,b) => a+b.value, 0);
-      const rowTotal = items.reduce((a,b) => a+b.value, 0);
-      const scale = (w*h) / rowTotal;
-      const scaled = row.map(d => d.value * scale);
-      const scaledLen = s * scale / len;
-      const max = Math.max(...scaled);
-      const min = Math.min(...scaled);
-      return Math.max(scaledLen*scaledLen/min, max/scaledLen/scaledLen);
-    }
-
-    const sorted = [...items].sort((a,b) => b.value - a.value);
-    const scale = (w*h) / total;
-
-    function process(items, x, y, w, h) {
-      if (!items.length) return;
-      const horiz = w >= h;
-      const len = horiz ? h : w;
-      let row = [];
-      let i = 0;
-      while (i < items.length) {
-        const next = [...row, items[i]];
-        if (!row.length || worst(next, len) <= worst(row, len)) {
-          row.push(items[i++]);
-        } else {
-          layoutRow(row, x, y, w, h, horiz);
-          const rowSum = row.reduce((s,d) => s+d.value, 0);
-          const rowSize = rowSum * scale / len;
-          if (horiz) { x += rowSize; w -= rowSize; }
-          else       { y += rowSize; h -= rowSize; }
-          row = [];
-        }
-      }
-      if (row.length) layoutRow(row, x, y, w, h, horiz);
-    }
-
-    process(sorted, x, y, w, h);
-    return rects;
-  }
-
-  function render() {
-    const dpr = window.devicePixelRatio || 1;
-    const W = canvas.offsetWidth;
-    const H = canvas.offsetHeight;
-    canvas.width  = W * dpr;
-    canvas.height = H * dpr;
-    canvas.style.width  = W + 'px';
-    canvas.style.height = H + 'px';
-
-    const ctx = canvas.getContext('2d');
-    ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, W, H);
-
-    const PAD = 3;
-    const rects = squarify(items, 0, 0, W, H);
-
-    rects.forEach((r, i) => {
-      const clr = colors[i % colors.length];
-      const rx = r.x + PAD, ry = r.y + PAD;
-      const rw = r.w - PAD*2, rh = r.h - PAD*2;
-      if (rw < 2 || rh < 2) return;
-
-      // Прямоугольник со скруглёнными углами
-      const rad = 4;
-      ctx.beginPath();
-      ctx.moveTo(rx+rad, ry);
-      ctx.lineTo(rx+rw-rad, ry);
-      ctx.arcTo(rx+rw, ry, rx+rw, ry+rad, rad);
-      ctx.lineTo(rx+rw, ry+rh-rad);
-      ctx.arcTo(rx+rw, ry+rh, rx+rw-rad, ry+rh, rad);
-      ctx.lineTo(rx+rad, ry+rh);
-      ctx.arcTo(rx, ry+rh, rx, ry+rh-rad, rad);
-      ctx.lineTo(rx, ry+rad);
-      ctx.arcTo(rx, ry, rx+rad, ry, rad);
-      ctx.closePath();
-      ctx.fillStyle = clr + 'cc';
-      ctx.fill();
-      ctx.strokeStyle = clr;
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-
-      // Текст — только если блок достаточно большой
-      if (rw < 40 || rh < 30) return;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      const cx = rx + rw/2;
-      const cy = ry + rh/2;
-
-      if (rh >= 52) {
-        // Два ряда: название + %
-        ctx.fillStyle = '#1c1a17';
-        ctx.font = `400 ${Math.min(13, rw/6)}px 'IBM Plex Sans', sans-serif`;
-        ctx.fillText(r.item.label, cx, cy - 10);
-        ctx.fillStyle = '#7a7268';
-        ctx.font = `400 ${Math.min(11, rw/7)}px 'IBM Plex Mono', monospace`;
-        ctx.fillText(r.item.value + '%', cx, cy + 10);
-      } else {
-        // Один ряд: название + %
-        ctx.fillStyle = '#1c1a17';
-        ctx.font = `400 ${Math.min(12, rw/6)}px 'IBM Plex Sans', sans-serif`;
-        ctx.fillText(r.item.label + ' ' + r.item.value + '%', cx, cy);
-      }
-    });
-
-    // Сохраняем rects для tooltip
-    canvas._tmRects = rects;
-    canvas._tmDpr = dpr;
-  }
-
-  render();
-
-  // Tooltip
   const tt = document.getElementById('map-tt');
-  canvas.onmousemove = e => {
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-    const hit = (canvas._tmRects||[]).find(r =>
-      mx >= r.x+3 && mx <= r.x+r.w-3 && my >= r.y+3 && my <= r.y+r.h-3
-    );
-    if (hit) {
-      tt.style.display = 'block';
-      tt.style.left = (e.clientX+14)+'px';
-      tt.style.top  = (e.clientY-10)+'px';
-      tt.innerHTML = `<div class="tt-name">${hit.item.label}</div><div class="tt-price">${hit.item.value}% новых объектов</div>`;
-    } else {
-      tt.style.display = 'none';
-    }
-  };
-  canvas.onmouseleave = () => { tt.style.display='none'; };
+  const total = items.reduce((s,d) => s+d.value, 0);
 
-  // Перерисовка при изменении размера контейнера
-  if (canvas._tmObserver) canvas._tmObserver.disconnect();
-  canvas._tmObserver = new ResizeObserver(() => render());
-  canvas._tmObserver.observe(canvas.parentElement);
+  // Строим плоский массив 100 ячеек
+  const cells = [];
+  items.forEach((d,i) => {
+    const count = Math.round(d.value / total * 100);
+    for (let j = 0; j < count; j++) cells.push({...d, colorIdx: i});
+  });
+  // Дополняем/обрезаем до ровно 100
+  while (cells.length < 100) cells.push({...items[0], colorIdx: 0});
+  cells.length = 100;
+
+  // Сетка
+  const grid = document.createElement('div');
+  grid.className = 'waffle-grid';
+  cells.forEach(d => {
+    const cell = document.createElement('div');
+    cell.className = 'waffle-cell';
+    cell.style.background = colors[d.colorIdx] + 'cc';
+    cell.style.border = '1.5px solid ' + colors[d.colorIdx];
+    cell.addEventListener('mousemove', e => {
+      tt.style.display='block';
+      tt.style.left=(e.clientX+14)+'px';
+      tt.style.top=(e.clientY-10)+'px';
+      tt.innerHTML=`<div class="tt-name">${d.label}</div><div class="tt-price">${d.value}% новых объектов</div>`;
+    });
+    cell.addEventListener('mouseleave', () => tt.style.display='none');
+    grid.appendChild(cell);
+  });
+
+  // Легенда
+  const legend = document.createElement('div');
+  legend.className = 'waffle-legend';
+  items.forEach((d,i) => {
+    const row = document.createElement('div');
+    row.className = 'waffle-leg-row';
+    row.innerHTML = `
+      <div class="waffle-leg-dot" style="background:${colors[i]}cc;border:1.5px solid ${colors[i]}"></div>
+      <span class="waffle-leg-lbl">${d.label}</span>
+      <span class="waffle-leg-val">${d.value}%</span>
+    `;
+    legend.appendChild(row);
+  });
+
+  wrap.innerHTML = '';
+  wrap.appendChild(grid);
+  wrap.appendChild(legend);
+}
+
+// Экспорт waffle в PNG — рисуем на offscreen canvas
+async function exportWaffle(elId, btn) {
+  const wrap = document.getElementById(elId);
+  if (!wrap) return;
+  const origText = btn.textContent;
+  btn.textContent = '...'; btn.disabled = true;
+
+  const card = btn.closest('.card, .split-chart');
+  const titleEl = card ? card.querySelector('.ct') : null;
+  const titleText = titleEl ? titleEl.textContent.trim() : '';
+  const periodLabel = getDataPeriodLabel();
+
+  // Параметры сетки
+  const COLS=10, ROWS=10, CELL=24, GAP=3, PAD_GRID=0;
+  const gridW = COLS*CELL + (COLS-1)*GAP;
+  const gridH = ROWS*CELL + (ROWS-1)*GAP;
+  const LEG_X = gridW + 24;
+  const LEG_W = 160;
+  const TOP_BAR=52, BOT_BAR=44, SIDE_PAD=28;
+  const W = SIDE_PAD + gridW + LEG_W + 24 + SIDE_PAD;
+  const H = TOP_BAR + Math.max(gridH, ROOMS_DATA.labels.length*28) + 20 + BOT_BAR;
+
+  const out = document.createElement('canvas');
+  out.width=W; out.height=H;
+  const ctx = out.getContext('2d');
+
+  // Фон
+  ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,W,H);
+
+  // Линия под заголовком
+  ctx.strokeStyle='#e2ddd6'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(SIDE_PAD,TOP_BAR-1); ctx.lineTo(W-SIDE_PAD,TOP_BAR-1); ctx.stroke();
+
+  // Заголовок
+  ctx.fillStyle='#b8924a';
+  ctx.font='500 15px "Playfair Display",Georgia,serif';
+  ctx.textBaseline='middle';
+  ctx.fillText(titleText, SIDE_PAD, TOP_BAR*0.38);
+  ctx.fillStyle='#7a7268';
+  ctx.font='400 11px "IBM Plex Mono",monospace';
+  ctx.fillText(periodLabel, SIDE_PAD, TOP_BAR*0.72);
+
+  // Ячейки
+  const cells=[];
+  ROOMS_DATA.labels.forEach((lbl,i)=>{
+    const count=Math.round(ROOMS_DATA.values[i]/100*100);
+    for(let j=0;j<count;j++) cells.push({label:lbl,value:ROOMS_DATA.values[i],ci:i});
+  });
+  while(cells.length<100) cells.push({...cells[0]});
+  cells.length=100;
+
+  cells.forEach((d,idx)=>{
+    const col=idx%COLS, row=Math.floor(idx/COLS);
+    const cx=SIDE_PAD + col*(CELL+GAP);
+    const cy=TOP_BAR + 10 + row*(CELL+GAP);
+    const clr=ROOMS_CLR[d.ci];
+    const rad=3;
+    ctx.beginPath();
+    ctx.moveTo(cx+rad,cy); ctx.lineTo(cx+CELL-rad,cy);
+    ctx.arcTo(cx+CELL,cy,cx+CELL,cy+rad,rad);
+    ctx.lineTo(cx+CELL,cy+CELL-rad);
+    ctx.arcTo(cx+CELL,cy+CELL,cx+CELL-rad,cy+CELL,rad);
+    ctx.lineTo(cx+rad,cy+CELL);
+    ctx.arcTo(cx,cy+CELL,cx,cy+CELL-rad,rad);
+    ctx.lineTo(cx,cy+rad);
+    ctx.arcTo(cx,cy,cx+rad,cy,rad);
+    ctx.closePath();
+    ctx.fillStyle=clr+'cc'; ctx.fill();
+    ctx.strokeStyle=clr; ctx.lineWidth=1.5; ctx.stroke();
+  });
+
+  // Легенда
+  ROOMS_DATA.labels.forEach((lbl,i)=>{
+    const ly = TOP_BAR + 14 + i*28;
+    const clr=ROOMS_CLR[i];
+    ctx.fillStyle=clr+'cc';
+    ctx.strokeStyle=clr; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.roundRect(SIDE_PAD+LEG_X,ly,12,12,2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#7a7268';
+    ctx.font='400 12px "IBM Plex Sans",sans-serif';
+    ctx.textBaseline='middle'; ctx.textAlign='left';
+    ctx.fillText(lbl, SIDE_PAD+LEG_X+18, ly+6);
+    ctx.fillStyle='#1c1a17';
+    ctx.font='500 11px "IBM Plex Mono",monospace';
+    ctx.fillText(ROOMS_DATA.values[i]+'%', SIDE_PAD+LEG_X+80, ly+6);
+  });
+
+  // Нижняя линия
+  ctx.strokeStyle='#e2ddd6'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(SIDE_PAD,H-BOT_BAR+1); ctx.lineTo(W-SIDE_PAD,H-BOT_BAR+1); ctx.stroke();
+
+  // Логотип
+  const logo=new Image(); logo.src=LOGO_B64; await logo.decode();
+  const lh=32, lw=32;
+  ctx.drawImage(logo, W-lw-SIDE_PAD-lw/2, H-BOT_BAR+(BOT_BAR-lh)/2, lw, lh);
+
+  const fname='struktura_po_komnatnosti';
+  out.toBlob(blob=>{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=fname+'.png'; a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+    btn.textContent=origText; btn.disabled=false;
+  },'image/png');
 }
 
 // ═══════════════════════════════════════════
