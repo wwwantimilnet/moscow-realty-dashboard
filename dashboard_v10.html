@@ -346,6 +346,46 @@ const ANALYST_COMMENTS = {
   },
 };
 
+// ═══════════════════════════════════════════
+// ДАННЫЕ — обновлять ежемесячно
+// ═══════════════════════════════════════════
+
+// Объявления и объекты по округам — последний месяц
+const AO_ADS_DATA = {
+  labels:  ['ЗАО','ЮВАО','ЦАО','ЮАО','САО','СВАО','СЗАО','НАО','ЮЗАО','ВАО','ТАО','ЗелАО'],
+  objects: [3497, 2577, 2968, 2774, 2691, 2276, 2294, 2179, 1873, 1903,  299,  338],
+  ads:     [6382, 6095, 5515, 5413, 5172, 4521, 4121, 3899, 3889, 3844,  559,  536],
+  ratio:   [1.82, 2.37, 1.86, 1.95, 1.92, 1.99, 1.80, 1.79, 2.08, 2.02, 1.87, 1.59]
+};
+
+// Динамика объявлений и объектов — последние месяцы
+const VOLUME_DATA = {
+  months:  ['2025-08','2025-09','2025-10','2025-11','2025-12','2026-01','2026-02','2026-03'],
+  ads:     [42956, 44930, 44098, 48811, 40030, 37667, 45605, 49946],
+  objects: [24302, 25348, 25605, 26174, 21142, 20548, 22981, 25669]
+};
+
+// Средняя стоимость м² — новые объявления vs все объекты
+const PRICE2_DATA = {
+  months:  ['2025-08','2025-09','2025-10','2025-11','2025-12','2026-01','2026-02','2026-03'],
+  new_ads: [370667, 370690, 365138, 376712, 385778, 395000, 397222, 399137],
+  all_obj: [323394, 329048, 331024, 336206, 344294, 353741, 361538, 369565]
+};
+
+// Структура новых объектов по комнатности — последний месяц
+const ROOMS_DATA = {
+  labels: ['1-комн.','2-комн.','3-комн.','4-комн.','Другие'],
+  values: [34, 33, 24, 7, 2]
+};
+const ROOMS_CLR = ['#b8924a','#4a8fa8','#7a9e7e','#a0789e','#aab4be'];
+
+// Средняя цена м² и ключевая ставка ЦБ
+const RATE_DATA = {
+  months: ['2025-10','2025-11','2025-12','2026-01','2026-02','2026-03'],
+  prices: [331024,   336206,   344294,   353741,   361538,   369565],
+  rates:  [16,       16,       15.5,     15,       15,       15]
+};
+
 let MOS=[], MUNI={}, GEO_AO=null, GEO_MUN=null;
 
 const fmtP=n=>new Intl.NumberFormat('ru-RU').format(Math.round(n))+' ₽';
@@ -769,13 +809,7 @@ function _mUpdate(){
   if(last)mkYearCompare('m-c4','m-c4-title','m-c4-sub',dists,pm,last);
   mkHeatmap('m-hm',dists,periods,cm);
 
-  // ── Гистограмма объявлений vs объектов по округам (март 2026)
-  const AO_ADS_DATA = {
-    labels: ['ЗАО','ЮВАО','ЦАО','ЮАО','САО','СВАО','СЗАО','НАО','ЮЗАО','ВАО','ТАО','ЗелАО'],
-    objects:[3497, 2577, 2968, 2774, 2691, 2276, 2294, 2179, 1873, 1903,  299,  338],
-    ads:    [6382, 6095, 5515, 5413, 5172, 4521, 4121, 3899, 3889, 3844,  559,  536],
-    ratio:  [1.82, 2.37, 1.86, 1.95, 1.92, 1.99, 1.80, 1.79, 2.08, 2.02, 1.87, 1.59]
-  };
+  // ── Гистограмма объявлений vs объектов по округам
   const c8Sorted = AO_ADS_DATA.labels.map((l,i)=>({l,o:AO_ADS_DATA.objects[i],a:AO_ADS_DATA.ads[i],r:AO_ADS_DATA.ratio[i]})).sort((a,b)=>b.a-a.a);
   const oC8 = cdefs();
   oC8.indexAxis = 'y';
@@ -792,11 +826,6 @@ function _mUpdate(){
   ]},oC8);
 
   // ── Динамика объявлений и объектов
-  const VOLUME_DATA = {
-    months:  ['2025-08','2025-09','2025-10','2025-11','2025-12','2026-01','2026-02','2026-03'],
-    ads:     [42956, 44930, 44098, 48811, 40030, 37667, 45605, 49946],
-    objects: [24302, 25348, 25605, 26174, 21142, 20548, 22981, 25669]
-  };
   const vLabels = VOLUME_DATA.months.map(m => new Date(m+'-01').toLocaleString('ru-RU',{month:'short',year:'2-digit'}));
   const oV = cdefs();
   oV.scales.y = {ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},callback:v=>v>=1000?(v/1000).toFixed(0)+'K':v},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}};
@@ -807,11 +836,6 @@ function _mUpdate(){
   ]},oV);
 
   // ── Средняя стоимость м² (новые vs все)
-  const PRICE2_DATA = {
-    months:  ['2025-08','2025-09','2025-10','2025-11','2025-12','2026-01','2026-02','2026-03'],
-    new_ads: [370667, 370690, 365138, 376712, 385778, 395000, 397222, 399137],
-    all_obj: [323394, 329048, 331024, 336206, 344294, 353741, 361538, 369565]
-  };
   const p2Labels = PRICE2_DATA.months.map(m => new Date(m+'-01').toLocaleString('ru-RU',{month:'short',year:'2-digit'}));
   const oP2 = cdefs();
   oP2.scales.y.ticks.callback = v => (v/1000).toFixed(0)+'K ₽';
@@ -821,9 +845,7 @@ function _mUpdate(){
     {label:'Все объекты',borderColor:'#4a8fa8',backgroundColor:'transparent',data:PRICE2_DATA.all_obj,borderWidth:2,pointRadius:3,pointHoverRadius:5,tension:.3,spanGaps:true,borderDash:[5,3]}
   ]},oP2);
 
-  // ── Структура по комнатности (март 2026)
-  const ROOMS_DATA = {labels:['1-комн.','2-комн.','3-комн.','4-комн.','Другие'],values:[34,33,24,7,2]};
-  const ROOMS_CLR = ['#b8924a','#4a8fa8','#7a9e7e','#a0789e','#aab4be'];
+  // ── Структура по комнатности
   document.getElementById('m-c7-sub').textContent = last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : 'март 2026';
   const oR = cdefs();
   oR.plugins.legend.position = 'right';
@@ -832,11 +854,6 @@ function _mUpdate(){
   mkChart('m-c7','doughnut',{labels:ROOMS_DATA.labels,datasets:[{data:ROOMS_DATA.values,backgroundColor:ROOMS_CLR.map(c=>c+'cc'),borderColor:ROOMS_CLR,borderWidth:1.5,hoverOffset:6}]},oR);
 
   // ── Ключевая ставка ЦБ vs средняя цена м²
-  const RATE_DATA = {
-    months: ['2025-10','2025-11','2025-12','2026-01','2026-02','2026-03'],
-    prices: [331024,   336206,   344294,   353741,   361538,   369565],
-    rates:  [16,       16,       15.5,     15,       15,       15]
-  };
   const rLabels = RATE_DATA.months.map(m => new Date(m+'-01').toLocaleString('ru-RU',{month:'short',year:'2-digit'}));
   const oRate = cdefs();
   oRate.scales = {
