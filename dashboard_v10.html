@@ -639,7 +639,12 @@ let CH={};
 function mkChart(id,type,data,opts){if(CH[id])CH[id].destroy();CH[id]=new Chart(document.getElementById(id),{type,data,options:opts});}
 function cdefs(){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},boxWidth:11,padding:12},position:'bottom'},tooltip:{backgroundColor:'#ffffff',borderColor:'#e2ddd6',borderWidth:1,titleColor:'#b8924a',bodyColor:'#1c1a17',titleFont:{family:'IBM Plex Mono',size:11},bodyFont:{family:'IBM Plex Sans',size:12},padding:10,mode:'index',intersect:false,itemSort:(a,b)=>b.raw-a.raw,callbacks:{label:ctx=>{const v=ctx.raw;if(v==null)return null;const lbl=ctx.dataset.label||'';if(typeof v==='number'){if(Math.abs(v)<20)return` ${lbl}: ${v>0?'+':''}${v.toFixed(1)}%`;return` ${lbl}: ${new Intl.NumberFormat('ru-RU').format(Math.round(v))} ₽`;}return` ${lbl}: ${v}`;}}}},scales:{x:{ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},maxRotation:45},grid:{color:'#f0ece5'},border:{color:'#e2ddd6'}},y:{ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10}},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}}}};}
 function mkHeatmap(el,labels,periods,map){
-  const ps=periods.slice(-12);let h='<table class="hmt"><thead><tr><th class="rh">Название</th>';
+  const ps=periods.slice(-12);
+  if(!ps.length||!labels.length){
+    document.getElementById(el).innerHTML='<p style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;color:var(--muted);padding:8px 0">Недостаточно данных для тепловой карты</p>';
+    return;
+  }
+  let h='<table class="hmt"><thead><tr><th class="rh">Название</th>';
   ps.forEach(p=>h+=`<th>${p.slice(2)}</th>`);h+='</tr></thead><tbody>';
   labels.forEach(lbl=>{h+=`<tr><td class="rl">${lbl}</td>`;
     ps.forEach(p=>{const v=map[lbl]?.[p];let bg='transparent',cl='#aaa5a0';
@@ -940,11 +945,7 @@ function _dUpdate(){
   document.getElementById('d-c3-title').textContent=`Цены — ${moName2}`;
   const o3=cdefs();o3.plugins.legend.display=false;o3.scales.y.ticks.callback=v=>(v/1000).toFixed(0)+'K';
   mkChart('d-c3','bar',{labels:munis,datasets:[{data:munis.map(m=>pm[m][last]||0),backgroundColor:munis.map((_,i)=>CLR[i%CLR.length]+'99'),borderColor:munis.map((_,i)=>CLR[i%CLR.length]),borderWidth:1,borderRadius:2}]},o3);
-  if(last&&munis.length>1)mkYearCompareH('d-c4','d-c4-title','d-c4-sub',munis,pm,last);
-  else if(last&&munis.length===1){
-    // Один район — показываем сравнение по годам для него
-    mkYearCompareH('d-c4','d-c4-title','d-c4-sub',munis,pm,last);
-  }
+  if(last) mkYearCompareH('d-c4','d-c4-title','d-c4-sub',munis,pm,last);
   mkHeatmap('d-hm',munis,periods,cm);
   document.getElementById('d-tbl').classList.toggle('on',showT);
   if(showT)mkTable('d-tbl-c',munis,periods,pm,cm);
