@@ -472,22 +472,26 @@ function buildMap(svgId, geojson, priceMap, onClickDistrict, crop=true) {
     path.setAttribute('data-name', name);
     path.setAttribute('data-price', price||0);
 
-    // Tooltip
-    path.addEventListener('mousemove', e => {
-      tt.style.display='block';
-      tt.style.left=(e.clientX+14)+'px';
-      tt.style.top=(e.clientY-10)+'px';
-      const priceStr = price ? new Intl.NumberFormat('ru-RU').format(Math.round(price))+' ₽/м²' : 'нет данных';
-      tt.innerHTML = `<div class="tt-name">${name}</div><div class="tt-price">${priceStr}</div>`;
-    });
-    path.addEventListener('mouseleave', ()=>tt.style.display='none');
-
     if (onClickDistrict) {
       path.addEventListener('click', ()=>onClickDistrict(name));
     }
 
     svg.appendChild(path);
   });
+
+  // Tooltip навешен на SVG целиком — один обработчик вместо N на каждый path
+  svg.addEventListener('mousemove', e => {
+    const path = e.target.closest('path[data-name]');
+    if (!path) { tt.style.display='none'; return; }
+    tt.style.display='block';
+    tt.style.left=(e.clientX+14)+'px';
+    tt.style.top=(e.clientY-10)+'px';
+    const pName  = path.dataset.name;
+    const pPrice = parseFloat(path.dataset.price);
+    const priceStr = pPrice>0 ? new Intl.NumberFormat('ru-RU').format(Math.round(pPrice))+' ₽/м²' : 'нет данных';
+    tt.innerHTML = `<div class="tt-name">${pName}</div><div class="tt-price">${priceStr}</div>`;
+  });
+  svg.addEventListener('mouseleave', ()=>tt.style.display='none');
 
   return {minP, maxP};
 }
@@ -701,7 +705,9 @@ function initMPills(){
     p.onclick=()=>{mOn.has(d)?mOn.delete(d):mOn.add(d);p.classList.toggle('on',mOn.has(d));document.getElementById('m-ap').classList.toggle('on',mOn.size===ALL.length);mUpdate();};c.appendChild(p);});
 }
 
-function mUpdate(){
+let _mT,_dT,_rT;
+function mUpdate(){clearTimeout(_mT);_mT=setTimeout(_mUpdate,80);}
+function _mUpdate(){
   const from=document.getElementById('mf').value,to=document.getElementById('mt').value,showT=document.getElementById('m-tog').checked;
   const rows=MOS.filter(r=>mOn.has(r.district)&&r.period>=from&&r.period<=to&&r.price>0);
   const periods=[...new Set(rows.map(r=>r.period))].sort(),dists=[...mOn].sort();
@@ -729,6 +735,8 @@ function mUpdate(){
     document.getElementById('m-map-sub').textContent = `₽/м² · ${moName} · нажмите на округ для перехода`;
     const res = buildMap('m-map-svg', GEO_AO, aoPriceMap, (name)=>{
       if(MUNI[name]) {
+        document.getElementById('df').value  = document.getElementById('mf').value;
+        document.getElementById('dt2').value = document.getElementById('mt').value;
         switchTab('d');
         document.getElementById('d-sel').value = name;
         dDistChange();
@@ -863,7 +871,8 @@ function dDistChange(){
   dUpdate();
 }
 
-function dUpdate(){
+function dUpdate(){clearTimeout(_dT);_dT=setTimeout(_dUpdate,80);}
+function _dUpdate(){
   const dist=document.getElementById('d-sel').value,from=document.getElementById('df').value,to=document.getElementById('dt2').value,showT=document.getElementById('d-tog').checked;
   if(!dist||!MUNI[dist])return;
   const munis=[...dOn].sort();
@@ -954,10 +963,6 @@ function dUpdate(){
 // ═══════════════════════════════════════════
 // АРЕНДА
 // ═══════════════════════════════════════════
-
-// Данные аренды (встроены). Для подключения Google Apps Script:
-// const URL_RENT = 'https://script.google.com/...'; // раскомментировать
-const URL_RENT = null;
 
 // КОММЕНТАРИИ АНАЛИТИКА — АРЕНДА (редактировать здесь)
 const RENT_COMMENTS = {
@@ -1096,7 +1101,8 @@ function initRentPills() {
   });
 }
 
-function rUpdate() {
+function rUpdate(){clearTimeout(_rT);_rT=setTimeout(_rUpdate,80);}
+function _rUpdate() {
   const from = document.getElementById('rf').value;
   const to   = document.getElementById('rt').value;
   const showT = document.getElementById('r-tog').checked;
