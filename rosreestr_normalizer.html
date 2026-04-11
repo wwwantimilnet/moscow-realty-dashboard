@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Нормализатор Росреестра v1.3</title>
+<title>Нормализатор Росреестра v1.4</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:wght@400;600&display=swap');
@@ -141,7 +141,7 @@
 
   <div class="header">
     <h1>Нормализатор Росреестра</h1>
-    <p>Загрузите файл «Данные_для_отчетов_по_росреестру_ММ_ГГГГ.xlsx» → получите готовый файл для заливки в Google Sheets &nbsp;·&nbsp; <span style="color:var(--accent)">v1.3</span></p>
+    <p>Загрузите файл «Данные_для_отчетов_по_росреестру_ММ_ГГГГ.xlsx» → получите готовый файл для заливки в Google Sheets &nbsp;·&nbsp; <span style="color:var(--accent)">v1.4</span></p>
   </div>
 
   <div class="file-slot" id="slot"
@@ -311,70 +311,67 @@ function processAll(wb) {
 }
 
 // ── УФРС (переходы прав) ────────────────────────────
-// XLSX.js читает Лист1 иначе чем openpyxl:
-// row[0] = заголовок годов (col[3]=2014, col[4]=2015, ...)
-// row[1..12] = данные янв..дек (без колонки с названием месяца)
-// Нет отдельной колонки месяца — месяц = индекс строки (0=янв, 1=фев, ...)
-// Данные2М дополняет 2025–2026
+// Лист1: годы 2014–2024 по строкам (row=месяц, col=год)
+// Данные2М: полный ряд 2014–сейчас, даты как строки 'Jan-14', 'Feb-26' (raw:false)
 function parseUrfrs(wb) {
-  const rows = sheetToArr(wb.Sheets['Лист1']);
   const map = {};
 
-  // Найдём строку-заголовок где есть год 2014
-  let headerRowIdx = -1;
-  for (let i = 0; i < Math.min(rows.length, 5); i++) {
-    if (rows[i] && rows[i].some(v => v == 2014 || v === '2014')) { headerRowIdx = i; break; }
-  }
-  if (headerRowIdx < 0) headerRowIdx = 0;
-
-  const headerRow = rows[headerRowIdx];
-  // Собираем года и их колонки
-  const years = [];
-  for (let c = 0; c < headerRow.length; c++) {
-    const y = parseInt(String(headerRow[c] || ''));
-    if (!isNaN(y) && y >= 2014 && y <= 2030) years.push({ col: c, year: y });
-  }
-
-  // Строки данных: сразу после заголовка, каждая строка = месяц по порядку
-  const MONTH_NAMES = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
-  for (let mi = 0; mi < 12; mi++) {
-    const row = rows[headerRowIdx + 1 + mi];
-    if (!row) continue;
-    // Проверяем что это строка данных — ищем числовое значение в колонках годов
-    const monthNum = mi + 1;
-    for (const { col, year } of years) {
-      const v = parseNum(row[col]);
-      if (v === null || v <= 0) continue;
-      const period = `${year}-${String(monthNum).padStart(2,'0')}`;
-      map[period] = Math.round(v);
+  // ── Лист1: 2014–2024 ─────────────────────────────
+  const rows = sheetToArr(wb.Sheets['Лист1']);
+  const hIdx = rows.findIndex(r => r && r.some(v => v == 2014 || v === '2014'));
+  if (hIdx >= 0) {
+    const hRow = rows[hIdx];
+    const years = [];
+    for (let c = 0; c < hRow.length; c++) {
+      const y = parseInt(String(hRow[c] || ''));
+      if (!isNaN(y) && y >= 2014 && y <= 2030) years.push({ col: c, year: y });
+    }
+    for (let mi = 0; mi < 12; mi++) {
+      const row = rows[hIdx + 1 + mi];
+      if (!row) continue;
+      for (const { col, year } of years) {
+        const v = parseNum(row[col]);
+        if (v === null || v <= 0 || v > 40000) continue; // >40000 = итоговая строка
+        const period = `${year}-${String(mi + 1).padStart(2, '0')}`;
+        map[period] = Math.round(v);
+      }
     }
   }
 
-  // Данные2М: добавляем/обновляем (2025–2026)
+  // ── Данные2М: добавляем/перезаписываем используя raw:false ──
+  // raw:false возвращает даты как строки 'Jan-14', 'Feb-26' — без timezone проблем
   const wsD = wb.Sheets['Данные2М'];
-  const dRows = sheetToArr(wsD);
+  const dRows = XLSX.utils.sheet_to_json(wsD, { header: 1, defval: null, raw: false });
+
+  const EN_MONTHS = { 'jan':1,'feb':2,'mar':3,'apr':4,'may':5,'jun':6,
+                      'jul':7,'aug':8,'sep':9,'oct':10,'nov':11,'dec':12 };
+
   const headerD = dRows[0] || [];
-  let urfrsCol = headerD.findIndex(v => String(v||'').toLowerCase().includes('зарегистрировано прав'));
+  let urfrsCol = headerD.findIndex(v => String(v || '').toLowerCase().includes('зарегистрировано прав'));
   if (urfrsCol < 0) urfrsCol = 22;
 
   for (let i = 1; i < dRows.length; i++) {
     const row = dRows[i];
     if (!row || !row[0]) continue;
-    let dt = row[0], period = '';
-    if (dt instanceof Date) {
-      // Используем UTC методы чтобы избежать timezone сдвига
-      period = `${dt.getUTCFullYear()}-${String(dt.getUTCMonth()+1).padStart(2,'0')}`;
-    } else {
-      const m = String(dt).match(/(\d{4})-(\d{2})/);
-      if (m) period = `${m[1]}-${m[2]}`;
-    }
-    if (!period) continue;
-    const v = parseNum(row[urfrsCol]);
-    if (v !== null && v > 0) map[period] = Math.round(v);
+
+    // Парсим строку вида 'Jan-14', 'Feb-26', 'Dec-25'
+    const dateStr = String(row[0]).trim();
+    const m = dateStr.match(/^([A-Za-z]{3})-(\d{2})$/);
+    if (!m) continue;
+    const monthNum = EN_MONTHS[m[1].toLowerCase()];
+    if (!monthNum) continue;
+    const yearShort = parseInt(m[2]);
+    const year = yearShort >= 0 && yearShort <= 30 ? 2000 + yearShort : 1900 + yearShort;
+    const period = `${year}-${String(monthNum).padStart(2, '0')}`;
+
+    // Значение может прийти как строка '10,785' — убираем запятые
+    const rawV = String(row[urfrsCol] || '').replace(/,/g, '');
+    const v = parseFloat(rawV);
+    if (!isNaN(v) && v > 0) map[period] = Math.round(v);
   }
 
   return Object.entries(map)
-    .sort(([a],[b]) => a < b ? -1 : 1)
+    .sort(([a], [b]) => a < b ? -1 : 1)
     .map(([period, rights]) => ({ period, rights }));
 }
 
