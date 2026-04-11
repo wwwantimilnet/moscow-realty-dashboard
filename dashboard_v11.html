@@ -266,6 +266,7 @@ footer{padding:14px 40px;border-top:1px solid var(--border);font-family:'IBM Ple
     <div class="ctrl-bar">
       <div class="cg"><span class="cl">Период с</span><input type="month" id="regm-f" onchange="regMUpdate()"></div>
       <div class="cg"><span class="cl">Период по</span><input type="month" id="regm-t" onchange="regMUpdate()"></div>
+      <div class="cg" style="flex:1;align-self:flex-end"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:.06em" id="regm-data-period">загрузка...</span></div>
     </div>
     <div class="kpis" style="grid-template-columns:1fr 1fr 1fr 1fr;">
       <div class="kpi"><div class="kpi-lbl">Переходов прав (фев 2026)</div><div class="kpi-val" id="regm-k1">—</div><div class="kpi-sub" id="regm-k1s">—</div></div>
@@ -1703,29 +1704,47 @@ function jsonpLoad(url, cbPrefix) {
 async function loadRegData() {
   try {
     const data = await jsonpLoad(URL_REG + '?type=all', 'regCb');
-    REG_URFRS      = data.urfrs      || [];
-    REG_BUDGET_MSK = data.budget_msk || [];
-    REG_TYPO_MSK   = data.typo_msk   || [];
-    REG_PRICE_MSK  = data.price_msk  || [];
 
-    // Инициализируем фильтры периода
-    const urfrsP = REG_URFRS.map(r => r.period).filter(p => p >= '2019-01').sort();
+    // GAS может вернуть числа как строки — приводим к числу
+    function fixNums(arr, numKeys) {
+      return (arr || []).map(r => {
+        const out = { period: r.period };
+        numKeys.forEach(k => { out[k] = r[k] !== null && r[k] !== '' ? parseFloat(r[k]) : null; });
+        return out;
+      });
+    }
+
+    REG_URFRS      = fixNums(data.urfrs,      ['rights']);
+    REG_BUDGET_MSK = fixNums(data.budget_msk, ['lt9','b9_12','b12_15','b15_30','gt30']);
+    REG_TYPO_MSK   = fixNums(data.typo_msk,   ['rooms','k1','k2','k3','multi']);
+    REG_PRICE_MSK  = fixNums(data.price_msk,  ['avg_k1','avg_k2','avg_k3','avg_budget']);
+
+    // Определяем последний период
     const allP = [...new Set([
       ...REG_BUDGET_MSK.map(r=>r.period),
       ...REG_TYPO_MSK.map(r=>r.period),
       ...REG_PRICE_MSK.map(r=>r.period)
-    ])].sort();
+    ])].filter(Boolean).sort();
+
     const latest = allP[allP.length-1] || '2026-02';
-    const twoYearsAgo = latest.slice(0,4)-2 + latest.slice(4);
+    // Правильное вычисление "2 года назад"
+    const latestYear = parseInt(latest.slice(0,4));
+    const latestMo   = latest.slice(4); // '-02'
+    const twoYearsAgo = (latestYear - 2) + latestMo;
 
     const fEl = document.getElementById('regm-f');
     const tEl = document.getElementById('regm-t');
-    if (fEl && !fEl.value) fEl.value = twoYearsAgo > allP[0] ? twoYearsAgo : allP[0];
+    if (fEl && !fEl.value) fEl.value = twoYearsAgo >= (allP[0]||'') ? twoYearsAgo : (allP[0]||'');
     if (tEl && !tEl.value) tEl.value = latest;
+
+    // Подпись периода обновления данных
+    const latestLabel = new Date(latest + '-01').toLocaleString('ru-RU', { month: 'long', year: 'numeric' });
+    document.getElementById('regm-data-period').textContent = `данные Росреестра за ${latestLabel}`;
 
     regMUpdate();
   } catch(e) {
     console.warn('Росреестр МСК не загружен:', e.message);
+    document.getElementById('regm-data-period').textContent = 'ошибка загрузки данных';
   }
 }
 
@@ -1784,47 +1803,63 @@ function drawRegKPIs() {
 function drawRegUrfrs(from, to) {
   const MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
 
-  // Собираем данные начиная с 2019
   const data = REG_URFRS.filter(r => r.period >= '2019-01');
   const years = [...new Set(data.map(r => r.period.slice(0,4)))].sort();
 
-  // Строим datasets: каждый год — линия
   const datasets = years.map(yr => {
     const isCurrentYear = yr === years[years.length-1];
-    const color = isCurrentYear ? '#b8924a' : null;
-    const opacity = isCurrentYear ? 1 : 0.45;
-    const values = MONTHS.map((_,mi) => {
+    const baseColor = isCurrentYear ? '#b8924a' : CLR[years.indexOf(yr) % CLR.length];
+    const values = MONTHS.map((_, mi) => {
       const p = `${yr}-${String(mi+1).padStart(2,'0')}`;
       const row = data.find(r => r.period === p);
       return row ? row.rights : null;
     });
-    const baseColor = color || CLR[years.indexOf(yr) % CLR.length];
     return {
       label: yr,
       data: values,
       borderColor: baseColor,
-      backgroundColor: baseColor + '18',
+      backgroundColor: isCurrentYear ? baseColor + '18' : 'transparent',
       borderWidth: isCurrentYear ? 2.5 : 1.5,
-      pointRadius: isCurrentYear ? 4 : 2,
+      pointRadius: isCurrentYear ? 5 : 2,
       pointHoverRadius: 6,
+      pointBackgroundColor: isCurrentYear ? baseColor : 'transparent',
       tension: 0.3,
       spanGaps: true,
       fill: isCurrentYear,
       order: isCurrentYear ? 0 : 1,
+      datalabels: isCurrentYear ? {
+        display: ctx => ctx.raw !== null,
+        align: 'top',
+        anchor: 'end',
+        color: baseColor,
+        font: { family: 'IBM Plex Mono', size: 9, weight: '500' },
+        formatter: v => v ? new Intl.NumberFormat('ru-RU').format(v) : null,
+        offset: 4,
+      } : { display: false },
     };
   });
 
   const o = cdefs();
   o.scales.x = { ticks: { color: '#7a7268', font: { family: 'IBM Plex Mono', size: 10 } }, grid: { color: '#f0ece5' }, border: { color: '#e2ddd6' } };
-  o.scales.y = { ticks: { color: '#7a7268', font: { family: 'IBM Plex Mono', size: 10 }, callback: v => new Intl.NumberFormat('ru-RU').format(v) }, grid: { color: 'rgba(226,221,214,.7)' }, border: { color: '#e2ddd6' } };
+  o.scales.y = {
+    ticks: { color: '#7a7268', font: { family: 'IBM Plex Mono', size: 10 }, callback: v => new Intl.NumberFormat('ru-RU').format(v) },
+    grid: { color: 'rgba(226,221,214,.7)' }, border: { color: '#e2ddd6' },
+    // Добавляем отступ сверху чтобы подписи влезли
+    grace: '15%',
+  };
   o.plugins.legend = { display: true, position: 'bottom', labels: { font: { family: 'IBM Plex Mono', size: 10 }, boxWidth: 24, padding: 10 } };
   o.plugins.tooltip.callbacks.label = ctx => {
     const v = ctx.raw;
     if (v == null) return null;
     return ` ${ctx.dataset.label}: ${new Intl.NumberFormat('ru-RU').format(v)}`;
   };
+  // datalabels плагин — если не подключён, просто игнорируем
+  o.plugins.datalabels = { display: false }; // базовый fallback
 
   mkChart('regm-c1', 'line', { labels: MONTHS, datasets }, o);
+
+  // Рисуем подписи вручную поверх canvas если плагин недоступен
+  setTimeout(() => drawRegUrfrsLabels(years[years.length-1], data, MONTHS), 100);
 }
 
 // ── УФРС: таблица ────────────────────────────────────
@@ -1833,15 +1868,25 @@ function drawRegUrfrsTable() {
   const data = REG_URFRS.filter(r => r.period >= '2019-01');
   const years = [...new Set(data.map(r => r.period.slice(0,4)))].sort();
 
-  // Строим карту period → rights
   const map = {};
   data.forEach(r => { map[r.period] = r.rights; });
 
   const latestYear = years[years.length-1];
-  const prevYear = years[years.length-2];
+  const prevYear   = years[years.length-2];
+
+  function fmtChg(chg) {
+    if (chg === null) return '—';
+    const arrow = chg > 0 ? '↑' : '↓';
+    const cls   = chg > 0 ? 'tp' : 'tn';
+    const sign  = chg > 0 ? '+' : '';
+    return `<span class="${cls}" style="font-weight:600">${arrow} ${sign}${chg.toFixed(1)}%</span>`;
+  }
 
   let h = '<table class="dt"><thead><tr><th>Месяц</th>';
-  years.forEach(yr => h += `<th>${yr}</th>`);
+  years.forEach(yr => {
+    const style = yr === latestYear ? ' style="color:var(--gold)"' : '';
+    h += `<th${style}>${yr}</th>`;
+  });
   h += '<th style="color:var(--gold)">% к пред. году</th></tr></thead><tbody>';
 
   MONTHS.forEach((mon, mi) => {
@@ -1849,43 +1894,63 @@ function drawRegUrfrsTable() {
     years.forEach(yr => {
       const p = `${yr}-${String(mi+1).padStart(2,'0')}`;
       const v = map[p];
-      const isLatest = yr === latestYear;
-      const style = isLatest ? 'style="color:var(--gold);font-weight:500"' : '';
-      h += `<td ${style}>${v ? new Intl.NumberFormat('ru-RU').format(v) : '—'}</td>`;
+      const style = yr === latestYear ? ' style="color:var(--gold);font-weight:500"' : '';
+      h += `<td${style}>${v ? new Intl.NumberFormat('ru-RU').format(v) : '—'}</td>`;
     });
-    // % к прошлому году для последнего
+    // % к прошлому году
     const pLast = `${latestYear}-${String(mi+1).padStart(2,'0')}`;
     const pPrev = `${prevYear}-${String(mi+1).padStart(2,'0')}`;
     if (map[pLast] && map[pPrev]) {
       const chg = (map[pLast] / map[pPrev] - 1) * 100;
-      const cls = chg > 0 ? 'tp' : 'tn';
-      h += `<td class="${cls}">${chg > 0 ? '+' : ''}${chg.toFixed(1)}%</td>`;
+      h += `<td>${fmtChg(chg)}</td>`;
     } else {
       h += '<td>—</td>';
     }
     h += '</tr>';
   });
-  // Итоговая строка — сумма за год
-  h += '<tr><td style="color:var(--gold);font-weight:500">ИТОГО</td>';
+
+  // Итоговая строка — только месяцы где есть данные
+  h += '<tr style="border-top:2px solid var(--border)"><td style="color:var(--gold);font-weight:600">ИТОГО</td>';
+  const yearSums = {};
   years.forEach(yr => {
-    const sum = MONTHS.reduce((s, _, mi) => {
-      const p = `${yr}-${String(mi+1).padStart(2,'0')}`;
-      return s + (map[p] || 0);
-    }, 0);
-    const isLatest = yr === latestYear;
-    const style = isLatest ? 'style="color:var(--gold);font-weight:500"' : '';
-    h += `<td ${style}>${sum > 0 ? new Intl.NumberFormat('ru-RU').format(sum) : '—'}</td>`;
+    let sum = 0, count = 0;
+    MONTHS.forEach((_, mi) => {
+      const v = map[`${yr}-${String(mi+1).padStart(2,'0')}`];
+      if (v) { sum += v; count++; }
+    });
+    yearSums[yr] = count > 0 ? sum : null;
+    const style = yr === latestYear ? ' style="color:var(--gold);font-weight:600"' : '';
+    h += `<td${style}>${yearSums[yr] ? new Intl.NumberFormat('ru-RU').format(yearSums[yr]) : '—'}</td>`;
   });
   // % итого
-  const sumLast = MONTHS.reduce((s,_,mi)=>{const p=`${latestYear}-${String(mi+1).padStart(2,'0')}`;return s+(map[p]||0);},0);
-  const sumPrev = MONTHS.reduce((s,_,mi)=>{const p=`${prevYear}-${String(mi+1).padStart(2,'0')}`;return s+(map[p]||0);},0);
-  if (sumLast && sumPrev) {
-    const chg = (sumLast/sumPrev-1)*100;
-    h += `<td class="${chg>0?'tp':'tn'}">${chg>0?'+':''}${chg.toFixed(1)}%</td>`;
+  if (yearSums[latestYear] && yearSums[prevYear]) {
+    const chg = (yearSums[latestYear] / yearSums[prevYear] - 1) * 100;
+    h += `<td>${fmtChg(chg)}</td>`;
   } else h += '<td>—</td>';
   h += '</tr></tbody></table>';
 
   document.getElementById('regm-tbl-urfrs').innerHTML = h;
+}
+
+// ── Ручные подписи точек текущего года на canvas ─────
+function drawRegUrfrsLabels(currentYear, data, months) {
+  const chart = CH['regm-c1'];
+  if (!chart) return;
+  const dsIdx = chart.data.datasets.findIndex(d => d.label === currentYear);
+  if (dsIdx < 0) return;
+  const meta = chart.getDatasetMeta(dsIdx);
+  const ctx = chart.ctx;
+  ctx.save();
+  ctx.font = '500 9px IBM Plex Mono, monospace';
+  ctx.fillStyle = '#b8924a';
+  ctx.textAlign = 'center';
+  meta.data.forEach((pt, i) => {
+    const v = chart.data.datasets[dsIdx].data[i];
+    if (v == null) return;
+    const label = new Intl.NumberFormat('ru-RU').format(v);
+    ctx.fillText(label, pt.x, pt.y - 8);
+  });
+  ctx.restore();
 }
 
 // ── БЮДЖЕТ МСК: stacked bar ──────────────────────────
