@@ -1705,13 +1705,36 @@ async function loadRegData() {
   try {
     const data = await jsonpLoad(URL_REG + '?type=all', 'regCb');
 
+    // GAS возвращает period как полную дату-строку если Sheets хранит как Date
+    // Парсим любой формат → YYYY-MM
+    function fixPeriod(raw) {
+      if (!raw) return null;
+      const s = String(raw).trim();
+      // Уже правильный формат YYYY-MM
+      if (/^\d{4}-\d{2}$/.test(s)) return s;
+      // YYYY-MM-DD...
+      if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 7);
+      // "Wed Jan 01 2025 11:00:00 GMT+0300..." — парсим через Date
+      try {
+        const d = new Date(s);
+        if (!isNaN(d.getTime())) {
+          // Используем UTC+0 момент чтобы избежать сдвига
+          // Но дата уже содержит timezone offset в строке — берём локальные значения
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, '0');
+          return `${y}-${m}`;
+        }
+      } catch(e) {}
+      return s.slice(0, 7);
+    }
+
     // GAS может вернуть числа как строки — приводим к числу
     function fixNums(arr, numKeys) {
       return (arr || []).map(r => {
-        const out = { period: r.period };
+        const out = { period: fixPeriod(r.period) };
         numKeys.forEach(k => { out[k] = r[k] !== null && r[k] !== '' ? parseFloat(r[k]) : null; });
         return out;
-      });
+      }).filter(r => r.period);
     }
 
     REG_URFRS      = fixNums(data.urfrs,      ['rights']);
