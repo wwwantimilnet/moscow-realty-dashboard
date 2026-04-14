@@ -266,7 +266,6 @@ footer{padding:14px 40px;border-top:1px solid var(--border);font-family:'IBM Ple
     <div class="ctrl-bar">
       <div class="cg"><span class="cl">Период с</span><input type="month" id="regm-f" onchange="regMUpdate()"></div>
       <div class="cg"><span class="cl">Период по</span><input type="month" id="regm-t" onchange="regMUpdate()"></div>
-      <div class="cg" style="flex:1;align-self:flex-end"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:.06em" id="regm-data-period">загрузка...</span></div>
     </div>
     <div class="kpis" style="grid-template-columns:1fr 1fr 1fr 1fr;">
       <div class="kpi"><div class="kpi-lbl">Переходов прав (фев 2026)</div><div class="kpi-val" id="regm-k1">—</div><div class="kpi-sub" id="regm-k1s">—</div></div>
@@ -820,7 +819,17 @@ function mkYearCompareH(canvasId,titleId,subId,labels,pm,lastPeriod){
 let rInited = false;
 function switchTab(id){
   ['m','d','r','reg-m'].forEach(x=>{document.getElementById('panel-'+x).classList.toggle('active',x===id);document.getElementById('tab-'+x).classList.toggle('active',x===id);});
-  if (id === 'reg-m' && !regMInited) { regMInited = true; loadRegData(); }
+  if (id === 'reg-m') {
+    if (!regMInited) { regMInited = true; loadRegData(); }
+    // Обновляем badge на период данных Росреестра
+    const lastP = REG_URFRS.length ? REG_URFRS[REG_URFRS.length-1].period : null;
+    if (lastP) document.getElementById('hdr-badge').textContent = lastP;
+  } else {
+    // Возвращаем badge к периоду данных продаж
+    const periods = [...new Set(MOS.map(r=>r.period))].sort();
+    const latest = periods[periods.length-1];
+    if (latest) document.getElementById('hdr-badge').textContent = latest;
+  }
   pushURL();
 }
 
@@ -1627,8 +1636,7 @@ async function exportWaffle(elId, btn) {
 
 function pushURL() {
   const sp = new URLSearchParams();
-  // Определяем активную вкладку
-  const tab = ['m','d','r'].find(x => document.getElementById('panel-'+x).classList.contains('active')) || 'm';
+  const tab = ['m','d','r','reg-m'].find(x => document.getElementById('panel-'+x).classList.contains('active')) || 'm';
   sp.set('tab', tab);
   if (tab === 'm') {
     sp.set('from', document.getElementById('mf').value);
@@ -1647,7 +1655,7 @@ function pushURL() {
 
 function restoreFromURL() {
   const sp = new URLSearchParams(location.search);
-  if (!sp.has('tab')) return; // чистый URL — ничего не делаем
+  if (!sp.has('tab')) return;
 
   const tab  = sp.get('tab');
   const from = sp.get('from');
@@ -1668,8 +1676,9 @@ function restoreFromURL() {
     if (to)   document.getElementById('rt').value = to;
     switchTab('r');
     rUpdate();
+  } else if (tab === 'reg-m') {
+    switchTab('reg-m');
   } else {
-    // tab === 'm' или неизвестная
     if (from) document.getElementById('mf').value = from;
     if (to)   document.getElementById('mt').value = to;
     mUpdate();
@@ -1760,9 +1769,9 @@ async function loadRegData() {
     if (fEl && !fEl.value) fEl.value = twoYearsAgo >= (allP[0]||'') ? twoYearsAgo : (allP[0]||'');
     if (tEl && !tEl.value) tEl.value = latest;
 
-    // Подпись периода обновления данных
-    const latestLabel = new Date(latest + '-01').toLocaleString('ru-RU', { month: 'long', year: 'numeric' });
-    document.getElementById('regm-data-period').textContent = `данные Росреестра за ${latestLabel}`;
+    // Обновляем badge
+    const lastPeriod = REG_URFRS.length ? REG_URFRS[REG_URFRS.length-1].period : latest;
+    document.getElementById('hdr-badge').textContent = lastPeriod;
 
     regMUpdate();
   } catch(e) {
@@ -1825,13 +1834,13 @@ function drawRegKPIs() {
 // ── УФРС: multi-line по годам ────────────────────────
 function drawRegUrfrs(from, to) {
   const MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
-
   const data = REG_URFRS.filter(r => r.period >= '2019-01');
   const years = [...new Set(data.map(r => r.period.slice(0,4)))].sort();
+  const currentYear = years[years.length-1];
 
   const datasets = years.map(yr => {
-    const isCurrentYear = yr === years[years.length-1];
-    const baseColor = isCurrentYear ? '#b8924a' : CLR[years.indexOf(yr) % CLR.length];
+    const isCurrent = yr === currentYear;
+    const baseColor = isCurrent ? REG_CURRENT_COLOR : CLR[years.indexOf(yr) % CLR.length];
     const values = MONTHS.map((_, mi) => {
       const p = `${yr}-${String(mi+1).padStart(2,'0')}`;
       const row = data.find(r => r.period === p);
@@ -1841,34 +1850,24 @@ function drawRegUrfrs(from, to) {
       label: yr,
       data: values,
       borderColor: baseColor,
-      backgroundColor: isCurrentYear ? baseColor + '18' : 'transparent',
-      borderWidth: isCurrentYear ? 2.5 : 1.5,
-      pointRadius: isCurrentYear ? 5 : 2,
+      backgroundColor: isCurrent ? baseColor + '18' : 'transparent',
+      borderWidth: isCurrent ? 2.5 : 1.5,
+      pointRadius: isCurrent ? 5 : 2,
       pointHoverRadius: 6,
-      pointBackgroundColor: isCurrentYear ? baseColor : 'transparent',
+      pointBackgroundColor: isCurrent ? baseColor : baseColor + '80',
       tension: 0.3,
       spanGaps: true,
-      fill: isCurrentYear,
-      order: isCurrentYear ? 0 : 1,
-      datalabels: isCurrentYear ? {
-        display: ctx => ctx.raw !== null,
-        align: 'top',
-        anchor: 'end',
-        color: baseColor,
-        font: { family: 'IBM Plex Mono', size: 9, weight: '500' },
-        formatter: v => v ? new Intl.NumberFormat('ru-RU').format(v) : null,
-        offset: 4,
-      } : { display: false },
+      fill: isCurrent,
+      order: isCurrent ? 0 : 1,
     };
   });
 
   const o = cdefs();
   o.scales.x = { ticks: { color: '#7a7268', font: { family: 'IBM Plex Mono', size: 10 } }, grid: { color: '#f0ece5' }, border: { color: '#e2ddd6' } };
   o.scales.y = {
-    ticks: { color: '#7a7268', font: { family: 'IBM Plex Mono', size: 10 }, callback: v => new Intl.NumberFormat('ru-RU').format(v) },
-    grid: { color: 'rgba(226,221,214,.7)' }, border: { color: '#e2ddd6' },
-    // Добавляем отступ сверху чтобы подписи влезли
     grace: '15%',
+    ticks: { color: '#7a7268', font: { family: 'IBM Plex Mono', size: 10 }, callback: v => new Intl.NumberFormat('ru-RU').format(v) },
+    grid: { color: 'rgba(226,221,214,.7)' }, border: { color: '#e2ddd6' }
   };
   o.plugins.legend = { display: true, position: 'bottom', labels: { font: { family: 'IBM Plex Mono', size: 10 }, boxWidth: 24, padding: 10 } };
   o.plugins.tooltip.callbacks.label = ctx => {
@@ -1876,13 +1875,37 @@ function drawRegUrfrs(from, to) {
     if (v == null) return null;
     return ` ${ctx.dataset.label}: ${new Intl.NumberFormat('ru-RU').format(v)}`;
   };
-  // datalabels плагин — если не подключён, просто игнорируем
-  o.plugins.datalabels = { display: false }; // базовый fallback
 
-  mkChart('regm-c1', 'line', { labels: MONTHS, datasets }, o);
+  // Inline плагин для подписей текущего года
+  const labelPlugin = {
+    id: 'regmLabels',
+    afterDatasetsDraw(chart) {
+      const dsIdx = chart.data.datasets.findIndex(d => d.label === currentYear);
+      if (dsIdx < 0) return;
+      const meta = chart.getDatasetMeta(dsIdx);
+      if (!meta || !meta.data) return;
+      const ctx = chart.ctx;
+      ctx.save();
+      ctx.font = 'bold 9px "IBM Plex Mono", monospace';
+      ctx.fillStyle = REG_CURRENT_COLOR;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach((pt, i) => {
+        const v = chart.data.datasets[dsIdx].data[i];
+        if (v == null || v === 0) return;
+        ctx.fillText(new Intl.NumberFormat('ru-RU').format(v), pt.x, pt.y - 5);
+      });
+      ctx.restore();
+    }
+  };
 
-  // Рисуем подписи вручную поверх canvas если плагин недоступен
-  setTimeout(() => drawRegUrfrsLabels(years[years.length-1], data, MONTHS), 100);
+  if (CH['regm-c1']) CH['regm-c1'].destroy();
+  CH['regm-c1'] = new Chart(document.getElementById('regm-c1'), {
+    type: 'line',
+    data: { labels: MONTHS, datasets },
+    options: o,
+    plugins: [labelPlugin],
+  });
 }
 
 // ── УФРС: таблица ────────────────────────────────────
@@ -1956,22 +1979,27 @@ function drawRegUrfrsTable() {
 }
 
 // ── Ручные подписи точек текущего года на canvas ─────
+const REG_CURRENT_COLOR = '#960047';
+
 function drawRegUrfrsLabels(currentYear, data, months) {
   const chart = CH['regm-c1'];
   if (!chart) return;
+  // Ждём пока Chart.js завершит анимацию
   const dsIdx = chart.data.datasets.findIndex(d => d.label === currentYear);
   if (dsIdx < 0) return;
   const meta = chart.getDatasetMeta(dsIdx);
+  if (!meta || !meta.data || !meta.data.length) return;
   const ctx = chart.ctx;
   ctx.save();
-  ctx.font = '500 9px IBM Plex Mono, monospace';
-  ctx.fillStyle = '#b8924a';
+  ctx.font = 'bold 9px IBM Plex Mono, monospace';
+  ctx.fillStyle = REG_CURRENT_COLOR;
   ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
   meta.data.forEach((pt, i) => {
     const v = chart.data.datasets[dsIdx].data[i];
-    if (v == null) return;
+    if (v == null || v === 0) return;
     const label = new Intl.NumberFormat('ru-RU').format(v);
-    ctx.fillText(label, pt.x, pt.y - 8);
+    ctx.fillText(label, pt.x, pt.y - 5);
   });
   ctx.restore();
 }
@@ -1988,11 +2016,11 @@ function drawRegBudget(from, to) {
   });
 
   const fields = [
-    { key: 'lt9',    label: 'до 9 млн',    color: '#4a8fa8' },
-    { key: 'b9_12',  label: '9–12 млн',    color: '#7a9e7e' },
-    { key: 'b12_15', label: '12–15 млн',   color: '#b8924a' },
-    { key: 'b15_30', label: '15–30 млн',   color: '#9b8fd4' },
-    { key: 'gt30',   label: 'свыше 30 млн',color: '#e07b7b' },
+    { key: 'lt9',    label: 'до 9 млн',     color: '#4a8fa8' },
+    { key: 'b9_12',  label: '9–12 млн',     color: '#7a9e7e' },
+    { key: 'b12_15', label: '12–15 млн',    color: '#b8924a' },
+    { key: 'b15_30', label: '15–30 млн',    color: '#9b8fd4' },
+    { key: 'gt30',   label: 'свыше 30 млн', color: '#e07b7b' },
   ];
 
   const o = cdefs();
@@ -2009,11 +2037,13 @@ function drawRegBudget(from, to) {
     labels,
     datasets: fields.map(f => ({
       label: f.label,
-      data: data.map(r => r[f.key]),
+      data: data.map(r => {
+        const v = parseFloat(r[f.key]);
+        return isNaN(v) ? null : v;
+      }),
       backgroundColor: f.color + 'cc',
       borderColor: f.color,
       borderWidth: 0,
-      borderRadius: 0,
     }))
   }, o);
 }
@@ -2030,11 +2060,11 @@ function drawRegTypo(from, to) {
   });
 
   const fields = [
-    { key: 'rooms', label: 'Комнаты',      color: '#aab4be' },
-    { key: 'k1',    label: '1-комн.',       color: '#4a8fa8' },
-    { key: 'k2',    label: '2-комн.',       color: '#7a9e7e' },
-    { key: 'k3',    label: '3-комн.',       color: '#b8924a' },
-    { key: 'multi', label: 'Многокомн.',    color: '#9b8fd4' },
+    { key: 'rooms', label: 'Комнаты',    color: '#aab4be' },
+    { key: 'k1',    label: '1-комн.',    color: '#4a8fa8' },
+    { key: 'k2',    label: '2-комн.',    color: '#7a9e7e' },
+    { key: 'k3',    label: '3-комн.',    color: '#b8924a' },
+    { key: 'multi', label: 'Многокомн.', color: '#9b8fd4' },
   ];
 
   const o = cdefs();
@@ -2051,7 +2081,10 @@ function drawRegTypo(from, to) {
     labels,
     datasets: fields.map(f => ({
       label: f.label,
-      data: data.map(r => r[f.key]),
+      data: data.map(r => {
+        const v = parseFloat(r[f.key]);
+        return isNaN(v) ? null : v;
+      }),
       backgroundColor: f.color + 'cc',
       borderColor: f.color,
       borderWidth: 0,
