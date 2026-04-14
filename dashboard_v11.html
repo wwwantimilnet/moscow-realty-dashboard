@@ -150,6 +150,7 @@ footer{padding:14px 40px;border-top:1px solid var(--border);font-family:'IBM Ple
     <div class="tab active" id="tab-m" onclick="switchTab('m')">ВСЯ МОСКВА</div>
     <div class="tab" id="tab-d" onclick="switchTab('d')">ПО ОКРУГУ</div>
     <div class="tab" id="tab-reg-m" onclick="switchTab('reg-m')">РОСРЕЕСТР МСК</div>
+    <div class="tab" id="tab-reg-mo" onclick="switchTab('reg-mo')">РОСРЕЕСТР МО</div>
     <div class="tab" id="tab-r" onclick="switchTab('r')">АРЕНДА</div>
   </div>
 
@@ -329,6 +330,50 @@ footer{padding:14px 40px;border-top:1px solid var(--border);font-family:'IBM Ple
     </div>
   </div>
 
+  <!-- РОСРЕЕСТР МО -->
+  <div class="panel" id="panel-reg-mo">
+    <div class="ctrl-bar">
+      <div class="cg"><span class="cl">Период с</span><input type="month" id="regmo-f" onchange="regMoUpdate()"></div>
+      <div class="cg"><span class="cl">Период по</span><input type="month" id="regmo-t" onchange="regMoUpdate()"></div>
+    </div>
+    <div class="kpis" style="grid-template-columns:1fr 1fr 1fr 1fr;">
+      <div class="kpi"><div class="kpi-lbl">Средний чек 1-комн.</div><div class="kpi-val" id="regmo-k1" style="font-size:20px">—</div><div class="kpi-sub" id="regmo-k1s">млн руб</div></div>
+      <div class="kpi"><div class="kpi-lbl">Средний чек 2-комн.</div><div class="kpi-val" id="regmo-k2" style="font-size:20px">—</div><div class="kpi-sub" id="regmo-k2s">млн руб</div></div>
+      <div class="kpi"><div class="kpi-lbl">Средний чек 3-комн.</div><div class="kpi-val" id="regmo-k3" style="font-size:20px">—</div><div class="kpi-sub" id="regmo-k3s">млн руб</div></div>
+      <div class="kpi"><div class="kpi-lbl">Изм. чека 2-комн.</div><div class="kpi-val" id="regmo-k4" style="font-size:20px">—</div><div class="kpi-sub">к предыдущему месяцу</div></div>
+    </div>
+    <div class="charts">
+      <div class="card full">
+        <div class="card-head-row"><div class="card-titles">
+          <div class="ct">Структура продаж по бюджету покупки</div>
+          <div class="cs">% от общего · с учётом комнат · Московская область</div>
+        </div><button class="export-btn" onclick="exportChart('regmo-c1',this)">↓ PNG</button></div>
+        <div class="cw tall"><canvas id="regmo-c1"></canvas></div>
+      </div>
+      <div class="card full">
+        <div class="card-head-row"><div class="card-titles">
+          <div class="ct">Структура продаж по типологии</div>
+          <div class="cs">% от общего · 1-комн / 2-комн / 3-комн / многоком / комнаты</div>
+        </div><button class="export-btn" onclick="exportChart('regmo-c2',this)">↓ PNG</button></div>
+        <div class="cw tall"><canvas id="regmo-c2"></canvas></div>
+      </div>
+      <div class="card full">
+        <div class="card-head-row"><div class="card-titles">
+          <div class="ct">Средний чек продажи по комнатности</div>
+          <div class="cs">млн руб · без комнат · Московская область</div>
+        </div><button class="export-btn" onclick="exportChart('regmo-c3',this)">↓ PNG</button></div>
+        <div class="cw"><canvas id="regmo-c3"></canvas></div>
+      </div>
+      <div class="card full">
+        <div class="card-head-row"><div class="card-titles">
+          <div class="ct">Диапазон цен по комнатности</div>
+          <div class="cs">млн руб · 5-й и 95-й перцентиль · средний чек · Московская область</div>
+        </div><button class="export-btn" onclick="exportChart('regmo-c4',this)">↓ PNG</button></div>
+        <div class="cw tall"><canvas id="regmo-c4"></canvas></div>
+      </div>
+    </div>
+  </div>
+
   <!-- АРЕНДА -->
   <div class="panel" id="panel-r">
     <div class="ctrl-bar">
@@ -467,7 +512,8 @@ const RATE_DATA = {
 
 let MOS=[], MUNI={}, GEO_AO=null, GEO_MUN=null;
 let REG_URFRS=[], REG_BUDGET_MSK=[], REG_TYPO_MSK=[], REG_PRICE_MSK=[];
-let regMInited = false;
+let REG_BUDGET_MO=[], REG_TYPO_MO=[], REG_PRICE_MO=[], REG_RANGE_MO=[];
+let regMInited = false, regMoInited = false;
 
 const fmtP=n=>new Intl.NumberFormat('ru-RU').format(Math.round(n))+' ₽';
 const fmtK=n=>n>=1e6?(n/1e6).toFixed(1)+'М':n>=1e3?Math.round(n/1e3)+'K':Math.round(n);
@@ -818,14 +864,16 @@ function mkYearCompareH(canvasId,titleId,subId,labels,pm,lastPeriod){
 
 let rInited = false;
 function switchTab(id){
-  ['m','d','r','reg-m'].forEach(x=>{document.getElementById('panel-'+x).classList.toggle('active',x===id);document.getElementById('tab-'+x).classList.toggle('active',x===id);});
+  ['m','d','r','reg-m','reg-mo'].forEach(x=>{document.getElementById('panel-'+x).classList.toggle('active',x===id);document.getElementById('tab-'+x).classList.toggle('active',x===id);});
   if (id === 'reg-m') {
     if (!regMInited) { regMInited = true; loadRegData(); }
-    // Обновляем badge на период данных Росреестра
     const lastP = REG_URFRS.length ? REG_URFRS[REG_URFRS.length-1].period : null;
     if (lastP) document.getElementById('hdr-badge').textContent = lastP;
+  } else if (id === 'reg-mo') {
+    if (!regMoInited) { regMoInited = true; loadRegData(); }
+    const lastP = REG_PRICE_MO.length ? REG_PRICE_MO[REG_PRICE_MO.length-1].period : null;
+    if (lastP) document.getElementById('hdr-badge').textContent = lastP;
   } else {
-    // Возвращаем badge к периоду данных продаж
     const periods = [...new Set(MOS.map(r=>r.period))].sort();
     const latest = periods[periods.length-1];
     if (latest) document.getElementById('hdr-badge').textContent = latest;
@@ -1636,7 +1684,7 @@ async function exportWaffle(elId, btn) {
 
 function pushURL() {
   const sp = new URLSearchParams();
-  const tab = ['m','d','r','reg-m'].find(x => document.getElementById('panel-'+x).classList.contains('active')) || 'm';
+  const tab = ['m','d','r','reg-m','reg-mo'].find(x => document.getElementById('panel-'+x).classList.contains('active')) || 'm';
   sp.set('tab', tab);
   if (tab === 'm') {
     sp.set('from', document.getElementById('mf').value);
@@ -1678,6 +1726,8 @@ function restoreFromURL() {
     rUpdate();
   } else if (tab === 'reg-m') {
     switchTab('reg-m');
+  } else if (tab === 'reg-mo') {
+    switchTab('reg-mo');
   } else {
     if (from) document.getElementById('mf').value = from;
     if (to)   document.getElementById('mt').value = to;
@@ -1750,6 +1800,10 @@ async function loadRegData() {
     REG_BUDGET_MSK = fixNums(data.budget_msk, ['lt9','b9_12','b12_15','b15_30','gt30']);
     REG_TYPO_MSK   = fixNums(data.typo_msk,   ['rooms','k1','k2','k3','multi']);
     REG_PRICE_MSK  = fixNums(data.price_msk,  ['avg_k1','avg_k2','avg_k3','avg_budget']);
+    REG_BUDGET_MO  = fixNums(data.budget_mo,  ['lt6','b6_9','b9_12','b12_15','gt15']);
+    REG_TYPO_MO    = fixNums(data.typo_mo,    ['rooms','k1','k2','k3','multi']);
+    REG_PRICE_MO   = fixNums(data.price_mo,   ['avg_k1','avg_k2','avg_k3']);
+    REG_RANGE_MO   = fixNums(data.range_mo,   ['k1_low','k1_mid','k1_high','k2_low','k2_mid','k2_high','k3_low','k3_mid','k3_high']);
 
     // Определяем последний период
     const allP = [...new Set([
@@ -1769,11 +1823,25 @@ async function loadRegData() {
     if (fEl && !fEl.value) fEl.value = twoYearsAgo >= (allP[0]||'') ? twoYearsAgo : (allP[0]||'');
     if (tEl && !tEl.value) tEl.value = latest;
 
+    // Фильтры МО
+    const allPMo = [...new Set([
+      ...REG_BUDGET_MO.map(r=>r.period),
+      ...REG_PRICE_MO.map(r=>r.period),
+    ])].filter(Boolean).sort();
+    const latestMoPeriod = allPMo[allPMo.length-1] || latest;
+    const latestMoYear = parseInt(latestMoPeriod.slice(0,4));
+    const twoYearsAgoMo = (latestMoYear - 2) + latestMoPeriod.slice(4);
+    const fMoEl = document.getElementById('regmo-f');
+    const tMoEl = document.getElementById('regmo-t');
+    if (fMoEl && !fMoEl.value) fMoEl.value = twoYearsAgoMo >= (allPMo[0]||'') ? twoYearsAgoMo : (allPMo[0]||'');
+    if (tMoEl && !tMoEl.value) tMoEl.value = latestMoPeriod;
+
     // Обновляем badge
     const lastPeriod = REG_URFRS.length ? REG_URFRS[REG_URFRS.length-1].period : latest;
     document.getElementById('hdr-badge').textContent = lastPeriod;
 
     regMUpdate();
+    if (regMoInited) regMoUpdate();
   } catch(e) {
     console.warn('Росреестр МСК не загружен:', e.message);
     document.getElementById('regm-data-period').textContent = 'ошибка загрузки данных';
@@ -2142,6 +2210,178 @@ function drawRegPrice(from, to) {
       spanGaps: true,
     }))
   }, o);
+}
+
+// ═══════════════════════════════════════════
+// РОСРЕЕСТР МО
+// ═══════════════════════════════════════════
+
+function regMoUpdate() {
+  if (!REG_BUDGET_MO.length && !REG_PRICE_MO.length) return;
+  const from = document.getElementById('regmo-f')?.value || '2024-01';
+  const to   = document.getElementById('regmo-t')?.value || '2026-12';
+  drawRegMoKPIs();
+  drawRegMoBudget(from, to);
+  drawRegMoTypo(from, to);
+  drawRegMoPrice(from, to);
+  drawRegMoRange(from, to);
+}
+
+function drawRegMoKPIs() {
+  const data = REG_PRICE_MO.slice().sort((a,b)=>a.period<b.period?-1:1);
+  const last = data[data.length-1];
+  const prev = data[data.length-2];
+  if (!last) return;
+  ['k1','k2','k3'].forEach((k,i) => {
+    const el = document.getElementById(`regmo-k${i+1}`);
+    const sub = document.getElementById(`regmo-k${i+1}s`);
+    if (el && last[`avg_${k}`]) {
+      el.textContent = last[`avg_${k}`].toFixed(2);
+      if (sub) sub.textContent = `млн руб · ${last.period.replace('-','/')}`;
+    }
+  });
+  // Изм. чека 2-комн к пред. месяцу
+  if (last.avg_k2 && prev?.avg_k2) {
+    const chg = (last.avg_k2 / prev.avg_k2 - 1) * 100;
+    const el = document.getElementById('regmo-k4');
+    if (el) {
+      el.textContent = (chg > 0 ? '+' : '') + chg.toFixed(1) + '%';
+      el.style.color = chg > 0 ? 'var(--pos)' : 'var(--neg)';
+    }
+  }
+}
+
+function drawRegMoBudget(from, to) {
+  const data = REG_BUDGET_MO.filter(r=>r.period>=from&&r.period<=to).sort((a,b)=>a.period<b.period?-1:1);
+  if (!data.length) return;
+  const labels = data.map(r=>new Date(r.period+'-01').toLocaleString('ru-RU',{month:'short',year:'2-digit'}));
+  const fields = [
+    {key:'lt6',   label:'до 6 млн',   color:'#4a8fa8'},
+    {key:'b6_9',  label:'6–9 млн',    color:'#7a9e7e'},
+    {key:'b9_12', label:'9–12 млн',   color:'#b8924a'},
+    {key:'b12_15',label:'12–15 млн',  color:'#9b8fd4'},
+    {key:'gt15',  label:'свыше 15 млн',color:'#e07b7b'},
+  ];
+  const o = cdefs();
+  o.scales.x = {stacked:true,ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10}},grid:{display:false},border:{color:'#e2ddd6'}};
+  o.scales.y = {stacked:true,min:0,max:1,ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},callback:v=>Math.round(v*100)+'%'},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}};
+  o.plugins.tooltip.callbacks.label = ctx => ctx.raw==null?null:` ${ctx.dataset.label}: ${(ctx.raw*100).toFixed(1)}%`;
+  o.plugins.legend = {display:true,position:'bottom',labels:{font:{family:'IBM Plex Mono',size:10},boxWidth:12,padding:10}};
+  mkChart('regmo-c1','bar',{labels,datasets:fields.map(f=>({
+    label:f.label, data:data.map(r=>{const v=parseFloat(r[f.key]);return isNaN(v)?null:v;}),
+    backgroundColor:f.color+'cc', borderColor:f.color, borderWidth:0,
+  }))},o);
+}
+
+function drawRegMoTypo(from, to) {
+  const data = REG_TYPO_MO.filter(r=>r.period>=from&&r.period<=to).sort((a,b)=>a.period<b.period?-1:1);
+  if (!data.length) return;
+  const labels = data.map(r=>new Date(r.period+'-01').toLocaleString('ru-RU',{month:'short',year:'2-digit'}));
+  const fields = [
+    {key:'rooms',label:'Комнаты',   color:'#aab4be'},
+    {key:'k1',   label:'1-комн.',   color:'#4a8fa8'},
+    {key:'k2',   label:'2-комн.',   color:'#7a9e7e'},
+    {key:'k3',   label:'3-комн.',   color:'#b8924a'},
+    {key:'multi',label:'Многокомн.',color:'#9b8fd4'},
+  ];
+  const o = cdefs();
+  o.scales.x = {stacked:true,ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10}},grid:{display:false},border:{color:'#e2ddd6'}};
+  o.scales.y = {stacked:true,min:0,max:1,ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},callback:v=>Math.round(v*100)+'%'},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}};
+  o.plugins.tooltip.callbacks.label = ctx => ctx.raw==null?null:` ${ctx.dataset.label}: ${(ctx.raw*100).toFixed(1)}%`;
+  o.plugins.legend = {display:true,position:'bottom',labels:{font:{family:'IBM Plex Mono',size:10},boxWidth:12,padding:10}};
+  mkChart('regmo-c2','bar',{labels,datasets:fields.map(f=>({
+    label:f.label, data:data.map(r=>{const v=parseFloat(r[f.key]);return isNaN(v)?null:v;}),
+    backgroundColor:f.color+'cc', borderColor:f.color, borderWidth:0,
+  }))},o);
+}
+
+function drawRegMoPrice(from, to) {
+  const data = REG_PRICE_MO.filter(r=>r.period>=from&&r.period<=to&&(r.avg_k1||r.avg_k2||r.avg_k3)).sort((a,b)=>a.period<b.period?-1:1);
+  if (!data.length) return;
+  const labels = data.map(r=>new Date(r.period+'-01').toLocaleString('ru-RU',{month:'short',year:'2-digit'}));
+  const fields = [
+    {key:'avg_k1',label:'1-комн.',color:'#4a8fa8'},
+    {key:'avg_k2',label:'2-комн.',color:'#b8924a'},
+    {key:'avg_k3',label:'3-комн.',color:'#9b8fd4'},
+  ];
+  const o = cdefs();
+  o.scales.x = {ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},maxRotation:45},grid:{color:'#f0ece5'},border:{color:'#e2ddd6'}};
+  o.scales.y = {ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},callback:v=>v+' млн'},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}};
+  o.plugins.tooltip.callbacks.label = ctx => ctx.raw==null?null:` ${ctx.dataset.label}: ${ctx.raw} млн руб`;
+  o.plugins.legend = {display:true,position:'bottom',labels:{font:{family:'IBM Plex Mono',size:10},boxWidth:24,padding:10,usePointStyle:true}};
+  mkChart('regmo-c3','line',{labels,datasets:fields.map(f=>({
+    label:f.label, data:data.map(r=>parseFloat(r[f.key])||null),
+    borderColor:f.color, backgroundColor:f.color+'15',
+    borderWidth:2, pointRadius:3, pointHoverRadius:6, tension:.3, spanGaps:true,
+  }))},o);
+}
+
+function drawRegMoRange(from, to) {
+  const data = REG_RANGE_MO.filter(r=>r.period>=from&&r.period<=to).sort((a,b)=>a.period<b.period?-1:1);
+  if (!data.length) return;
+  const labels = data.map(r=>new Date(r.period+'-01').toLocaleString('ru-RU',{month:'short',year:'2-digit'}));
+
+  // Для каждой комнатности: band (low→high) + линия mid
+  const rooms = [
+    {low:'k1_low',mid:'k1_mid',high:'k1_high',label:'1-комн.',color:'#4a8fa8'},
+    {low:'k2_low',mid:'k2_mid',high:'k2_high',label:'2-комн.',color:'#b8924a'},
+    {low:'k3_low',mid:'k3_mid',high:'k3_high',label:'3-комн.',color:'#9b8fd4'},
+  ];
+
+  const datasets = [];
+  rooms.forEach(r => {
+    // Верхняя граница (high) — заполнение вниз до low через Chart.js fill
+    datasets.push({
+      label: r.label + ' (95%)',
+      data: data.map(d => parseFloat(d[r.high])||null),
+      borderColor: r.color + '40',
+      backgroundColor: r.color + '18',
+      borderWidth: 1,
+      borderDash: [3,3],
+      pointRadius: 0,
+      fill: '+1',  // заполнить до следующего dataset (low)
+      tension: .3, spanGaps: true,
+    });
+    // Нижняя граница (low)
+    datasets.push({
+      label: r.label + ' (5%)',
+      data: data.map(d => parseFloat(d[r.low])||null),
+      borderColor: r.color + '40',
+      backgroundColor: r.color + '18',
+      borderWidth: 1,
+      borderDash: [3,3],
+      pointRadius: 0,
+      fill: false,
+      tension: .3, spanGaps: true,
+    });
+    // Средний чек — основная линия
+    datasets.push({
+      label: r.label,
+      data: data.map(d => parseFloat(d[r.mid])||null),
+      borderColor: r.color,
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      pointRadius: 3,
+      pointHoverRadius: 6,
+      fill: false,
+      tension: .3, spanGaps: true,
+    });
+  });
+
+  const o = cdefs();
+  o.scales.x = {ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},maxRotation:45},grid:{color:'#f0ece5'},border:{color:'#e2ddd6'}};
+  o.scales.y = {ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},callback:v=>v+' млн'},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}};
+  o.plugins.tooltip.callbacks.label = ctx => {
+    const v = ctx.raw; if(v==null) return null;
+    return ` ${ctx.dataset.label}: ${v} млн руб`;
+  };
+  // В легенде показываем только основные линии (каждая 3-я)
+  o.plugins.legend = {display:true, position:'bottom', labels:{
+    font:{family:'IBM Plex Mono',size:10}, boxWidth:24, padding:10,
+    usePointStyle:true,
+    filter: (item) => !item.text.includes('(95%)') && !item.text.includes('(5%)'),
+  }};
+  mkChart('regmo-c4','line',{labels,datasets},o);
 }
 
 loadData();
