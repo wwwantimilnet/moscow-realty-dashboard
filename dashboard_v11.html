@@ -1887,13 +1887,22 @@ function drawRegUrfrs(from, to) {
       const ctx = chart.ctx;
       ctx.save();
       ctx.font = 'bold 9px "IBM Plex Mono", monospace';
-      ctx.fillStyle = REG_CURRENT_COLOR;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'bottom';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
       meta.data.forEach((pt, i) => {
         const v = chart.data.datasets[dsIdx].data[i];
         if (v == null || v === 0) return;
-        ctx.fillText(new Intl.NumberFormat('ru-RU').format(v), pt.x, pt.y - 5);
+        const label = new Intl.NumberFormat('ru-RU').format(v);
+        const tw = ctx.measureText(label).width;
+        const px = pt.x + 7;   // правее точки
+        const py = pt.y - 1;   // чуть выше центра точки
+        const pad = 3;
+        // Подложка
+        ctx.fillStyle = 'rgba(255,255,255,0.88)';
+        ctx.fillRect(px - pad, py - 7, tw + pad * 2, 14);
+        // Текст
+        ctx.fillStyle = REG_CURRENT_COLOR;
+        ctx.fillText(label, px, py);
       });
       ctx.restore();
     }
