@@ -1,0 +1,5367 @@
+{
+  "okrug": [
+    {
+      "month": "2025-07",
+      "area": "Восточный АО",
+      "category": "studiya",
+      "count": 165,
+      "mean": 51847,
+      "median": 50000,
+      "average_price": 51690
+    },
+    {
+      "month": "2025-07",
+      "area": "Восточный АО",
+      "category": "1 komn",
+      "count": 1340,
+      "mean": 50671,
+      "median": 50000,
+      "average_price": 50599
+    },
+    {
+      "month": "2025-07",
+      "area": "Восточный АО",
+      "category": "2 komn",
+      "count": 1147,
+      "mean": 63236,
+      "median": 60000,
+      "average_price": 62181
+    },
+    {
+      "month": "2025-07",
+      "area": "Восточный АО",
+      "category": "3 komn",
+      "count": 342,
+      "mean": 86577,
+      "median": 80000,
+      "average_price": 84089
+    },
+    {
+      "month": "2025-07",
+      "area": "Восточный АО",
+      "category": "4 komn",
+      "count": 19,
+      "mean": 148789,
+      "median": 120000,
+      "average_price": 135750
+    },
+    {
+      "month": "2025-07",
+      "area": "Восточный АО",
+      "category": "mnogokomn",
+      "count": 4,
+      "mean": 265000,
+      "median": 260000,
+      "average_price": 260000
+    },
+    {
+      "month": "2025-07",
+      "area": "Западный АО",
+      "category": "studiya",
+      "count": 145,
+      "mean": 61839,
+      "median": 60000,
+      "average_price": 60538
+    },
+    {
+      "month": "2025-07",
+      "area": "Западный АО",
+      "category": "1 komn",
+      "count": 1289,
+      "mean": 62496,
+      "median": 60000,
+      "average_price": 61535
+    },
+    {
+      "month": "2025-07",
+      "area": "Западный АО",
+      "category": "2 komn",
+      "count": 1455,
+      "mean": 83986,
+      "median": 80000,
+      "average_price": 81925
+    },
+    {
+      "month": "2025-07",
+      "area": "Западный АО",
+      "category": "3 komn",
+      "count": 660,
+      "mean": 131171,
+      "median": 115000,
+      "average_price": 127275
+    },
+    {
+      "month": "2025-07",
+      "area": "Западный АО",
+      "category": "4 komn",
+      "count": 112,
+      "mean": 246674,
+      "median": 220000,
+      "average_price": 231130
+    },
+    {
+      "month": "2025-07",
+      "area": "Западный АО",
+      "category": "mnogokomn",
+      "count": 56,
+      "mean": 528018,
+      "median": 400000,
+      "average_price": 480765
+    },
+    {
+      "month": "2025-07",
+      "area": "Зеленоградский АО",
+      "category": "1 komn",
+      "count": 125,
+      "mean": 39650,
+      "median": 39999,
+      "average_price": 39979
+    },
+    {
+      "month": "2025-07",
+      "area": "Зеленоградский АО",
+      "category": "2 komn",
+      "count": 100,
+      "mean": 54685,
+      "median": 54000,
+      "average_price": 53628
+    },
+    {
+      "month": "2025-07",
+      "area": "Зеленоградский АО",
+      "category": "3 komn",
+      "count": 36,
+      "mean": 65153,
+      "median": 60000,
+      "average_price": 65016
+    },
+    {
+      "month": "2025-07",
+      "area": "Зеленоградский АО",
+      "category": "4 komn",
+      "count": 1,
+      "mean": 45000,
+      "median": 45000,
+      "average_price": 45000
+    },
+    {
+      "month": "2025-07",
+      "area": "Зеленоградский АО",
+      "category": "mnogokomn",
+      "count": 1,
+      "mean": 125000,
+      "median": 125000,
+      "average_price": 125000
+    },
+    {
+      "month": "2025-07",
+      "area": "Новомосковский",
+      "category": "studiya",
+      "count": 184,
+      "mean": 42377,
+      "median": 42000,
+      "average_price": 41933
+    },
+    {
+      "month": "2025-07",
+      "area": "Новомосковский",
+      "category": "1 komn",
+      "count": 345,
+      "mean": 50359,
+      "median": 50000,
+      "average_price": 49367
+    },
+    {
+      "month": "2025-07",
+      "area": "Новомосковский",
+      "category": "2 komn",
+      "count": 323,
+      "mean": 62918,
+      "median": 60000,
+      "average_price": 62300
+    },
+    {
+      "month": "2025-07",
+      "area": "Новомосковский",
+      "category": "3 komn",
+      "count": 113,
+      "mean": 84743,
+      "median": 80000,
+      "average_price": 84075
+    },
+    {
+      "month": "2025-07",
+      "area": "Новомосковский",
+      "category": "4 komn",
+      "count": 7,
+      "mean": 119286,
+      "median": 100000,
+      "average_price": 107000
+    },
+    {
+      "month": "2025-07",
+      "area": "Северный АО",
+      "category": "studiya",
+      "count": 162,
+      "mean": 58857,
+      "median": 55000,
+      "average_price": 58539
+    },
+    {
+      "month": "2025-07",
+      "area": "Северный АО",
+      "category": "1 komn",
+      "count": 1145,
+      "mean": 58747,
+      "median": 55000,
+      "average_price": 58120
+    },
+    {
+      "month": "2025-07",
+      "area": "Северный АО",
+      "category": "2 komn",
+      "count": 1141,
+      "mean": 78921,
+      "median": 75000,
+      "average_price": 77030
+    },
+    {
+      "month": "2025-07",
+      "area": "Северный АО",
+      "category": "3 komn",
+      "count": 410,
+      "mean": 108926,
+      "median": 100000,
+      "average_price": 104814
+    },
+    {
+      "month": "2025-07",
+      "area": "Северный АО",
+      "category": "4 komn",
+      "count": 44,
+      "mean": 193250,
+      "median": 152500,
+      "average_price": 176825
+    },
+    {
+      "month": "2025-07",
+      "area": "Северный АО",
+      "category": "mnogokomn",
+      "count": 5,
+      "mean": 364000,
+      "median": 270000,
+      "average_price": 270000
+    },
+    {
+      "month": "2025-07",
+      "area": "Северо-Восточный АО",
+      "category": "studiya",
+      "count": 128,
+      "mean": 52833,
+      "median": 51500,
+      "average_price": 52646
+    },
+    {
+      "month": "2025-07",
+      "area": "Северо-Восточный АО",
+      "category": "1 komn",
+      "count": 1143,
+      "mean": 55137,
+      "median": 53000,
+      "average_price": 54548
+    },
+    {
+      "month": "2025-07",
+      "area": "Северо-Восточный АО",
+      "category": "2 komn",
+      "count": 975,
+      "mean": 71073,
+      "median": 67000,
+      "average_price": 70172
+    },
+    {
+      "month": "2025-07",
+      "area": "Северо-Восточный АО",
+      "category": "3 komn",
+      "count": 322,
+      "mean": 95895,
+      "median": 85000,
+      "average_price": 91410
+    },
+    {
+      "month": "2025-07",
+      "area": "Северо-Восточный АО",
+      "category": "4 komn",
+      "count": 27,
+      "mean": 154074,
+      "median": 135000,
+      "average_price": 152000
+    },
+    {
+      "month": "2025-07",
+      "area": "Северо-Восточный АО",
+      "category": "mnogokomn",
+      "count": 2,
+      "mean": 120000,
+      "median": 120000,
+      "average_price": 120000
+    },
+    {
+      "month": "2025-07",
+      "area": "Северо-Западный АО",
+      "category": "studiya",
+      "count": 50,
+      "mean": 58540,
+      "median": 53000,
+      "average_price": 57935
+    },
+    {
+      "month": "2025-07",
+      "area": "Северо-Западный АО",
+      "category": "1 komn",
+      "count": 724,
+      "mean": 56421,
+      "median": 53500,
+      "average_price": 55596
+    },
+    {
+      "month": "2025-07",
+      "area": "Северо-Западный АО",
+      "category": "2 komn",
+      "count": 737,
+      "mean": 75378,
+      "median": 68000,
+      "average_price": 72289
+    },
+    {
+      "month": "2025-07",
+      "area": "Северо-Западный АО",
+      "category": "3 komn",
+      "count": 281,
+      "mean": 110181,
+      "median": 90000,
+      "average_price": 106710
+    },
+    {
+      "month": "2025-07",
+      "area": "Северо-Западный АО",
+      "category": "4 komn",
+      "count": 37,
+      "mean": 327081,
+      "median": 180000,
+      "average_price": 254914
+    },
+    {
+      "month": "2025-07",
+      "area": "Северо-Западный АО",
+      "category": "mnogokomn",
+      "count": 31,
+      "mean": 758738,
+      "median": 550000,
+      "average_price": 586884
+    },
+    {
+      "month": "2025-07",
+      "area": "Троицкий",
+      "category": "studiya",
+      "count": 4,
+      "mean": 38375,
+      "median": 38000,
+      "average_price": 38000
+    },
+    {
+      "month": "2025-07",
+      "area": "Троицкий",
+      "category": "1 komn",
+      "count": 83,
+      "mean": 38922,
+      "median": 38000,
+      "average_price": 38559
+    },
+    {
+      "month": "2025-07",
+      "area": "Троицкий",
+      "category": "2 komn",
+      "count": 55,
+      "mean": 48782,
+      "median": 50000,
+      "average_price": 48100
+    },
+    {
+      "month": "2025-07",
+      "area": "Троицкий",
+      "category": "3 komn",
+      "count": 20,
+      "mean": 61550,
+      "median": 61000,
+      "average_price": 60611
+    },
+    {
+      "month": "2025-07",
+      "area": "Троицкий",
+      "category": "mnogokomn",
+      "count": 1,
+      "mean": 110000,
+      "median": 110000,
+      "average_price": 110000
+    },
+    {
+      "month": "2025-07",
+      "area": "Центральный АО",
+      "category": "studiya",
+      "count": 130,
+      "mean": 80891,
+      "median": 73000,
+      "average_price": 78081
+    },
+    {
+      "month": "2025-07",
+      "area": "Центральный АО",
+      "category": "1 komn",
+      "count": 835,
+      "mean": 87942,
+      "median": 80000,
+      "average_price": 84591
+    },
+    {
+      "month": "2025-07",
+      "area": "Центральный АО",
+      "category": "2 komn",
+      "count": 1260,
+      "mean": 148079,
+      "median": 120000,
+      "average_price": 137468
+    },
+    {
+      "month": "2025-07",
+      "area": "Центральный АО",
+      "category": "3 komn",
+      "count": 877,
+      "mean": 247661,
+      "median": 200000,
+      "average_price": 230323
+    },
+    {
+      "month": "2025-07",
+      "area": "Центральный АО",
+      "category": "4 komn",
+      "count": 511,
+      "mean": 419832,
+      "median": 320000,
+      "average_price": 381650
+    },
+    {
+      "month": "2025-07",
+      "area": "Центральный АО",
+      "category": "mnogokomn",
+      "count": 233,
+      "mean": 829749,
+      "median": 550000,
+      "average_price": 712998
+    },
+    {
+      "month": "2025-07",
+      "area": "Юго-Восточный АО",
+      "category": "studiya",
+      "count": 72,
+      "mean": 47604,
+      "median": 45000,
+      "average_price": 47243
+    },
+    {
+      "month": "2025-07",
+      "area": "Юго-Восточный АО",
+      "category": "1 komn",
+      "count": 1260,
+      "mean": 51790,
+      "median": 50000,
+      "average_price": 51304
+    },
+    {
+      "month": "2025-07",
+      "area": "Юго-Восточный АО",
+      "category": "2 komn",
+      "count": 1109,
+      "mean": 67018,
+      "median": 65000,
+      "average_price": 66846
+    },
+    {
+      "month": "2025-07",
+      "area": "Юго-Восточный АО",
+      "category": "3 komn",
+      "count": 361,
+      "mean": 89087,
+      "median": 80000,
+      "average_price": 87369
+    },
+    {
+      "month": "2025-07",
+      "area": "Юго-Восточный АО",
+      "category": "4 komn",
+      "count": 25,
+      "mean": 122596,
+      "median": 110000,
+      "average_price": 118909
+    },
+    {
+      "month": "2025-07",
+      "area": "Юго-Восточный АО",
+      "category": "mnogokomn",
+      "count": 2,
+      "mean": 125000,
+      "median": 125000,
+      "average_price": 125000
+    },
+    {
+      "month": "2025-07",
+      "area": "Юго-Западный АО",
+      "category": "studiya",
+      "count": 64,
+      "mean": 53805,
+      "median": 55000,
+      "average_price": 53297
+    },
+    {
+      "month": "2025-07",
+      "area": "Юго-Западный АО",
+      "category": "1 komn",
+      "count": 1290,
+      "mean": 56893,
+      "median": 55000,
+      "average_price": 56356
+    },
+    {
+      "month": "2025-07",
+      "area": "Юго-Западный АО",
+      "category": "2 komn",
+      "count": 1411,
+      "mean": 77480,
+      "median": 73000,
+      "average_price": 76096
+    },
+    {
+      "month": "2025-07",
+      "area": "Юго-Западный АО",
+      "category": "3 komn",
+      "count": 595,
+      "mean": 105324,
+      "median": 95000,
+      "average_price": 101292
+    },
+    {
+      "month": "2025-07",
+      "area": "Юго-Западный АО",
+      "category": "4 komn",
+      "count": 63,
+      "mean": 205349,
+      "median": 170000,
+      "average_price": 177582
+    },
+    {
+      "month": "2025-07",
+      "area": "Юго-Западный АО",
+      "category": "mnogokomn",
+      "count": 16,
+      "mean": 473726,
+      "median": 370000,
+      "average_price": 428901
+    },
+    {
+      "month": "2025-07",
+      "area": "Южный АО",
+      "category": "studiya",
+      "count": 72,
+      "mean": 58250,
+      "median": 50000,
+      "average_price": 57257
+    },
+    {
+      "month": "2025-07",
+      "area": "Южный АО",
+      "category": "1 komn",
+      "count": 1482,
+      "mean": 54073,
+      "median": 50000,
+      "average_price": 53297
+    },
+    {
+      "month": "2025-07",
+      "area": "Южный АО",
+      "category": "2 komn",
+      "count": 1135,
+      "mean": 69903,
+      "median": 65000,
+      "average_price": 68618
+    },
+    {
+      "month": "2025-07",
+      "area": "Южный АО",
+      "category": "3 komn",
+      "count": 377,
+      "mean": 95919,
+      "median": 90000,
+      "average_price": 93537
+    },
+    {
+      "month": "2025-07",
+      "area": "Южный АО",
+      "category": "4 komn",
+      "count": 28,
+      "mean": 145732,
+      "median": 125000,
+      "average_price": 144058
+    },
+    {
+      "month": "2025-07",
+      "area": "Южный АО",
+      "category": "mnogokomn",
+      "count": 8,
+      "mean": 195000,
+      "median": 185000,
+      "average_price": 194000
+    },
+    {
+      "month": "2025-08",
+      "area": "Восточный АО",
+      "category": "studiya",
+      "count": 158,
+      "mean": 53938,
+      "median": 52000,
+      "average_price": 53135
+    },
+    {
+      "month": "2025-08",
+      "area": "Восточный АО",
+      "category": "1 komn",
+      "count": 1468,
+      "mean": 51968,
+      "median": 50000,
+      "average_price": 51615
+    },
+    {
+      "month": "2025-08",
+      "area": "Восточный АО",
+      "category": "2 komn",
+      "count": 1171,
+      "mean": 66051,
+      "median": 62000,
+      "average_price": 65245
+    },
+    {
+      "month": "2025-08",
+      "area": "Восточный АО",
+      "category": "3 komn",
+      "count": 376,
+      "mean": 87352,
+      "median": 80000,
+      "average_price": 85990
+    },
+    {
+      "month": "2025-08",
+      "area": "Восточный АО",
+      "category": "4 komn",
+      "count": 25,
+      "mean": 152380,
+      "median": 130000,
+      "average_price": 142705
+    },
+    {
+      "month": "2025-08",
+      "area": "Восточный АО",
+      "category": "mnogokomn",
+      "count": 4,
+      "mean": 315000,
+      "median": 260000,
+      "average_price": 260000
+    },
+    {
+      "month": "2025-08",
+      "area": "Западный АО",
+      "category": "studiya",
+      "count": 135,
+      "mean": 63567,
+      "median": 63000,
+      "average_price": 61392
+    },
+    {
+      "month": "2025-08",
+      "area": "Западный АО",
+      "category": "1 komn",
+      "count": 1317,
+      "mean": 64042,
+      "median": 60000,
+      "average_price": 62864
+    },
+    {
+      "month": "2025-08",
+      "area": "Западный АО",
+      "category": "2 komn",
+      "count": 1656,
+      "mean": 86329,
+      "median": 80000,
+      "average_price": 84222
+    },
+    {
+      "month": "2025-08",
+      "area": "Западный АО",
+      "category": "3 komn",
+      "count": 729,
+      "mean": 137615,
+      "median": 120000,
+      "average_price": 134687
+    },
+    {
+      "month": "2025-08",
+      "area": "Западный АО",
+      "category": "4 komn",
+      "count": 135,
+      "mean": 252537,
+      "median": 220000,
+      "average_price": 242242
+    },
+    {
+      "month": "2025-08",
+      "area": "Западный АО",
+      "category": "mnogokomn",
+      "count": 78,
+      "mean": 466320,
+      "median": 350000,
+      "average_price": 430446
+    },
+    {
+      "month": "2025-08",
+      "area": "Зеленоградский АО",
+      "category": "studiya",
+      "count": 1,
+      "mean": 60000,
+      "median": 60000,
+      "average_price": 60000
+    },
+    {
+      "month": "2025-08",
+      "area": "Зеленоградский АО",
+      "category": "1 komn",
+      "count": 144,
+      "mean": 42741,
+      "median": 42000,
+      "average_price": 42475
+    },
+    {
+      "month": "2025-08",
+      "area": "Зеленоградский АО",
+      "category": "2 komn",
+      "count": 101,
+      "mean": 56475,
+      "median": 55000,
+      "average_price": 55611
+    },
+    {
+      "month": "2025-08",
+      "area": "Зеленоградский АО",
+      "category": "3 komn",
+      "count": 40,
+      "mean": 73350,
+      "median": 70000,
+      "average_price": 72105
+    },
+    {
+      "month": "2025-08",
+      "area": "Зеленоградский АО",
+      "category": "4 komn",
+      "count": 4,
+      "mean": 89000,
+      "median": 83000,
+      "average_price": 83000
+    },
+    {
+      "month": "2025-08",
+      "area": "Зеленоградский АО",
+      "category": "mnogokomn",
+      "count": 1,
+      "mean": 125000,
+      "median": 125000,
+      "average_price": 125000
+    },
+    {
+      "month": "2025-08",
+      "area": "Новомосковский",
+      "category": "studiya",
+      "count": 210,
+      "mean": 43670,
+      "median": 45000,
+      "average_price": 43134
+    },
+    {
+      "month": "2025-08",
+      "area": "Новомосковский",
+      "category": "1 komn",
+      "count": 387,
+      "mean": 51484,
+      "median": 50000,
+      "average_price": 51003
+    },
+    {
+      "month": "2025-08",
+      "area": "Новомосковский",
+      "category": "2 komn",
+      "count": 331,
+      "mean": 62549,
+      "median": 60000,
+      "average_price": 61670
+    },
+    {
+      "month": "2025-08",
+      "area": "Новомосковский",
+      "category": "3 komn",
+      "count": 112,
+      "mean": 86018,
+      "median": 80000,
+      "average_price": 84279
+    },
+    {
+      "month": "2025-08",
+      "area": "Новомосковский",
+      "category": "4 komn",
+      "count": 8,
+      "mean": 130625,
+      "median": 110000,
+      "average_price": 123333
+    },
+    {
+      "month": "2025-08",
+      "area": "Северный АО",
+      "category": "studiya",
+      "count": 161,
+      "mean": 59480,
+      "median": 60000,
+      "average_price": 59005
+    },
+    {
+      "month": "2025-08",
+      "area": "Северный АО",
+      "category": "1 komn",
+      "count": 1214,
+      "mean": 60821,
+      "median": 59990,
+      "average_price": 60590
+    },
+    {
+      "month": "2025-08",
+      "area": "Северный АО",
+      "category": "2 komn",
+      "count": 1259,
+      "mean": 79999,
+      "median": 75000,
+      "average_price": 78141
+    },
+    {
+      "month": "2025-08",
+      "area": "Северный АО",
+      "category": "3 komn",
+      "count": 447,
+      "mean": 108636,
+      "median": 100000,
+      "average_price": 105424
+    },
+    {
+      "month": "2025-08",
+      "area": "Северный АО",
+      "category": "4 komn",
+      "count": 36,
+      "mean": 188819,
+      "median": 160000,
+      "average_price": 174191
+    },
+    {
+      "month": "2025-08",
+      "area": "Северный АО",
+      "category": "mnogokomn",
+      "count": 5,
+      "mean": 334000,
+      "median": 270000,
+      "average_price": 220000
+    },
+    {
+      "month": "2025-08",
+      "area": "Северо-Восточный АО",
+      "category": "studiya",
+      "count": 104,
+      "mean": 54584,
+      "median": 55000,
+      "average_price": 54570
+    },
+    {
+      "month": "2025-08",
+      "area": "Северо-Восточный АО",
+      "category": "1 komn",
+      "count": 1239,
+      "mean": 113633,
+      "median": 55000,
+      "average_price": 57187
+    },
+    {
+      "month": "2025-08",
+      "area": "Северо-Восточный АО",
+      "category": "2 komn",
+      "count": 1097,
+      "mean": 74442,
+      "median": 70000,
+      "average_price": 72963
+    },
+    {
+      "month": "2025-08",
+      "area": "Северо-Восточный АО",
+      "category": "3 komn",
+      "count": 382,
+      "mean": 97777,
+      "median": 89500,
+      "average_price": 94179
+    },
+    {
+      "month": "2025-08",
+      "area": "Северо-Восточный АО",
+      "category": "4 komn",
+      "count": 35,
+      "mean": 163700,
+      "median": 170000,
+      "average_price": 162545
+    },
+    {
+      "month": "2025-08",
+      "area": "Северо-Западный АО",
+      "category": "studiya",
+      "count": 48,
+      "mean": 57410,
+      "median": 50000,
+      "average_price": 56039
+    },
+    {
+      "month": "2025-08",
+      "area": "Северо-Западный АО",
+      "category": "1 komn",
+      "count": 757,
+      "mean": 59071,
+      "median": 55000,
+      "average_price": 57888
+    },
+    {
+      "month": "2025-08",
+      "area": "Северо-Западный АО",
+      "category": "2 komn",
+      "count": 792,
+      "mean": 78379,
+      "median": 70000,
+      "average_price": 75930
+    },
+    {
+      "month": "2025-08",
+      "area": "Северо-Западный АО",
+      "category": "3 komn",
+      "count": 292,
+      "mean": 108149,
+      "median": 90000,
+      "average_price": 103815
+    },
+    {
+      "month": "2025-08",
+      "area": "Северо-Западный АО",
+      "category": "4 komn",
+      "count": 33,
+      "mean": 325303,
+      "median": 160000,
+      "average_price": 244194
+    },
+    {
+      "month": "2025-08",
+      "area": "Северо-Западный АО",
+      "category": "mnogokomn",
+      "count": 33,
+      "mean": 713144,
+      "median": 550000,
+      "average_price": 559777
+    },
+    {
+      "month": "2025-08",
+      "area": "Троицкий",
+      "category": "studiya",
+      "count": 4,
+      "mean": 32000,
+      "median": 33000,
+      "average_price": 33000
+    },
+    {
+      "month": "2025-08",
+      "area": "Троицкий",
+      "category": "1 komn",
+      "count": 90,
+      "mean": 38550,
+      "median": 38500,
+      "average_price": 37884
+    },
+    {
+      "month": "2025-08",
+      "area": "Троицкий",
+      "category": "2 komn",
+      "count": 65,
+      "mean": 47646,
+      "median": 47000,
+      "average_price": 47847
+    },
+    {
+      "month": "2025-08",
+      "area": "Троицкий",
+      "category": "3 komn",
+      "count": 22,
+      "mean": 69636,
+      "median": 67500,
+      "average_price": 68600
+    },
+    {
+      "month": "2025-08",
+      "area": "Троицкий",
+      "category": "4 komn",
+      "count": 2,
+      "mean": 102500,
+      "median": 102500,
+      "average_price": 102500
+    },
+    {
+      "month": "2025-08",
+      "area": "Центральный АО",
+      "category": "studiya",
+      "count": 172,
+      "mean": 92105,
+      "median": 80000,
+      "average_price": 86238
+    },
+    {
+      "month": "2025-08",
+      "area": "Центральный АО",
+      "category": "1 komn",
+      "count": 1035,
+      "mean": 89325,
+      "median": 82000,
+      "average_price": 86912
+    },
+    {
+      "month": "2025-08",
+      "area": "Центральный АО",
+      "category": "2 komn",
+      "count": 1437,
+      "mean": 148961,
+      "median": 120000,
+      "average_price": 141088
+    },
+    {
+      "month": "2025-08",
+      "area": "Центральный АО",
+      "category": "3 komn",
+      "count": 938,
+      "mean": 255778,
+      "median": 200000,
+      "average_price": 237792
+    },
+    {
+      "month": "2025-08",
+      "area": "Центральный АО",
+      "category": "4 komn",
+      "count": 494,
+      "mean": 446374,
+      "median": 350000,
+      "average_price": 412193
+    },
+    {
+      "month": "2025-08",
+      "area": "Центральный АО",
+      "category": "mnogokomn",
+      "count": 247,
+      "mean": 819985,
+      "median": 500000,
+      "average_price": 711372
+    },
+    {
+      "month": "2025-08",
+      "area": "Юго-Восточный АО",
+      "category": "studiya",
+      "count": 97,
+      "mean": 53200,
+      "median": 50000,
+      "average_price": 52387
+    },
+    {
+      "month": "2025-08",
+      "area": "Юго-Восточный АО",
+      "category": "1 komn",
+      "count": 1356,
+      "mean": 53942,
+      "median": 52000,
+      "average_price": 53640
+    },
+    {
+      "month": "2025-08",
+      "area": "Юго-Восточный АО",
+      "category": "2 komn",
+      "count": 1161,
+      "mean": 68041,
+      "median": 65000,
+      "average_price": 67145
+    },
+    {
+      "month": "2025-08",
+      "area": "Юго-Восточный АО",
+      "category": "3 komn",
+      "count": 424,
+      "mean": 89005,
+      "median": 85000,
+      "average_price": 87018
+    },
+    {
+      "month": "2025-08",
+      "area": "Юго-Восточный АО",
+      "category": "4 komn",
+      "count": 31,
+      "mean": 124645,
+      "median": 119000,
+      "average_price": 120828
+    },
+    {
+      "month": "2025-08",
+      "area": "Юго-Восточный АО",
+      "category": "mnogokomn",
+      "count": 1,
+      "mean": 140000,
+      "median": 140000,
+      "average_price": 140000
+    },
+    {
+      "month": "2025-08",
+      "area": "Юго-Западный АО",
+      "category": "studiya",
+      "count": 53,
+      "mean": 52802,
+      "median": 50000,
+      "average_price": 52337
+    },
+    {
+      "month": "2025-08",
+      "area": "Юго-Западный АО",
+      "category": "1 komn",
+      "count": 1352,
+      "mean": 59402,
+      "median": 57000,
+      "average_price": 59280
+    },
+    {
+      "month": "2025-08",
+      "area": "Юго-Западный АО",
+      "category": "2 komn",
+      "count": 1491,
+      "mean": 79667,
+      "median": 75000,
+      "average_price": 78579
+    },
+    {
+      "month": "2025-08",
+      "area": "Юго-Западный АО",
+      "category": "3 komn",
+      "count": 616,
+      "mean": 109088,
+      "median": 100000,
+      "average_price": 105564
+    },
+    {
+      "month": "2025-08",
+      "area": "Юго-Западный АО",
+      "category": "4 komn",
+      "count": 79,
+      "mean": 206291,
+      "median": 190000,
+      "average_price": 193535
+    },
+    {
+      "month": "2025-08",
+      "area": "Юго-Западный АО",
+      "category": "mnogokomn",
+      "count": 21,
+      "mean": 398157,
+      "median": 336000,
+      "average_price": 364279
+    },
+    {
+      "month": "2025-08",
+      "area": "Южный АО",
+      "category": "studiya",
+      "count": 85,
+      "mean": 60600,
+      "median": 55000,
+      "average_price": 60487
+    },
+    {
+      "month": "2025-08",
+      "area": "Южный АО",
+      "category": "1 komn",
+      "count": 1482,
+      "mean": 55235,
+      "median": 55000,
+      "average_price": 54589
+    },
+    {
+      "month": "2025-08",
+      "area": "Южный АО",
+      "category": "2 komn",
+      "count": 1193,
+      "mean": 72452,
+      "median": 70000,
+      "average_price": 70531
+    },
+    {
+      "month": "2025-08",
+      "area": "Южный АО",
+      "category": "3 komn",
+      "count": 455,
+      "mean": 97488,
+      "median": 85000,
+      "average_price": 96600
+    },
+    {
+      "month": "2025-08",
+      "area": "Южный АО",
+      "category": "4 komn",
+      "count": 30,
+      "mean": 151757,
+      "median": 145000,
+      "average_price": 146779
+    },
+    {
+      "month": "2025-08",
+      "area": "Южный АО",
+      "category": "mnogokomn",
+      "count": 3,
+      "mean": 173333,
+      "median": 170000,
+      "average_price": 170000
+    },
+    {
+      "month": "2025-09",
+      "area": "Восточный АО",
+      "category": "studiya",
+      "count": 101,
+      "mean": 55265,
+      "median": 55000,
+      "average_price": 54976
+    },
+    {
+      "month": "2025-09",
+      "area": "Восточный АО",
+      "category": "1 komn",
+      "count": 975,
+      "mean": 96560,
+      "median": 50000,
+      "average_price": 53209
+    },
+    {
+      "month": "2025-09",
+      "area": "Восточный АО",
+      "category": "2 komn",
+      "count": 922,
+      "mean": 133854,
+      "median": 65000,
+      "average_price": 66241
+    },
+    {
+      "month": "2025-09",
+      "area": "Восточный АО",
+      "category": "3 komn",
+      "count": 317,
+      "mean": 87183,
+      "median": 80000,
+      "average_price": 85813
+    },
+    {
+      "month": "2025-09",
+      "area": "Восточный АО",
+      "category": "4 komn",
+      "count": 18,
+      "mean": 132444,
+      "median": 110000,
+      "average_price": 131867
+    },
+    {
+      "month": "2025-09",
+      "area": "Восточный АО",
+      "category": "mnogokomn",
+      "count": 2,
+      "mean": 380000,
+      "median": 380000,
+      "average_price": 380000
+    },
+    {
+      "month": "2025-09",
+      "area": "Западный АО",
+      "category": "studiya",
+      "count": 78,
+      "mean": 61304,
+      "median": 60000,
+      "average_price": 60983
+    },
+    {
+      "month": "2025-09",
+      "area": "Западный АО",
+      "category": "1 komn",
+      "count": 917,
+      "mean": 66133,
+      "median": 63500,
+      "average_price": 65796
+    },
+    {
+      "month": "2025-09",
+      "area": "Западный АО",
+      "category": "2 komn",
+      "count": 1125,
+      "mean": 90226,
+      "median": 80000,
+      "average_price": 88162
+    },
+    {
+      "month": "2025-09",
+      "area": "Западный АО",
+      "category": "3 komn",
+      "count": 626,
+      "mean": 134066,
+      "median": 120000,
+      "average_price": 130298
+    },
+    {
+      "month": "2025-09",
+      "area": "Западный АО",
+      "category": "4 komn",
+      "count": 122,
+      "mean": 240348,
+      "median": 225000,
+      "average_price": 231763
+    },
+    {
+      "month": "2025-09",
+      "area": "Западный АО",
+      "category": "mnogokomn",
+      "count": 71,
+      "mean": 496789,
+      "median": 400000,
+      "average_price": 440636
+    },
+    {
+      "month": "2025-09",
+      "area": "Зеленоградский АО",
+      "category": "studiya",
+      "count": 2,
+      "mean": 47500,
+      "median": 47500,
+      "average_price": 47500
+    },
+    {
+      "month": "2025-09",
+      "area": "Зеленоградский АО",
+      "category": "1 komn",
+      "count": 94,
+      "mean": 43223,
+      "median": 42000,
+      "average_price": 42839
+    },
+    {
+      "month": "2025-09",
+      "area": "Зеленоградский АО",
+      "category": "2 komn",
+      "count": 80,
+      "mean": 58481,
+      "median": 57000,
+      "average_price": 57788
+    },
+    {
+      "month": "2025-09",
+      "area": "Зеленоградский АО",
+      "category": "3 komn",
+      "count": 22,
+      "mean": 69318,
+      "median": 65000,
+      "average_price": 67500
+    },
+    {
+      "month": "2025-09",
+      "area": "Зеленоградский АО",
+      "category": "4 komn",
+      "count": 2,
+      "mean": 105000,
+      "median": 105000,
+      "average_price": 105000
+    },
+    {
+      "month": "2025-09",
+      "area": "Зеленоградский АО",
+      "category": "mnogokomn",
+      "count": 1,
+      "mean": 125000,
+      "median": 125000,
+      "average_price": 125000
+    },
+    {
+      "month": "2025-09",
+      "area": "Новомосковский",
+      "category": "studiya",
+      "count": 107,
+      "mean": 43233,
+      "median": 42000,
+      "average_price": 43030
+    },
+    {
+      "month": "2025-09",
+      "area": "Новомосковский",
+      "category": "1 komn",
+      "count": 282,
+      "mean": 51044,
+      "median": 50000,
+      "average_price": 50798
+    },
+    {
+      "month": "2025-09",
+      "area": "Новомосковский",
+      "category": "2 komn",
+      "count": 267,
+      "mean": 64257,
+      "median": 60000,
+      "average_price": 63592
+    },
+    {
+      "month": "2025-09",
+      "area": "Новомосковский",
+      "category": "3 komn",
+      "count": 93,
+      "mean": 85280,
+      "median": 79000,
+      "average_price": 84546
+    },
+    {
+      "month": "2025-09",
+      "area": "Новомосковский",
+      "category": "4 komn",
+      "count": 7,
+      "mean": 133857,
+      "median": 120000,
+      "average_price": 118000
+    },
+    {
+      "month": "2025-09",
+      "area": "Новомосковский",
+      "category": "mnogokomn",
+      "count": 1,
+      "mean": 127000,
+      "median": 127000,
+      "average_price": 127000
+    },
+    {
+      "month": "2025-09",
+      "area": "Северный АО",
+      "category": "studiya",
+      "count": 116,
+      "mean": 62731,
+      "median": 60000,
+      "average_price": 62622
+    },
+    {
+      "month": "2025-09",
+      "area": "Северный АО",
+      "category": "1 komn",
+      "count": 772,
+      "mean": 63453,
+      "median": 60000,
+      "average_price": 62729
+    },
+    {
+      "month": "2025-09",
+      "area": "Северный АО",
+      "category": "2 komn",
+      "count": 917,
+      "mean": 83822,
+      "median": 78000,
+      "average_price": 82039
+    },
+    {
+      "month": "2025-09",
+      "area": "Северный АО",
+      "category": "3 komn",
+      "count": 353,
+      "mean": 104273,
+      "median": 96000,
+      "average_price": 103398
+    },
+    {
+      "month": "2025-09",
+      "area": "Северный АО",
+      "category": "4 komn",
+      "count": 33,
+      "mean": 168712,
+      "median": 140000,
+      "average_price": 151694
+    },
+    {
+      "month": "2025-09",
+      "area": "Северный АО",
+      "category": "mnogokomn",
+      "count": 2,
+      "mean": 222500,
+      "median": 222500,
+      "average_price": 222500
+    },
+    {
+      "month": "2025-09",
+      "area": "Северо-Восточный АО",
+      "category": "studiya",
+      "count": 80,
+      "mean": 58853,
+      "median": 58995,
+      "average_price": 58997
+    },
+    {
+      "month": "2025-09",
+      "area": "Северо-Восточный АО",
+      "category": "1 komn",
+      "count": 854,
+      "mean": 57927,
+      "median": 55000,
+      "average_price": 57734
+    },
+    {
+      "month": "2025-09",
+      "area": "Северо-Восточный АО",
+      "category": "2 komn",
+      "count": 807,
+      "mean": 74808,
+      "median": 70000,
+      "average_price": 74196
+    },
+    {
+      "month": "2025-09",
+      "area": "Северо-Восточный АО",
+      "category": "3 komn",
+      "count": 280,
+      "mean": 96630,
+      "median": 85000,
+      "average_price": 92775
+    },
+    {
+      "month": "2025-09",
+      "area": "Северо-Восточный АО",
+      "category": "4 komn",
+      "count": 23,
+      "mean": 171522,
+      "median": 190000,
+      "average_price": 171190
+    },
+    {
+      "month": "2025-09",
+      "area": "Северо-Восточный АО",
+      "category": "mnogokomn",
+      "count": 1,
+      "mean": 150000,
+      "median": 150000,
+      "average_price": 150000
+    },
+    {
+      "month": "2025-09",
+      "area": "Северо-Западный АО",
+      "category": "studiya",
+      "count": 27,
+      "mean": 64700,
+      "median": 60000,
+      "average_price": 69614
+    },
+    {
+      "month": "2025-09",
+      "area": "Северо-Западный АО",
+      "category": "1 komn",
+      "count": 510,
+      "mean": 58697,
+      "median": 55000,
+      "average_price": 58230
+    },
+    {
+      "month": "2025-09",
+      "area": "Северо-Западный АО",
+      "category": "2 komn",
+      "count": 578,
+      "mean": 79073,
+      "median": 70000,
+      "average_price": 75650
+    },
+    {
+      "month": "2025-09",
+      "area": "Северо-Западный АО",
+      "category": "3 komn",
+      "count": 243,
+      "mean": 112144,
+      "median": 98000,
+      "average_price": 107393
+    },
+    {
+      "month": "2025-09",
+      "area": "Северо-Западный АО",
+      "category": "4 komn",
+      "count": 27,
+      "mean": 271333,
+      "median": 200000,
+      "average_price": 229080
+    },
+    {
+      "month": "2025-09",
+      "area": "Северо-Западный АО",
+      "category": "mnogokomn",
+      "count": 28,
+      "mean": 706846,
+      "median": 450000,
+      "average_price": 523117
+    },
+    {
+      "month": "2025-09",
+      "area": "Троицкий",
+      "category": "studiya",
+      "count": 2,
+      "mean": 22500,
+      "median": 22500,
+      "average_price": 22500
+    },
+    {
+      "month": "2025-09",
+      "area": "Троицкий",
+      "category": "1 komn",
+      "count": 61,
+      "mean": 38877,
+      "median": 38000,
+      "average_price": 38781
+    },
+    {
+      "month": "2025-09",
+      "area": "Троицкий",
+      "category": "2 komn",
+      "count": 53,
+      "mean": 49264,
+      "median": 48000,
+      "average_price": 48735
+    },
+    {
+      "month": "2025-09",
+      "area": "Троицкий",
+      "category": "3 komn",
+      "count": 16,
+      "mean": 62906,
+      "median": 60000,
+      "average_price": 62250
+    },
+    {
+      "month": "2025-09",
+      "area": "Троицкий",
+      "category": "4 komn",
+      "count": 1,
+      "mean": 55000,
+      "median": 55000,
+      "average_price": 55000
+    },
+    {
+      "month": "2025-09",
+      "area": "Центральный АО",
+      "category": "studiya",
+      "count": 140,
+      "mean": 101116,
+      "median": 88500,
+      "average_price": 94886
+    },
+    {
+      "month": "2025-09",
+      "area": "Центральный АО",
+      "category": "1 komn",
+      "count": 716,
+      "mean": 88870,
+      "median": 85000,
+      "average_price": 87003
+    },
+    {
+      "month": "2025-09",
+      "area": "Центральный АО",
+      "category": "2 komn",
+      "count": 1262,
+      "mean": 154925,
+      "median": 129000,
+      "average_price": 146503
+    },
+    {
+      "month": "2025-09",
+      "area": "Центральный АО",
+      "category": "3 komn",
+      "count": 949,
+      "mean": 262662,
+      "median": 220000,
+      "average_price": 250483
+    },
+    {
+      "month": "2025-09",
+      "area": "Центральный АО",
+      "category": "4 komn",
+      "count": 461,
+      "mean": 452455,
+      "median": 350000,
+      "average_price": 411234
+    },
+    {
+      "month": "2025-09",
+      "area": "Центральный АО",
+      "category": "mnogokomn",
+      "count": 239,
+      "mean": 820888,
+      "median": 500000,
+      "average_price": 723358
+    },
+    {
+      "month": "2025-09",
+      "area": "Юго-Восточный АО",
+      "category": "studiya",
+      "count": 62,
+      "mean": 58519,
+      "median": 57000,
+      "average_price": 57740
+    },
+    {
+      "month": "2025-09",
+      "area": "Юго-Восточный АО",
+      "category": "1 komn",
+      "count": 924,
+      "mean": 55256,
+      "median": 55000,
+      "average_price": 54689
+    },
+    {
+      "month": "2025-09",
+      "area": "Юго-Восточный АО",
+      "category": "2 komn",
+      "count": 802,
+      "mean": 68628,
+      "median": 65000,
+      "average_price": 67463
+    },
+    {
+      "month": "2025-09",
+      "area": "Юго-Восточный АО",
+      "category": "3 komn",
+      "count": 299,
+      "mean": 90170,
+      "median": 85000,
+      "average_price": 88563
+    },
+    {
+      "month": "2025-09",
+      "area": "Юго-Восточный АО",
+      "category": "4 komn",
+      "count": 22,
+      "mean": 117227,
+      "median": 110000,
+      "average_price": 113632
+    },
+    {
+      "month": "2025-09",
+      "area": "Юго-Восточный АО",
+      "category": "mnogokomn",
+      "count": 1,
+      "mean": 130000,
+      "median": 130000,
+      "average_price": 130000
+    },
+    {
+      "month": "2025-09",
+      "area": "Юго-Западный АО",
+      "category": "studiya",
+      "count": 38,
+      "mean": 58763,
+      "median": 57500,
+      "average_price": 58194
+    },
+    {
+      "month": "2025-09",
+      "area": "Юго-Западный АО",
+      "category": "1 komn",
+      "count": 924,
+      "mean": 59993,
+      "median": 58000,
+      "average_price": 59234
+    },
+    {
+      "month": "2025-09",
+      "area": "Юго-Западный АО",
+      "category": "2 komn",
+      "count": 1065,
+      "mean": 82334,
+      "median": 75000,
+      "average_price": 81288
+    },
+    {
+      "month": "2025-09",
+      "area": "Юго-Западный АО",
+      "category": "3 komn",
+      "count": 463,
+      "mean": 112784,
+      "median": 100000,
+      "average_price": 108653
+    },
+    {
+      "month": "2025-09",
+      "area": "Юго-Западный АО",
+      "category": "4 komn",
+      "count": 69,
+      "mean": 183615,
+      "median": 185000,
+      "average_price": 183376
+    },
+    {
+      "month": "2025-09",
+      "area": "Юго-Западный АО",
+      "category": "mnogokomn",
+      "count": 16,
+      "mean": 460399,
+      "median": 312750,
+      "average_price": 419027
+    },
+    {
+      "month": "2025-09",
+      "area": "Южный АО",
+      "category": "studiya",
+      "count": 49,
+      "mean": 63929,
+      "median": 55000,
+      "average_price": 62500
+    },
+    {
+      "month": "2025-09",
+      "area": "Южный АО",
+      "category": "1 komn",
+      "count": 1051,
+      "mean": 55826,
+      "median": 55000,
+      "average_price": 54909
+    },
+    {
+      "month": "2025-09",
+      "area": "Южный АО",
+      "category": "2 komn",
+      "count": 880,
+      "mean": 72822,
+      "median": 70000,
+      "average_price": 71649
+    },
+    {
+      "month": "2025-09",
+      "area": "Южный АО",
+      "category": "3 komn",
+      "count": 356,
+      "mean": 97997,
+      "median": 86500,
+      "average_price": 95464
+    },
+    {
+      "month": "2025-09",
+      "area": "Южный АО",
+      "category": "4 komn",
+      "count": 28,
+      "mean": 143893,
+      "median": 130000,
+      "average_price": 137292
+    },
+    {
+      "month": "2025-09",
+      "area": "Южный АО",
+      "category": "mnogokomn",
+      "count": 3,
+      "mean": 215000,
+      "median": 175000,
+      "average_price": 175000
+    },
+    {
+      "month": "2025-10",
+      "area": "Восточный АО",
+      "category": "studiya",
+      "count": 111,
+      "mean": 54368,
+      "median": 55000,
+      "average_price": 53364
+    },
+    {
+      "month": "2025-10",
+      "area": "Восточный АО",
+      "category": "1 komn",
+      "count": 1157,
+      "mean": 88910,
+      "median": 50000,
+      "average_price": 51896
+    },
+    {
+      "month": "2025-10",
+      "area": "Восточный АО",
+      "category": "2 komn",
+      "count": 958,
+      "mean": 66557,
+      "median": 65000,
+      "average_price": 65652
+    },
+    {
+      "month": "2025-10",
+      "area": "Восточный АО",
+      "category": "3 komn",
+      "count": 334,
+      "mean": 87241,
+      "median": 80000,
+      "average_price": 84873
+    },
+    {
+      "month": "2025-10",
+      "area": "Восточный АО",
+      "category": "4 komn",
+      "count": 13,
+      "mean": 118615,
+      "median": 100000,
+      "average_price": 109727
+    },
+    {
+      "month": "2025-10",
+      "area": "Восточный АО",
+      "category": "mnogokomn",
+      "count": 2,
+      "mean": 380000,
+      "median": 380000,
+      "average_price": 380000
+    },
+    {
+      "month": "2025-10",
+      "area": "Западный АО",
+      "category": "studiya",
+      "count": 75,
+      "mean": 62172,
+      "median": 60000,
+      "average_price": 61731
+    },
+    {
+      "month": "2025-10",
+      "area": "Западный АО",
+      "category": "1 komn",
+      "count": 1040,
+      "mean": 67057,
+      "median": 65000,
+      "average_price": 65690
+    },
+    {
+      "month": "2025-10",
+      "area": "Западный АО",
+      "category": "2 komn",
+      "count": 1260,
+      "mean": 90210,
+      "median": 80000,
+      "average_price": 88213
+    },
+    {
+      "month": "2025-10",
+      "area": "Западный АО",
+      "category": "3 komn",
+      "count": 690,
+      "mean": 136674,
+      "median": 120000,
+      "average_price": 134095
+    },
+    {
+      "month": "2025-10",
+      "area": "Западный АО",
+      "category": "4 komn",
+      "count": 122,
+      "mean": 253045,
+      "median": 230000,
+      "average_price": 242250
+    },
+    {
+      "month": "2025-10",
+      "area": "Западный АО",
+      "category": "mnogokomn",
+      "count": 71,
+      "mean": 503141,
+      "median": 400000,
+      "average_price": 425585
+    },
+    {
+      "month": "2025-10",
+      "area": "Зеленоградский АО",
+      "category": "studiya",
+      "count": 3,
+      "mean": 38000,
+      "median": 36000,
+      "average_price": 36000
+    },
+    {
+      "month": "2025-10",
+      "area": "Зеленоградский АО",
+      "category": "1 komn",
+      "count": 126,
+      "mean": 43621,
+      "median": 40000,
+      "average_price": 43121
+    },
+    {
+      "month": "2025-10",
+      "area": "Зеленоградский АО",
+      "category": "2 komn",
+      "count": 78,
+      "mean": 57320,
+      "median": 55000,
+      "average_price": 56452
+    },
+    {
+      "month": "2025-10",
+      "area": "Зеленоградский АО",
+      "category": "3 komn",
+      "count": 26,
+      "mean": 68538,
+      "median": 65000,
+      "average_price": 67375
+    },
+    {
+      "month": "2025-10",
+      "area": "Зеленоградский АО",
+      "category": "4 komn",
+      "count": 1,
+      "mean": 35000,
+      "median": 35000,
+      "average_price": 35000
+    },
+    {
+      "month": "2025-10",
+      "area": "Новомосковский",
+      "category": "studiya",
+      "count": 150,
+      "mean": 42429,
+      "median": 40000,
+      "average_price": 43003
+    },
+    {
+      "month": "2025-10",
+      "area": "Новомосковский",
+      "category": "1 komn",
+      "count": 294,
+      "mean": 53295,
+      "median": 50000,
+      "average_price": 51505
+    },
+    {
+      "month": "2025-10",
+      "area": "Новомосковский",
+      "category": "2 komn",
+      "count": 294,
+      "mean": 65032,
+      "median": 65000,
+      "average_price": 64091
+    },
+    {
+      "month": "2025-10",
+      "area": "Новомосковский",
+      "category": "3 komn",
+      "count": 94,
+      "mean": 86043,
+      "median": 80000,
+      "average_price": 84036
+    },
+    {
+      "month": "2025-10",
+      "area": "Новомосковский",
+      "category": "4 komn",
+      "count": 8,
+      "mean": 125500,
+      "median": 102500,
+      "average_price": 108167
+    },
+    {
+      "month": "2025-10",
+      "area": "Новомосковский",
+      "category": "mnogokomn",
+      "count": 1,
+      "mean": 127000,
+      "median": 127000,
+      "average_price": 127000
+    },
+    {
+      "month": "2025-10",
+      "area": "Северный АО",
+      "category": "studiya",
+      "count": 130,
+      "mean": 60436,
+      "median": 58000,
+      "average_price": 60444
+    },
+    {
+      "month": "2025-10",
+      "area": "Северный АО",
+      "category": "1 komn",
+      "count": 1048,
+      "mean": 61590,
+      "median": 60000,
+      "average_price": 60606
+    },
+    {
+      "month": "2025-10",
+      "area": "Северный АО",
+      "category": "2 komn",
+      "count": 1078,
+      "mean": 82320,
+      "median": 75000,
+      "average_price": 80160
+    },
+    {
+      "month": "2025-10",
+      "area": "Северный АО",
+      "category": "3 komn",
+      "count": 419,
+      "mean": 109289,
+      "median": 99999,
+      "average_price": 105074
+    },
+    {
+      "month": "2025-10",
+      "area": "Северный АО",
+      "category": "4 komn",
+      "count": 44,
+      "mean": 185875,
+      "median": 140000,
+      "average_price": 155538
+    },
+    {
+      "month": "2025-10",
+      "area": "Северный АО",
+      "category": "mnogokomn",
+      "count": 1,
+      "mean": 1800000,
+      "median": 1800000,
+      "average_price": 1800000
+    },
+    {
+      "month": "2025-10",
+      "area": "Северо-Восточный АО",
+      "category": "studiya",
+      "count": 121,
+      "mean": 58158,
+      "median": 58000,
+      "average_price": 57798
+    },
+    {
+      "month": "2025-10",
+      "area": "Северо-Восточный АО",
+      "category": "1 komn",
+      "count": 1091,
+      "mean": 57824,
+      "median": 55000,
+      "average_price": 57443
+    },
+    {
+      "month": "2025-10",
+      "area": "Северо-Восточный АО",
+      "category": "2 komn",
+      "count": 910,
+      "mean": 74431,
+      "median": 70000,
+      "average_price": 73629
+    },
+    {
+      "month": "2025-10",
+      "area": "Северо-Восточный АО",
+      "category": "3 komn",
+      "count": 318,
+      "mean": 96094,
+      "median": 85000,
+      "average_price": 94658
+    },
+    {
+      "month": "2025-10",
+      "area": "Северо-Восточный АО",
+      "category": "4 komn",
+      "count": 27,
+      "mean": 184074,
+      "median": 185000,
+      "average_price": 180600
+    },
+    {
+      "month": "2025-10",
+      "area": "Северо-Восточный АО",
+      "category": "mnogokomn",
+      "count": 3,
+      "mean": 181667,
+      "median": 195000,
+      "average_price": 195000
+    },
+    {
+      "month": "2025-10",
+      "area": "Северо-Западный АО",
+      "category": "studiya",
+      "count": 39,
+      "mean": 69197,
+      "median": 64999,
+      "average_price": 68072
+    },
+    {
+      "month": "2025-10",
+      "area": "Северо-Западный АО",
+      "category": "1 komn",
+      "count": 618,
+      "mean": 59123,
+      "median": 55000,
+      "average_price": 58275
+    },
+    {
+      "month": "2025-10",
+      "area": "Северо-Западный АО",
+      "category": "2 komn",
+      "count": 696,
+      "mean": 78592,
+      "median": 70000,
+      "average_price": 76007
+    },
+    {
+      "month": "2025-10",
+      "area": "Северо-Западный АО",
+      "category": "3 komn",
+      "count": 262,
+      "mean": 112472,
+      "median": 95000,
+      "average_price": 107958
+    },
+    {
+      "month": "2025-10",
+      "area": "Северо-Западный АО",
+      "category": "4 komn",
+      "count": 40,
+      "mean": 256100,
+      "median": 157500,
+      "average_price": 227789
+    },
+    {
+      "month": "2025-10",
+      "area": "Северо-Западный АО",
+      "category": "mnogokomn",
+      "count": 31,
+      "mean": 669890,
+      "median": 350000,
+      "average_price": 488022
+    },
+    {
+      "month": "2025-10",
+      "area": "Троицкий",
+      "category": "studiya",
+      "count": 3,
+      "mean": 42000,
+      "median": 50000,
+      "average_price": 50000
+    },
+    {
+      "month": "2025-10",
+      "area": "Троицкий",
+      "category": "1 komn",
+      "count": 67,
+      "mean": 38500,
+      "median": 37000,
+      "average_price": 38427
+    },
+    {
+      "month": "2025-10",
+      "area": "Троицкий",
+      "category": "2 komn",
+      "count": 62,
+      "mean": 48726,
+      "median": 46500,
+      "average_price": 48448
+    },
+    {
+      "month": "2025-10",
+      "area": "Троицкий",
+      "category": "3 komn",
+      "count": 16,
+      "mean": 62562,
+      "median": 60000,
+      "average_price": 62769
+    },
+    {
+      "month": "2025-10",
+      "area": "Троицкий",
+      "category": "4 komn",
+      "count": 4,
+      "mean": 68750,
+      "median": 52500,
+      "average_price": 52500
+    },
+    {
+      "month": "2025-10",
+      "area": "Центральный АО",
+      "category": "studiya",
+      "count": 180,
+      "mean": 97432,
+      "median": 85000,
+      "average_price": 90386
+    },
+    {
+      "month": "2025-10",
+      "area": "Центральный АО",
+      "category": "1 komn",
+      "count": 884,
+      "mean": 88761,
+      "median": 82000,
+      "average_price": 86384
+    },
+    {
+      "month": "2025-10",
+      "area": "Центральный АО",
+      "category": "2 komn",
+      "count": 1494,
+      "mean": 149755,
+      "median": 120000,
+      "average_price": 142541
+    },
+    {
+      "month": "2025-10",
+      "area": "Центральный АО",
+      "category": "3 komn",
+      "count": 1065,
+      "mean": 251747,
+      "median": 200000,
+      "average_price": 238644
+    },
+    {
+      "month": "2025-10",
+      "area": "Центральный АО",
+      "category": "4 komn",
+      "count": 523,
+      "mean": 431760,
+      "median": 350000,
+      "average_price": 385535
+    },
+    {
+      "month": "2025-10",
+      "area": "Центральный АО",
+      "category": "mnogokomn",
+      "count": 246,
+      "mean": 826552,
+      "median": 500000,
+      "average_price": 747785
+    },
+    {
+      "month": "2025-10",
+      "area": "Юго-Восточный АО",
+      "category": "studiya",
+      "count": 60,
+      "mean": 54632,
+      "median": 50000,
+      "average_price": 53562
+    },
+    {
+      "month": "2025-10",
+      "area": "Юго-Восточный АО",
+      "category": "1 komn",
+      "count": 1035,
+      "mean": 55244,
+      "median": 55000,
+      "average_price": 54921
+    },
+    {
+      "month": "2025-10",
+      "area": "Юго-Восточный АО",
+      "category": "2 komn",
+      "count": 948,
+      "mean": 68319,
+      "median": 65000,
+      "average_price": 67723
+    },
+    {
+      "month": "2025-10",
+      "area": "Юго-Восточный АО",
+      "category": "3 komn",
+      "count": 335,
+      "mean": 90067,
+      "median": 85000,
+      "average_price": 88897
+    },
+    {
+      "month": "2025-10",
+      "area": "Юго-Восточный АО",
+      "category": "4 komn",
+      "count": 27,
+      "mean": 113815,
+      "median": 100000,
+      "average_price": 110120
+    },
+    {
+      "month": "2025-10",
+      "area": "Юго-Восточный АО",
+      "category": "mnogokomn",
+      "count": 3,
+      "mean": 98333,
+      "median": 90000,
+      "average_price": 90000
+    },
+    {
+      "month": "2025-10",
+      "area": "Юго-Западный АО",
+      "category": "studiya",
+      "count": 34,
+      "mean": 52338,
+      "median": 50000,
+      "average_price": 51859
+    },
+    {
+      "month": "2025-10",
+      "area": "Юго-Западный АО",
+      "category": "1 komn",
+      "count": 1163,
+      "mean": 59562,
+      "median": 58000,
+      "average_price": 58780
+    },
+    {
+      "month": "2025-10",
+      "area": "Юго-Западный АО",
+      "category": "2 komn",
+      "count": 1163,
+      "mean": 80817,
+      "median": 75000,
+      "average_price": 79153
+    },
+    {
+      "month": "2025-10",
+      "area": "Юго-Западный АО",
+      "category": "3 komn",
+      "count": 519,
+      "mean": 110613,
+      "median": 100000,
+      "average_price": 106378
+    },
+    {
+      "month": "2025-10",
+      "area": "Юго-Западный АО",
+      "category": "4 komn",
+      "count": 75,
+      "mean": 191160,
+      "median": 180000,
+      "average_price": 193231
+    },
+    {
+      "month": "2025-10",
+      "area": "Юго-Западный АО",
+      "category": "mnogokomn",
+      "count": 19,
+      "mean": 394398,
+      "median": 230000,
+      "average_price": 368347
+    },
+    {
+      "month": "2025-10",
+      "area": "Южный АО",
+      "category": "studiya",
+      "count": 53,
+      "mean": 60925,
+      "median": 55000,
+      "average_price": 59367
+    },
+    {
+      "month": "2025-10",
+      "area": "Южный АО",
+      "category": "1 komn",
+      "count": 1234,
+      "mean": 56540,
+      "median": 55000,
+      "average_price": 55867
+    },
+    {
+      "month": "2025-10",
+      "area": "Южный АО",
+      "category": "2 komn",
+      "count": 1030,
+      "mean": 72986,
+      "median": 70000,
+      "average_price": 71398
+    },
+    {
+      "month": "2025-10",
+      "area": "Южный АО",
+      "category": "3 komn",
+      "count": 382,
+      "mean": 349467,
+      "median": 90000,
+      "average_price": 98107
+    },
+    {
+      "month": "2025-10",
+      "area": "Южный АО",
+      "category": "4 komn",
+      "count": 20,
+      "mean": 129600,
+      "median": 120000,
+      "average_price": 126000
+    },
+    {
+      "month": "2025-10",
+      "area": "Южный АО",
+      "category": "mnogokomn",
+      "count": 3,
+      "mean": 195000,
+      "median": 160000,
+      "average_price": 160000
+    },
+    {
+      "month": "2025-11",
+      "area": "Восточный АО",
+      "category": "studiya",
+      "count": 103,
+      "mean": 52649,
+      "median": 54999,
+      "average_price": 53379
+    },
+    {
+      "month": "2025-11",
+      "area": "Восточный АО",
+      "category": "1 komn",
+      "count": 1131,
+      "mean": 52270,
+      "median": 50000,
+      "average_price": 51566
+    },
+    {
+      "month": "2025-11",
+      "area": "Восточный АО",
+      "category": "2 komn",
+      "count": 980,
+      "mean": 66094,
+      "median": 65000,
+      "average_price": 65650
+    },
+    {
+      "month": "2025-11",
+      "area": "Восточный АО",
+      "category": "3 komn",
+      "count": 304,
+      "mean": 87012,
+      "median": 80000,
+      "average_price": 84988
+    },
+    {
+      "month": "2025-11",
+      "area": "Восточный АО",
+      "category": "4 komn",
+      "count": 11,
+      "mean": 126091,
+      "median": 115000,
+      "average_price": 116889
+    },
+    {
+      "month": "2025-11",
+      "area": "Восточный АО",
+      "category": "mnogokomn",
+      "count": 4,
+      "mean": 297500,
+      "median": 230000,
+      "average_price": 230000
+    },
+    {
+      "month": "2025-11",
+      "area": "Западный АО",
+      "category": "studiya",
+      "count": 80,
+      "mean": 62219,
+      "median": 60000,
+      "average_price": 61087
+    },
+    {
+      "month": "2025-11",
+      "area": "Западный АО",
+      "category": "1 komn",
+      "count": 1042,
+      "mean": 65165,
+      "median": 64250,
+      "average_price": 64327
+    },
+    {
+      "month": "2025-11",
+      "area": "Западный АО",
+      "category": "2 komn",
+      "count": 1227,
+      "mean": 88012,
+      "median": 80000,
+      "average_price": 86325
+    },
+    {
+      "month": "2025-11",
+      "area": "Западный АО",
+      "category": "3 komn",
+      "count": 648,
+      "mean": 135799,
+      "median": 120000,
+      "average_price": 131011
+    },
+    {
+      "month": "2025-11",
+      "area": "Западный АО",
+      "category": "4 komn",
+      "count": 98,
+      "mean": 271337,
+      "median": 222500,
+      "average_price": 258272
+    },
+    {
+      "month": "2025-11",
+      "area": "Западный АО",
+      "category": "mnogokomn",
+      "count": 57,
+      "mean": 621491,
+      "median": 400000,
+      "average_price": 535980
+    },
+    {
+      "month": "2025-11",
+      "area": "Зеленоградский АО",
+      "category": "studiya",
+      "count": 2,
+      "mean": 36500,
+      "median": 36500,
+      "average_price": 36500
+    },
+    {
+      "month": "2025-11",
+      "area": "Зеленоградский АО",
+      "category": "1 komn",
+      "count": 146,
+      "mean": 42640,
+      "median": 40000,
+      "average_price": 42404
+    },
+    {
+      "month": "2025-11",
+      "area": "Зеленоградский АО",
+      "category": "2 komn",
+      "count": 69,
+      "mean": 56651,
+      "median": 55000,
+      "average_price": 55600
+    },
+    {
+      "month": "2025-11",
+      "area": "Зеленоградский АО",
+      "category": "3 komn",
+      "count": 28,
+      "mean": 72571,
+      "median": 67000,
+      "average_price": 71615
+    },
+    {
+      "month": "2025-11",
+      "area": "Зеленоградский АО",
+      "category": "4 komn",
+      "count": 1,
+      "mean": 70000,
+      "median": 70000,
+      "average_price": 70000
+    },
+    {
+      "month": "2025-11",
+      "area": "Новомосковский",
+      "category": "studiya",
+      "count": 133,
+      "mean": 43953,
+      "median": 45000,
+      "average_price": 43958
+    },
+    {
+      "month": "2025-11",
+      "area": "Новомосковский",
+      "category": "1 komn",
+      "count": 322,
+      "mean": 51462,
+      "median": 50000,
+      "average_price": 50661
+    },
+    {
+      "month": "2025-11",
+      "area": "Новомосковский",
+      "category": "2 komn",
+      "count": 259,
+      "mean": 63352,
+      "median": 60000,
+      "average_price": 62323
+    },
+    {
+      "month": "2025-11",
+      "area": "Новомосковский",
+      "category": "3 komn",
+      "count": 81,
+      "mean": 87922,
+      "median": 80000,
+      "average_price": 86523
+    },
+    {
+      "month": "2025-11",
+      "area": "Новомосковский",
+      "category": "4 komn",
+      "count": 7,
+      "mean": 109143,
+      "median": 120000,
+      "average_price": 106000
+    },
+    {
+      "month": "2025-11",
+      "area": "Северный АО",
+      "category": "studiya",
+      "count": 124,
+      "mean": 58736,
+      "median": 55990,
+      "average_price": 57899
+    },
+    {
+      "month": "2025-11",
+      "area": "Северный АО",
+      "category": "1 komn",
+      "count": 987,
+      "mean": 61234,
+      "median": 60000,
+      "average_price": 60371
+    },
+    {
+      "month": "2025-11",
+      "area": "Северный АО",
+      "category": "2 komn",
+      "count": 1050,
+      "mean": 81150,
+      "median": 75000,
+      "average_price": 79972
+    },
+    {
+      "month": "2025-11",
+      "area": "Северный АО",
+      "category": "3 komn",
+      "count": 400,
+      "mean": 111430,
+      "median": 100000,
+      "average_price": 106343
+    },
+    {
+      "month": "2025-11",
+      "area": "Северный АО",
+      "category": "4 komn",
+      "count": 35,
+      "mean": 144586,
+      "median": 145000,
+      "average_price": 144258
+    },
+    {
+      "month": "2025-11",
+      "area": "Северный АО",
+      "category": "mnogokomn",
+      "count": 5,
+      "mean": 206000,
+      "median": 195000,
+      "average_price": 203333
+    },
+    {
+      "month": "2025-11",
+      "area": "Северо-Восточный АО",
+      "category": "studiya",
+      "count": 135,
+      "mean": 56985,
+      "median": 55000,
+      "average_price": 56168
+    },
+    {
+      "month": "2025-11",
+      "area": "Северо-Восточный АО",
+      "category": "1 komn",
+      "count": 1123,
+      "mean": 57595,
+      "median": 55000,
+      "average_price": 57552
+    },
+    {
+      "month": "2025-11",
+      "area": "Северо-Восточный АО",
+      "category": "2 komn",
+      "count": 894,
+      "mean": 73470,
+      "median": 70000,
+      "average_price": 72571
+    },
+    {
+      "month": "2025-11",
+      "area": "Северо-Восточный АО",
+      "category": "3 komn",
+      "count": 289,
+      "mean": 93799,
+      "median": 85000,
+      "average_price": 92643
+    },
+    {
+      "month": "2025-11",
+      "area": "Северо-Восточный АО",
+      "category": "4 komn",
+      "count": 26,
+      "mean": 162308,
+      "median": 160000,
+      "average_price": 161250
+    },
+    {
+      "month": "2025-11",
+      "area": "Северо-Восточный АО",
+      "category": "mnogokomn",
+      "count": 2,
+      "mean": 180000,
+      "median": 180000,
+      "average_price": 180000
+    },
+    {
+      "month": "2025-11",
+      "area": "Северо-Западный АО",
+      "category": "studiya",
+      "count": 34,
+      "mean": 72347,
+      "median": 67950,
+      "average_price": 71712
+    },
+    {
+      "month": "2025-11",
+      "area": "Северо-Западный АО",
+      "category": "1 komn",
+      "count": 642,
+      "mean": 59109,
+      "median": 55000,
+      "average_price": 58049
+    },
+    {
+      "month": "2025-11",
+      "area": "Северо-Западный АО",
+      "category": "2 komn",
+      "count": 688,
+      "mean": 79234,
+      "median": 70000,
+      "average_price": 76182
+    },
+    {
+      "month": "2025-11",
+      "area": "Северо-Западный АО",
+      "category": "3 komn",
+      "count": 262,
+      "mean": 113331,
+      "median": 95000,
+      "average_price": 107213
+    },
+    {
+      "month": "2025-11",
+      "area": "Северо-Западный АО",
+      "category": "4 komn",
+      "count": 56,
+      "mean": 242411,
+      "median": 170000,
+      "average_price": 213431
+    },
+    {
+      "month": "2025-11",
+      "area": "Северо-Западный АО",
+      "category": "mnogokomn",
+      "count": 32,
+      "mean": 562741,
+      "median": 400000,
+      "average_price": 443369
+    },
+    {
+      "month": "2025-11",
+      "area": "Троицкий",
+      "category": "studiya",
+      "count": 6,
+      "mean": 35667,
+      "median": 30000,
+      "average_price": 30000
+    },
+    {
+      "month": "2025-11",
+      "area": "Троицкий",
+      "category": "1 komn",
+      "count": 68,
+      "mean": 40787,
+      "median": 40000,
+      "average_price": 40758
+    },
+    {
+      "month": "2025-11",
+      "area": "Троицкий",
+      "category": "2 komn",
+      "count": 66,
+      "mean": 51683,
+      "median": 50000,
+      "average_price": 50838
+    },
+    {
+      "month": "2025-11",
+      "area": "Троицкий",
+      "category": "3 komn",
+      "count": 12,
+      "mean": 65250,
+      "median": 62500,
+      "average_price": 64300
+    },
+    {
+      "month": "2025-11",
+      "area": "Троицкий",
+      "category": "4 komn",
+      "count": 3,
+      "mean": 82667,
+      "median": 80000,
+      "average_price": 80000
+    },
+    {
+      "month": "2025-11",
+      "area": "Центральный АО",
+      "category": "studiya",
+      "count": 164,
+      "mean": 92018,
+      "median": 80000,
+      "average_price": 87863
+    },
+    {
+      "month": "2025-11",
+      "area": "Центральный АО",
+      "category": "1 komn",
+      "count": 874,
+      "mean": 86998,
+      "median": 80000,
+      "average_price": 84669
+    },
+    {
+      "month": "2025-11",
+      "area": "Центральный АО",
+      "category": "2 komn",
+      "count": 1472,
+      "mean": 141521,
+      "median": 120000,
+      "average_price": 132231
+    },
+    {
+      "month": "2025-11",
+      "area": "Центральный АО",
+      "category": "3 komn",
+      "count": 979,
+      "mean": 239235,
+      "median": 190000,
+      "average_price": 227592
+    },
+    {
+      "month": "2025-11",
+      "area": "Центральный АО",
+      "category": "4 komn",
+      "count": 479,
+      "mean": 407110,
+      "median": 350000,
+      "average_price": 383409
+    },
+    {
+      "month": "2025-11",
+      "area": "Центральный АО",
+      "category": "mnogokomn",
+      "count": 259,
+      "mean": 812863,
+      "median": 550000,
+      "average_price": 757126
+    },
+    {
+      "month": "2025-11",
+      "area": "Юго-Восточный АО",
+      "category": "studiya",
+      "count": 79,
+      "mean": 51315,
+      "median": 50000,
+      "average_price": 51651
+    },
+    {
+      "month": "2025-11",
+      "area": "Юго-Восточный АО",
+      "category": "1 komn",
+      "count": 1043,
+      "mean": 54669,
+      "median": 54000,
+      "average_price": 54139
+    },
+    {
+      "month": "2025-11",
+      "area": "Юго-Восточный АО",
+      "category": "2 komn",
+      "count": 868,
+      "mean": 154426,
+      "median": 65000,
+      "average_price": 67230
+    },
+    {
+      "month": "2025-11",
+      "area": "Юго-Восточный АО",
+      "category": "3 komn",
+      "count": 312,
+      "mean": 88994,
+      "median": 85000,
+      "average_price": 87599
+    },
+    {
+      "month": "2025-11",
+      "area": "Юго-Восточный АО",
+      "category": "4 komn",
+      "count": 20,
+      "mean": 116350,
+      "median": 105000,
+      "average_price": 111500
+    },
+    {
+      "month": "2025-11",
+      "area": "Юго-Восточный АО",
+      "category": "mnogokomn",
+      "count": 1,
+      "mean": 65000,
+      "median": 65000,
+      "average_price": 65000
+    },
+    {
+      "month": "2025-11",
+      "area": "Юго-Западный АО",
+      "category": "studiya",
+      "count": 46,
+      "mean": 49622,
+      "median": 45000,
+      "average_price": 48490
+    },
+    {
+      "month": "2025-11",
+      "area": "Юго-Западный АО",
+      "category": "1 komn",
+      "count": 1224,
+      "mean": 58404,
+      "median": 55100,
+      "average_price": 57713
+    },
+    {
+      "month": "2025-11",
+      "area": "Юго-Западный АО",
+      "category": "2 komn",
+      "count": 1190,
+      "mean": 79002,
+      "median": 75000,
+      "average_price": 77257
+    },
+    {
+      "month": "2025-11",
+      "area": "Юго-Западный АО",
+      "category": "3 komn",
+      "count": 476,
+      "mean": 113313,
+      "median": 100000,
+      "average_price": 109962
+    },
+    {
+      "month": "2025-11",
+      "area": "Юго-Западный АО",
+      "category": "4 komn",
+      "count": 60,
+      "mean": 188108,
+      "median": 192500,
+      "average_price": 185205
+    },
+    {
+      "month": "2025-11",
+      "area": "Юго-Западный АО",
+      "category": "mnogokomn",
+      "count": 15,
+      "mean": 13776978,
+      "median": 300000,
+      "average_price": 501514
+    },
+    {
+      "month": "2025-11",
+      "area": "Южный АО",
+      "category": "studiya",
+      "count": 63,
+      "mean": 59135,
+      "median": 55000,
+      "average_price": 58068
+    },
+    {
+      "month": "2025-11",
+      "area": "Южный АО",
+      "category": "1 komn",
+      "count": 1260,
+      "mean": 55621,
+      "median": 55000,
+      "average_price": 54863
+    },
+    {
+      "month": "2025-11",
+      "area": "Южный АО",
+      "category": "2 komn",
+      "count": 1044,
+      "mean": 73746,
+      "median": 70000,
+      "average_price": 72010
+    },
+    {
+      "month": "2025-11",
+      "area": "Южный АО",
+      "category": "3 komn",
+      "count": 394,
+      "mean": 558376,
+      "median": 90000,
+      "average_price": 99590
+    },
+    {
+      "month": "2025-11",
+      "area": "Южный АО",
+      "category": "4 komn",
+      "count": 26,
+      "mean": 118115,
+      "median": 105000,
+      "average_price": 113375
+    },
+    {
+      "month": "2025-11",
+      "area": "Южный АО",
+      "category": "mnogokomn",
+      "count": 1,
+      "mean": 265000,
+      "median": 265000,
+      "average_price": 265000
+    },
+    {
+      "month": "2025-12",
+      "area": "Восточный АО",
+      "category": "studiya",
+      "count": 119,
+      "mean": 49553,
+      "median": 49500,
+      "average_price": 49364
+    },
+    {
+      "month": "2025-12",
+      "area": "Восточный АО",
+      "category": "1 komn",
+      "count": 1047,
+      "mean": 51660,
+      "median": 50000,
+      "average_price": 51340
+    },
+    {
+      "month": "2025-12",
+      "area": "Восточный АО",
+      "category": "2 komn",
+      "count": 923,
+      "mean": 65315,
+      "median": 65000,
+      "average_price": 65078
+    },
+    {
+      "month": "2025-12",
+      "area": "Восточный АО",
+      "category": "3 komn",
+      "count": 281,
+      "mean": 85540,
+      "median": 78000,
+      "average_price": 83283
+    },
+    {
+      "month": "2025-12",
+      "area": "Восточный АО",
+      "category": "4 komn",
+      "count": 16,
+      "mean": 131562,
+      "median": 120000,
+      "average_price": 126071
+    },
+    {
+      "month": "2025-12",
+      "area": "Восточный АО",
+      "category": "mnogokomn",
+      "count": 2,
+      "mean": 365000,
+      "median": 365000,
+      "average_price": 365000
+    },
+    {
+      "month": "2025-12",
+      "area": "Западный АО",
+      "category": "studiya",
+      "count": 86,
+      "mean": 60301,
+      "median": 60000,
+      "average_price": 59036
+    },
+    {
+      "month": "2025-12",
+      "area": "Западный АО",
+      "category": "1 komn",
+      "count": 987,
+      "mean": 64342,
+      "median": 60000,
+      "average_price": 62642
+    },
+    {
+      "month": "2025-12",
+      "area": "Западный АО",
+      "category": "2 komn",
+      "count": 1162,
+      "mean": 88560,
+      "median": 80000,
+      "average_price": 86275
+    },
+    {
+      "month": "2025-12",
+      "area": "Западный АО",
+      "category": "3 komn",
+      "count": 602,
+      "mean": 133500,
+      "median": 120000,
+      "average_price": 129684
+    },
+    {
+      "month": "2025-12",
+      "area": "Западный АО",
+      "category": "4 komn",
+      "count": 90,
+      "mean": 264267,
+      "median": 230000,
+      "average_price": 244867
+    },
+    {
+      "month": "2025-12",
+      "area": "Западный АО",
+      "category": "mnogokomn",
+      "count": 46,
+      "mean": 698913,
+      "median": 445000,
+      "average_price": 609487
+    },
+    {
+      "month": "2025-12",
+      "area": "Зеленоградский АО",
+      "category": "studiya",
+      "count": 2,
+      "mean": 38500,
+      "median": 38500,
+      "average_price": 38500
+    },
+    {
+      "month": "2025-12",
+      "area": "Зеленоградский АО",
+      "category": "1 komn",
+      "count": 139,
+      "mean": 42923,
+      "median": 42000,
+      "average_price": 42291
+    },
+    {
+      "month": "2025-12",
+      "area": "Зеленоградский АО",
+      "category": "2 komn",
+      "count": 82,
+      "mean": 59598,
+      "median": 57500,
+      "average_price": 58566
+    },
+    {
+      "month": "2025-12",
+      "area": "Зеленоградский АО",
+      "category": "3 komn",
+      "count": 29,
+      "mean": 77241,
+      "median": 70000,
+      "average_price": 76296
+    },
+    {
+      "month": "2025-12",
+      "area": "Зеленоградский АО",
+      "category": "4 komn",
+      "count": 1,
+      "mean": 80000,
+      "median": 80000,
+      "average_price": 80000
+    },
+    {
+      "month": "2025-12",
+      "area": "Новомосковский",
+      "category": "studiya",
+      "count": 140,
+      "mean": 44302,
+      "median": 44850,
+      "average_price": 44041
+    },
+    {
+      "month": "2025-12",
+      "area": "Новомосковский",
+      "category": "1 komn",
+      "count": 327,
+      "mean": 51410,
+      "median": 50000,
+      "average_price": 50995
+    },
+    {
+      "month": "2025-12",
+      "area": "Новомосковский",
+      "category": "2 komn",
+      "count": 297,
+      "mean": 64134,
+      "median": 65000,
+      "average_price": 63497
+    },
+    {
+      "month": "2025-12",
+      "area": "Новомосковский",
+      "category": "3 komn",
+      "count": 80,
+      "mean": 89162,
+      "median": 80000,
+      "average_price": 89240
+    },
+    {
+      "month": "2025-12",
+      "area": "Новомосковский",
+      "category": "4 komn",
+      "count": 5,
+      "mean": 81200,
+      "median": 80000,
+      "average_price": 78667
+    },
+    {
+      "month": "2025-12",
+      "area": "Северный АО",
+      "category": "studiya",
+      "count": 119,
+      "mean": 56806,
+      "median": 59000,
+      "average_price": 56610
+    },
+    {
+      "month": "2025-12",
+      "area": "Северный АО",
+      "category": "1 komn",
+      "count": 1013,
+      "mean": 60875,
+      "median": 58000,
+      "average_price": 60123
+    },
+    {
+      "month": "2025-12",
+      "area": "Северный АО",
+      "category": "2 komn",
+      "count": 963,
+      "mean": 81636,
+      "median": 75000,
+      "average_price": 79830
+    },
+    {
+      "month": "2025-12",
+      "area": "Северный АО",
+      "category": "3 komn",
+      "count": 342,
+      "mean": 114154,
+      "median": 100000,
+      "average_price": 107935
+    },
+    {
+      "month": "2025-12",
+      "area": "Северный АО",
+      "category": "4 komn",
+      "count": 28,
+      "mean": 155946,
+      "median": 137500,
+      "average_price": 142212
+    },
+    {
+      "month": "2025-12",
+      "area": "Северный АО",
+      "category": "mnogokomn",
+      "count": 8,
+      "mean": 185875,
+      "median": 168500,
+      "average_price": 157400
+    },
+    {
+      "month": "2025-12",
+      "area": "Северо-Восточный АО",
+      "category": "studiya",
+      "count": 114,
+      "mean": 57257,
+      "median": 55000,
+      "average_price": 56002
+    },
+    {
+      "month": "2025-12",
+      "area": "Северо-Восточный АО",
+      "category": "1 komn",
+      "count": 1060,
+      "mean": 56410,
+      "median": 55000,
+      "average_price": 55349
+    },
+    {
+      "month": "2025-12",
+      "area": "Северо-Восточный АО",
+      "category": "2 komn",
+      "count": 882,
+      "mean": 72339,
+      "median": 70000,
+      "average_price": 71477
+    },
+    {
+      "month": "2025-12",
+      "area": "Северо-Восточный АО",
+      "category": "3 komn",
+      "count": 286,
+      "mean": 97610,
+      "median": 88450,
+      "average_price": 93942
+    },
+    {
+      "month": "2025-12",
+      "area": "Северо-Восточный АО",
+      "category": "4 komn",
+      "count": 28,
+      "mean": 155107,
+      "median": 155000,
+      "average_price": 154154
+    },
+    {
+      "month": "2025-12",
+      "area": "Северо-Восточный АО",
+      "category": "mnogokomn",
+      "count": 3,
+      "mean": 206667,
+      "median": 200000,
+      "average_price": 200000
+    },
+    {
+      "month": "2025-12",
+      "area": "Северо-Западный АО",
+      "category": "studiya",
+      "count": 44,
+      "mean": 68194,
+      "median": 60000,
+      "average_price": 67013
+    },
+    {
+      "month": "2025-12",
+      "area": "Северо-Западный АО",
+      "category": "1 komn",
+      "count": 606,
+      "mean": 57275,
+      "median": 55000,
+      "average_price": 56135
+    },
+    {
+      "month": "2025-12",
+      "area": "Северо-Западный АО",
+      "category": "2 komn",
+      "count": 694,
+      "mean": 75961,
+      "median": 70000,
+      "average_price": 73211
+    },
+    {
+      "month": "2025-12",
+      "area": "Северо-Западный АО",
+      "category": "3 komn",
+      "count": 263,
+      "mean": 112062,
+      "median": 90000,
+      "average_price": 107894
+    },
+    {
+      "month": "2025-12",
+      "area": "Северо-Западный АО",
+      "category": "4 komn",
+      "count": 45,
+      "mean": 259289,
+      "median": 200000,
+      "average_price": 218051
+    },
+    {
+      "month": "2025-12",
+      "area": "Северо-Западный АО",
+      "category": "mnogokomn",
+      "count": 25,
+      "mean": 602018,
+      "median": 400000,
+      "average_price": 450338
+    },
+    {
+      "month": "2025-12",
+      "area": "Троицкий",
+      "category": "studiya",
+      "count": 9,
+      "mean": 38889,
+      "median": 40000,
+      "average_price": 38500
+    },
+    {
+      "month": "2025-12",
+      "area": "Троицкий",
+      "category": "1 komn",
+      "count": 88,
+      "mean": 39800,
+      "median": 40000,
+      "average_price": 38985
+    },
+    {
+      "month": "2025-12",
+      "area": "Троицкий",
+      "category": "2 komn",
+      "count": 68,
+      "mean": 50766,
+      "median": 49000,
+      "average_price": 50462
+    },
+    {
+      "month": "2025-12",
+      "area": "Троицкий",
+      "category": "3 komn",
+      "count": 13,
+      "mean": 64846,
+      "median": 60000,
+      "average_price": 61818
+    },
+    {
+      "month": "2025-12",
+      "area": "Троицкий",
+      "category": "4 komn",
+      "count": 2,
+      "mean": 82500,
+      "median": 82500,
+      "average_price": 82500
+    },
+    {
+      "month": "2025-12",
+      "area": "Центральный АО",
+      "category": "studiya",
+      "count": 149,
+      "mean": 86015,
+      "median": 76000,
+      "average_price": 83449
+    },
+    {
+      "month": "2025-12",
+      "area": "Центральный АО",
+      "category": "1 komn",
+      "count": 859,
+      "mean": 87135,
+      "median": 80000,
+      "average_price": 83538
+    },
+    {
+      "month": "2025-12",
+      "area": "Центральный АО",
+      "category": "2 komn",
+      "count": 1502,
+      "mean": 136478,
+      "median": 120000,
+      "average_price": 131274
+    },
+    {
+      "month": "2025-12",
+      "area": "Центральный АО",
+      "category": "3 komn",
+      "count": 908,
+      "mean": 242722,
+      "median": 198500,
+      "average_price": 232782
+    },
+    {
+      "month": "2025-12",
+      "area": "Центральный АО",
+      "category": "4 komn",
+      "count": 466,
+      "mean": 401131,
+      "median": 350000,
+      "average_price": 370957
+    },
+    {
+      "month": "2025-12",
+      "area": "Центральный АО",
+      "category": "mnogokomn",
+      "count": 274,
+      "mean": 774413,
+      "median": 550000,
+      "average_price": 728916
+    },
+    {
+      "month": "2025-12",
+      "area": "Юго-Восточный АО",
+      "category": "studiya",
+      "count": 82,
+      "mean": 50841,
+      "median": 50000,
+      "average_price": 50880
+    },
+    {
+      "month": "2025-12",
+      "area": "Юго-Восточный АО",
+      "category": "1 komn",
+      "count": 1085,
+      "mean": 53342,
+      "median": 50000,
+      "average_price": 52952
+    },
+    {
+      "month": "2025-12",
+      "area": "Юго-Восточный АО",
+      "category": "2 komn",
+      "count": 861,
+      "mean": 67251,
+      "median": 65000,
+      "average_price": 66390
+    },
+    {
+      "month": "2025-12",
+      "area": "Юго-Восточный АО",
+      "category": "3 komn",
+      "count": 256,
+      "mean": 87237,
+      "median": 85000,
+      "average_price": 86073
+    },
+    {
+      "month": "2025-12",
+      "area": "Юго-Восточный АО",
+      "category": "4 komn",
+      "count": 18,
+      "mean": 111389,
+      "median": 105000,
+      "average_price": 107188
+    },
+    {
+      "month": "2025-12",
+      "area": "Юго-Западный АО",
+      "category": "studiya",
+      "count": 42,
+      "mean": 53576,
+      "median": 50000,
+      "average_price": 52374
+    },
+    {
+      "month": "2025-12",
+      "area": "Юго-Западный АО",
+      "category": "1 komn",
+      "count": 1156,
+      "mean": 57613,
+      "median": 55000,
+      "average_price": 56964
+    },
+    {
+      "month": "2025-12",
+      "area": "Юго-Западный АО",
+      "category": "2 komn",
+      "count": 1148,
+      "mean": 77711,
+      "median": 75000,
+      "average_price": 76965
+    },
+    {
+      "month": "2025-12",
+      "area": "Юго-Западный АО",
+      "category": "3 komn",
+      "count": 470,
+      "mean": 108093,
+      "median": 96000,
+      "average_price": 105333
+    },
+    {
+      "month": "2025-12",
+      "area": "Юго-Западный АО",
+      "category": "4 komn",
+      "count": 40,
+      "mean": 191375,
+      "median": 192500,
+      "average_price": 192027
+    },
+    {
+      "month": "2025-12",
+      "area": "Юго-Западный АО",
+      "category": "mnogokomn",
+      "count": 18,
+      "mean": 363712,
+      "median": 217500,
+      "average_price": 269788
+    },
+    {
+      "month": "2025-12",
+      "area": "Южный АО",
+      "category": "studiya",
+      "count": 68,
+      "mean": 58793,
+      "median": 49950,
+      "average_price": 56998
+    },
+    {
+      "month": "2025-12",
+      "area": "Южный АО",
+      "category": "1 komn",
+      "count": 1255,
+      "mean": 54851,
+      "median": 53000,
+      "average_price": 54210
+    },
+    {
+      "month": "2025-12",
+      "area": "Южный АО",
+      "category": "2 komn",
+      "count": 1045,
+      "mean": 72683,
+      "median": 70000,
+      "average_price": 71026
+    },
+    {
+      "month": "2025-12",
+      "area": "Южный АО",
+      "category": "3 komn",
+      "count": 400,
+      "mean": 100496,
+      "median": 85000,
+      "average_price": 95697
+    },
+    {
+      "month": "2025-12",
+      "area": "Южный АО",
+      "category": "4 komn",
+      "count": 29,
+      "mean": 127828,
+      "median": 120000,
+      "average_price": 117577
+    },
+    {
+      "month": "2025-12",
+      "area": "Южный АО",
+      "category": "mnogokomn",
+      "count": 2,
+      "mean": 182500,
+      "median": 182500,
+      "average_price": 182500
+    },
+    {
+      "month": "2026-01",
+      "area": "Восточный АО",
+      "category": "studiya",
+      "count": 135,
+      "mean": 50715,
+      "median": 50000,
+      "average_price": 50456
+    },
+    {
+      "month": "2026-01",
+      "area": "Восточный АО",
+      "category": "1 komn",
+      "count": 1005,
+      "mean": 52295,
+      "median": 50000,
+      "average_price": 51854
+    },
+    {
+      "month": "2026-01",
+      "area": "Восточный АО",
+      "category": "2 komn",
+      "count": 904,
+      "mean": 66483,
+      "median": 65000,
+      "average_price": 65862
+    },
+    {
+      "month": "2026-01",
+      "area": "Восточный АО",
+      "category": "3 komn",
+      "count": 286,
+      "mean": 86490,
+      "median": 80000,
+      "average_price": 83937
+    },
+    {
+      "month": "2026-01",
+      "area": "Восточный АО",
+      "category": "4 komn",
+      "count": 12,
+      "mean": 149167,
+      "median": 130000,
+      "average_price": 142000
+    },
+    {
+      "month": "2026-01",
+      "area": "Восточный АО",
+      "category": "mnogokomn",
+      "count": 4,
+      "mean": 327500,
+      "median": 340000,
+      "average_price": 340000
+    },
+    {
+      "month": "2026-01",
+      "area": "Западный АО",
+      "category": "studiya",
+      "count": 72,
+      "mean": 59181,
+      "median": 60000,
+      "average_price": 58463
+    },
+    {
+      "month": "2026-01",
+      "area": "Западный АО",
+      "category": "1 komn",
+      "count": 1040,
+      "mean": 66313,
+      "median": 63000,
+      "average_price": 64057
+    },
+    {
+      "month": "2026-01",
+      "area": "Западный АО",
+      "category": "2 komn",
+      "count": 1225,
+      "mean": 89474,
+      "median": 80000,
+      "average_price": 86990
+    },
+    {
+      "month": "2026-01",
+      "area": "Западный АО",
+      "category": "3 komn",
+      "count": 542,
+      "mean": 130677,
+      "median": 118000,
+      "average_price": 127129
+    },
+    {
+      "month": "2026-01",
+      "area": "Западный АО",
+      "category": "4 komn",
+      "count": 93,
+      "mean": 273172,
+      "median": 212000,
+      "average_price": 242561
+    },
+    {
+      "month": "2026-01",
+      "area": "Западный АО",
+      "category": "mnogokomn",
+      "count": 39,
+      "mean": 643949,
+      "median": 400000,
+      "average_price": 584833
+    },
+    {
+      "month": "2026-01",
+      "area": "Зеленоградский АО",
+      "category": "studiya",
+      "count": 2,
+      "mean": 34000,
+      "median": 34000,
+      "average_price": 34000
+    },
+    {
+      "month": "2026-01",
+      "area": "Зеленоградский АО",
+      "category": "1 komn",
+      "count": 132,
+      "mean": 43750,
+      "median": 41500,
+      "average_price": 43315
+    },
+    {
+      "month": "2026-01",
+      "area": "Зеленоградский АО",
+      "category": "2 komn",
+      "count": 79,
+      "mean": 60624,
+      "median": 58000,
+      "average_price": 59417
+    },
+    {
+      "month": "2026-01",
+      "area": "Зеленоградский АО",
+      "category": "3 komn",
+      "count": 30,
+      "mean": 81950,
+      "median": 70000,
+      "average_price": 80482
+    },
+    {
+      "month": "2026-01",
+      "area": "Зеленоградский АО",
+      "category": "4 komn",
+      "count": 1,
+      "mean": 80000,
+      "median": 80000,
+      "average_price": 80000
+    },
+    {
+      "month": "2026-01",
+      "area": "Новомосковский",
+      "category": "studiya",
+      "count": 152,
+      "mean": 44405,
+      "median": 45000,
+      "average_price": 44507
+    },
+    {
+      "month": "2026-01",
+      "area": "Новомосковский",
+      "category": "1 komn",
+      "count": 328,
+      "mean": 50607,
+      "median": 50000,
+      "average_price": 49824
+    },
+    {
+      "month": "2026-01",
+      "area": "Новомосковский",
+      "category": "2 komn",
+      "count": 339,
+      "mean": 64588,
+      "median": 65000,
+      "average_price": 64457
+    },
+    {
+      "month": "2026-01",
+      "area": "Новомосковский",
+      "category": "3 komn",
+      "count": 88,
+      "mean": 87194,
+      "median": 81950,
+      "average_price": 87887
+    },
+    {
+      "month": "2026-01",
+      "area": "Новомосковский",
+      "category": "4 komn",
+      "count": 9,
+      "mean": 100667,
+      "median": 110000,
+      "average_price": 100857
+    },
+    {
+      "month": "2026-01",
+      "area": "Новомосковский",
+      "category": "mnogokomn",
+      "count": 2,
+      "mean": 140000,
+      "median": 140000,
+      "average_price": 140000
+    },
+    {
+      "month": "2026-01",
+      "area": "Северный АО",
+      "category": "studiya",
+      "count": 129,
+      "mean": 60084,
+      "median": 59999,
+      "average_price": 59090
+    },
+    {
+      "month": "2026-01",
+      "area": "Северный АО",
+      "category": "1 komn",
+      "count": 1018,
+      "mean": 60832,
+      "median": 60000,
+      "average_price": 60295
+    },
+    {
+      "month": "2026-01",
+      "area": "Северный АО",
+      "category": "2 komn",
+      "count": 1010,
+      "mean": 80477,
+      "median": 75000,
+      "average_price": 79259
+    },
+    {
+      "month": "2026-01",
+      "area": "Северный АО",
+      "category": "3 komn",
+      "count": 335,
+      "mean": 110543,
+      "median": 95000,
+      "average_price": 104756
+    },
+    {
+      "month": "2026-01",
+      "area": "Северный АО",
+      "category": "4 komn",
+      "count": 28,
+      "mean": 179375,
+      "median": 146250,
+      "average_price": 167019
+    },
+    {
+      "month": "2026-01",
+      "area": "Северный АО",
+      "category": "mnogokomn",
+      "count": 5,
+      "mean": 186000,
+      "median": 195000,
+      "average_price": 180000
+    },
+    {
+      "month": "2026-01",
+      "area": "Северо-Восточный АО",
+      "category": "studiya",
+      "count": 115,
+      "mean": 55144,
+      "median": 55000,
+      "average_price": 54867
+    },
+    {
+      "month": "2026-01",
+      "area": "Северо-Восточный АО",
+      "category": "1 komn",
+      "count": 1111,
+      "mean": 57192,
+      "median": 55000,
+      "average_price": 57086
+    },
+    {
+      "month": "2026-01",
+      "area": "Северо-Восточный АО",
+      "category": "2 komn",
+      "count": 866,
+      "mean": 159927,
+      "median": 70000,
+      "average_price": 72700
+    },
+    {
+      "month": "2026-01",
+      "area": "Северо-Восточный АО",
+      "category": "3 komn",
+      "count": 311,
+      "mean": 96623,
+      "median": 90000,
+      "average_price": 94284
+    },
+    {
+      "month": "2026-01",
+      "area": "Северо-Восточный АО",
+      "category": "4 komn",
+      "count": 29,
+      "mean": 128345,
+      "median": 120000,
+      "average_price": 125815
+    },
+    {
+      "month": "2026-01",
+      "area": "Северо-Восточный АО",
+      "category": "mnogokomn",
+      "count": 2,
+      "mean": 205000,
+      "median": 205000,
+      "average_price": 205000
+    },
+    {
+      "month": "2026-01",
+      "area": "Северо-Западный АО",
+      "category": "studiya",
+      "count": 50,
+      "mean": 64712,
+      "median": 55000,
+      "average_price": 63264
+    },
+    {
+      "month": "2026-01",
+      "area": "Северо-Западный АО",
+      "category": "1 komn",
+      "count": 637,
+      "mean": 57609,
+      "median": 55000,
+      "average_price": 56797
+    },
+    {
+      "month": "2026-01",
+      "area": "Северо-Западный АО",
+      "category": "2 komn",
+      "count": 674,
+      "mean": 76535,
+      "median": 70000,
+      "average_price": 74378
+    },
+    {
+      "month": "2026-01",
+      "area": "Северо-Западный АО",
+      "category": "3 komn",
+      "count": 253,
+      "mean": 112300,
+      "median": 90000,
+      "average_price": 107345
+    },
+    {
+      "month": "2026-01",
+      "area": "Северо-Западный АО",
+      "category": "4 komn",
+      "count": 37,
+      "mean": 245730,
+      "median": 150000,
+      "average_price": 214771
+    },
+    {
+      "month": "2026-01",
+      "area": "Северо-Западный АО",
+      "category": "mnogokomn",
+      "count": 20,
+      "mean": 651629,
+      "median": 400000,
+      "average_price": 463976
+    },
+    {
+      "month": "2026-01",
+      "area": "Троицкий",
+      "category": "studiya",
+      "count": 7,
+      "mean": 37286,
+      "median": 38000,
+      "average_price": 40250
+    },
+    {
+      "month": "2026-01",
+      "area": "Троицкий",
+      "category": "1 komn",
+      "count": 84,
+      "mean": 39321,
+      "median": 38000,
+      "average_price": 39957
+    },
+    {
+      "month": "2026-01",
+      "area": "Троицкий",
+      "category": "2 komn",
+      "count": 61,
+      "mean": 53623,
+      "median": 54000,
+      "average_price": 52536
+    },
+    {
+      "month": "2026-01",
+      "area": "Троицкий",
+      "category": "3 komn",
+      "count": 21,
+      "mean": 75310,
+      "median": 65000,
+      "average_price": 74824
+    },
+    {
+      "month": "2026-01",
+      "area": "Троицкий",
+      "category": "4 komn",
+      "count": 4,
+      "mean": 98750,
+      "median": 97500,
+      "average_price": 97500
+    },
+    {
+      "month": "2026-01",
+      "area": "Центральный АО",
+      "category": "studiya",
+      "count": 155,
+      "mean": 87106,
+      "median": 80000,
+      "average_price": 84533
+    },
+    {
+      "month": "2026-01",
+      "area": "Центральный АО",
+      "category": "1 komn",
+      "count": 828,
+      "mean": 86403,
+      "median": 80000,
+      "average_price": 82954
+    },
+    {
+      "month": "2026-01",
+      "area": "Центральный АО",
+      "category": "2 komn",
+      "count": 1410,
+      "mean": 134653,
+      "median": 119950,
+      "average_price": 129225
+    },
+    {
+      "month": "2026-01",
+      "area": "Центральный АО",
+      "category": "3 komn",
+      "count": 877,
+      "mean": 251877,
+      "median": 200000,
+      "average_price": 237535
+    },
+    {
+      "month": "2026-01",
+      "area": "Центральный АО",
+      "category": "4 komn",
+      "count": 442,
+      "mean": 394769,
+      "median": 330000,
+      "average_price": 366007
+    },
+    {
+      "month": "2026-01",
+      "area": "Центральный АО",
+      "category": "mnogokomn",
+      "count": 257,
+      "mean": 765016,
+      "median": 550000,
+      "average_price": 713009
+    },
+    {
+      "month": "2026-01",
+      "area": "Юго-Восточный АО",
+      "category": "studiya",
+      "count": 81,
+      "mean": 52932,
+      "median": 50000,
+      "average_price": 51980
+    },
+    {
+      "month": "2026-01",
+      "area": "Юго-Восточный АО",
+      "category": "1 komn",
+      "count": 1041,
+      "mean": 54660,
+      "median": 53000,
+      "average_price": 54138
+    },
+    {
+      "month": "2026-01",
+      "area": "Юго-Восточный АО",
+      "category": "2 komn",
+      "count": 880,
+      "mean": 67196,
+      "median": 65000,
+      "average_price": 66378
+    },
+    {
+      "month": "2026-01",
+      "area": "Юго-Восточный АО",
+      "category": "3 komn",
+      "count": 274,
+      "mean": 88287,
+      "median": 85000,
+      "average_price": 86750
+    },
+    {
+      "month": "2026-01",
+      "area": "Юго-Восточный АО",
+      "category": "4 komn",
+      "count": 18,
+      "mean": 137667,
+      "median": 115000,
+      "average_price": 128937
+    },
+    {
+      "month": "2026-01",
+      "area": "Юго-Западный АО",
+      "category": "studiya",
+      "count": 38,
+      "mean": 53776,
+      "median": 51000,
+      "average_price": 52786
+    },
+    {
+      "month": "2026-01",
+      "area": "Юго-Западный АО",
+      "category": "1 komn",
+      "count": 1144,
+      "mean": 58561,
+      "median": 55000,
+      "average_price": 57942
+    },
+    {
+      "month": "2026-01",
+      "area": "Юго-Западный АО",
+      "category": "2 komn",
+      "count": 1099,
+      "mean": 78360,
+      "median": 75000,
+      "average_price": 76881
+    },
+    {
+      "month": "2026-01",
+      "area": "Юго-Западный АО",
+      "category": "3 komn",
+      "count": 473,
+      "mean": 109107,
+      "median": 100000,
+      "average_price": 106865
+    },
+    {
+      "month": "2026-01",
+      "area": "Юго-Западный АО",
+      "category": "4 komn",
+      "count": 42,
+      "mean": 183193,
+      "median": 180000,
+      "average_price": 180687
+    },
+    {
+      "month": "2026-01",
+      "area": "Юго-Западный АО",
+      "category": "mnogokomn",
+      "count": 16,
+      "mean": 404616,
+      "median": 197500,
+      "average_price": 367419
+    },
+    {
+      "month": "2026-01",
+      "area": "Южный АО",
+      "category": "studiya",
+      "count": 67,
+      "mean": 61925,
+      "median": 55000,
+      "average_price": 60301
+    },
+    {
+      "month": "2026-01",
+      "area": "Южный АО",
+      "category": "1 komn",
+      "count": 1223,
+      "mean": 56485,
+      "median": 55000,
+      "average_price": 55535
+    },
+    {
+      "month": "2026-01",
+      "area": "Южный АО",
+      "category": "2 komn",
+      "count": 984,
+      "mean": 72956,
+      "median": 68000,
+      "average_price": 71197
+    },
+    {
+      "month": "2026-01",
+      "area": "Южный АО",
+      "category": "3 komn",
+      "count": 410,
+      "mean": 99473,
+      "median": 85000,
+      "average_price": 94816
+    },
+    {
+      "month": "2026-01",
+      "area": "Южный АО",
+      "category": "4 komn",
+      "count": 23,
+      "mean": 129913,
+      "median": 120000,
+      "average_price": 124476
+    },
+    {
+      "month": "2026-01",
+      "area": "Южный АО",
+      "category": "mnogokomn",
+      "count": 1,
+      "mean": 99000,
+      "median": 99000,
+      "average_price": 99000
+    },
+    {
+      "month": "2026-02",
+      "area": "Восточный АО",
+      "category": "studiya",
+      "count": 141,
+      "mean": 51284,
+      "median": 50000,
+      "average_price": 50985
+    },
+    {
+      "month": "2026-02",
+      "area": "Восточный АО",
+      "category": "1 komn",
+      "count": 1206,
+      "mean": 52147,
+      "median": 50000,
+      "average_price": 51614
+    },
+    {
+      "month": "2026-02",
+      "area": "Восточный АО",
+      "category": "2 komn",
+      "count": 976,
+      "mean": 66956,
+      "median": 65000,
+      "average_price": 66056
+    },
+    {
+      "month": "2026-02",
+      "area": "Восточный АО",
+      "category": "3 komn",
+      "count": 303,
+      "mean": 82782,
+      "median": 76000,
+      "average_price": 80147
+    },
+    {
+      "month": "2026-02",
+      "area": "Восточный АО",
+      "category": "4 komn",
+      "count": 6,
+      "mean": 170000,
+      "median": 132500,
+      "average_price": 161250
+    },
+    {
+      "month": "2026-02",
+      "area": "Восточный АО",
+      "category": "mnogokomn",
+      "count": 5,
+      "mean": 194000,
+      "median": 120000,
+      "average_price": 156667
+    },
+    {
+      "month": "2026-02",
+      "area": "Западный АО",
+      "category": "studiya",
+      "count": 80,
+      "mean": 58156,
+      "median": 58500,
+      "average_price": 57862
+    },
+    {
+      "month": "2026-02",
+      "area": "Западный АО",
+      "category": "1 komn",
+      "count": 1091,
+      "mean": 66304,
+      "median": 63000,
+      "average_price": 64465
+    },
+    {
+      "month": "2026-02",
+      "area": "Западный АО",
+      "category": "2 komn",
+      "count": 1329,
+      "mean": 89563,
+      "median": 80000,
+      "average_price": 86996
+    },
+    {
+      "month": "2026-02",
+      "area": "Западный АО",
+      "category": "3 komn",
+      "count": 580,
+      "mean": 134633,
+      "median": 120000,
+      "average_price": 130220
+    },
+    {
+      "month": "2026-02",
+      "area": "Западный АО",
+      "category": "4 komn",
+      "count": 84,
+      "mean": 245619,
+      "median": 210000,
+      "average_price": 237093
+    },
+    {
+      "month": "2026-02",
+      "area": "Западный АО",
+      "category": "mnogokomn",
+      "count": 52,
+      "mean": 600577,
+      "median": 400000,
+      "average_price": 524891
+    },
+    {
+      "month": "2026-02",
+      "area": "Зеленоградский АО",
+      "category": "studiya",
+      "count": 4,
+      "mean": 37250,
+      "median": 37500,
+      "average_price": 37500
+    },
+    {
+      "month": "2026-02",
+      "area": "Зеленоградский АО",
+      "category": "1 komn",
+      "count": 142,
+      "mean": 42025,
+      "median": 40000,
+      "average_price": 42005
+    },
+    {
+      "month": "2026-02",
+      "area": "Зеленоградский АО",
+      "category": "2 komn",
+      "count": 95,
+      "mean": 58577,
+      "median": 55000,
+      "average_price": 57256
+    },
+    {
+      "month": "2026-02",
+      "area": "Зеленоградский АО",
+      "category": "3 komn",
+      "count": 24,
+      "mean": 78954,
+      "median": 72500,
+      "average_price": 79245
+    },
+    {
+      "month": "2026-02",
+      "area": "Новомосковский",
+      "category": "studiya",
+      "count": 156,
+      "mean": 43489,
+      "median": 44500,
+      "average_price": 43923
+    },
+    {
+      "month": "2026-02",
+      "area": "Новомосковский",
+      "category": "1 komn",
+      "count": 405,
+      "mean": 50880,
+      "median": 50000,
+      "average_price": 49797
+    },
+    {
+      "month": "2026-02",
+      "area": "Новомосковский",
+      "category": "2 komn",
+      "count": 326,
+      "mean": 63953,
+      "median": 63500,
+      "average_price": 64136
+    },
+    {
+      "month": "2026-02",
+      "area": "Новомосковский",
+      "category": "3 komn",
+      "count": 98,
+      "mean": 86854,
+      "median": 85000,
+      "average_price": 85348
+    },
+    {
+      "month": "2026-02",
+      "area": "Новомосковский",
+      "category": "4 komn",
+      "count": 10,
+      "mean": 97000,
+      "median": 100000,
+      "average_price": 96250
+    },
+    {
+      "month": "2026-02",
+      "area": "Новомосковский",
+      "category": "mnogokomn",
+      "count": 2,
+      "mean": 140000,
+      "median": 140000,
+      "average_price": 140000
+    },
+    {
+      "month": "2026-02",
+      "area": "Северный АО",
+      "category": "studiya",
+      "count": 170,
+      "mean": 58109,
+      "median": 55000,
+      "average_price": 57059
+    },
+    {
+      "month": "2026-02",
+      "area": "Северный АО",
+      "category": "1 komn",
+      "count": 1090,
+      "mean": 60648,
+      "median": 59000,
+      "average_price": 59773
+    },
+    {
+      "month": "2026-02",
+      "area": "Северный АО",
+      "category": "2 komn",
+      "count": 1066,
+      "mean": 79205,
+      "median": 75000,
+      "average_price": 78366
+    },
+    {
+      "month": "2026-02",
+      "area": "Северный АО",
+      "category": "3 komn",
+      "count": 338,
+      "mean": 108453,
+      "median": 95000,
+      "average_price": 103918
+    },
+    {
+      "month": "2026-02",
+      "area": "Северный АО",
+      "category": "4 komn",
+      "count": 25,
+      "mean": 195960,
+      "median": 155000,
+      "average_price": 189045
+    },
+    {
+      "month": "2026-02",
+      "area": "Северный АО",
+      "category": "mnogokomn",
+      "count": 5,
+      "mean": 180000,
+      "median": 165000,
+      "average_price": 170000
+    },
+    {
+      "month": "2026-02",
+      "area": "Северо-Восточный АО",
+      "category": "studiya",
+      "count": 108,
+      "mean": 53377,
+      "median": 55000,
+      "average_price": 53136
+    },
+    {
+      "month": "2026-02",
+      "area": "Северо-Восточный АО",
+      "category": "1 komn",
+      "count": 1221,
+      "mean": 56650,
+      "median": 55000,
+      "average_price": 56603
+    },
+    {
+      "month": "2026-02",
+      "area": "Северо-Восточный АО",
+      "category": "2 komn",
+      "count": 914,
+      "mean": 73032,
+      "median": 70000,
+      "average_price": 72022
+    },
+    {
+      "month": "2026-02",
+      "area": "Северо-Восточный АО",
+      "category": "3 komn",
+      "count": 305,
+      "mean": 98853,
+      "median": 90000,
+      "average_price": 96517
+    },
+    {
+      "month": "2026-02",
+      "area": "Северо-Восточный АО",
+      "category": "4 komn",
+      "count": 35,
+      "mean": 153857,
+      "median": 150000,
+      "average_price": 151212
+    },
+    {
+      "month": "2026-02",
+      "area": "Северо-Восточный АО",
+      "category": "mnogokomn",
+      "count": 3,
+      "mean": 230000,
+      "median": 220000,
+      "average_price": 220000
+    },
+    {
+      "month": "2026-02",
+      "area": "Северо-Западный АО",
+      "category": "studiya",
+      "count": 52,
+      "mean": 66940,
+      "median": 59950,
+      "average_price": 66205
+    },
+    {
+      "month": "2026-02",
+      "area": "Северо-Западный АО",
+      "category": "1 komn",
+      "count": 616,
+      "mean": 57994,
+      "median": 55000,
+      "average_price": 57119
+    },
+    {
+      "month": "2026-02",
+      "area": "Северо-Западный АО",
+      "category": "2 komn",
+      "count": 683,
+      "mean": 77147,
+      "median": 70000,
+      "average_price": 75392
+    },
+    {
+      "month": "2026-02",
+      "area": "Северо-Западный АО",
+      "category": "3 komn",
+      "count": 254,
+      "mean": 117012,
+      "median": 90000,
+      "average_price": 110268
+    },
+    {
+      "month": "2026-02",
+      "area": "Северо-Западный АО",
+      "category": "4 komn",
+      "count": 35,
+      "mean": 240714,
+      "median": 150000,
+      "average_price": 211719
+    },
+    {
+      "month": "2026-02",
+      "area": "Северо-Западный АО",
+      "category": "mnogokomn",
+      "count": 21,
+      "mean": 706170,
+      "median": 550000,
+      "average_price": 642346
+    },
+    {
+      "month": "2026-02",
+      "area": "Троицкий",
+      "category": "studiya",
+      "count": 9,
+      "mean": 38111,
+      "median": 40000,
+      "average_price": 38286
+    },
+    {
+      "month": "2026-02",
+      "area": "Троицкий",
+      "category": "1 komn",
+      "count": 93,
+      "mean": 39244,
+      "median": 39000,
+      "average_price": 39020
+    },
+    {
+      "month": "2026-02",
+      "area": "Троицкий",
+      "category": "2 komn",
+      "count": 69,
+      "mean": 52000,
+      "median": 50000,
+      "average_price": 51385
+    },
+    {
+      "month": "2026-02",
+      "area": "Троицкий",
+      "category": "3 komn",
+      "count": 25,
+      "mean": 66960,
+      "median": 60000,
+      "average_price": 66725
+    },
+    {
+      "month": "2026-02",
+      "area": "Троицкий",
+      "category": "4 komn",
+      "count": 2,
+      "mean": 100000,
+      "median": 100000,
+      "average_price": 100000
+    },
+    {
+      "month": "2026-02",
+      "area": "Центральный АО",
+      "category": "studiya",
+      "count": 186,
+      "mean": 85706,
+      "median": 79990,
+      "average_price": 83676
+    },
+    {
+      "month": "2026-02",
+      "area": "Центральный АО",
+      "category": "1 komn",
+      "count": 862,
+      "mean": 85882,
+      "median": 80000,
+      "average_price": 83203
+    },
+    {
+      "month": "2026-02",
+      "area": "Центральный АО",
+      "category": "2 komn",
+      "count": 1446,
+      "mean": 133971,
+      "median": 120000,
+      "average_price": 129578
+    },
+    {
+      "month": "2026-02",
+      "area": "Центральный АО",
+      "category": "3 komn",
+      "count": 917,
+      "mean": 397346,
+      "median": 200000,
+      "average_price": 233456
+    },
+    {
+      "month": "2026-02",
+      "area": "Центральный АО",
+      "category": "4 komn",
+      "count": 462,
+      "mean": 383593,
+      "median": 340000,
+      "average_price": 360459
+    },
+    {
+      "month": "2026-02",
+      "area": "Центральный АО",
+      "category": "mnogokomn",
+      "count": 257,
+      "mean": 727733,
+      "median": 550000,
+      "average_price": 707489
+    },
+    {
+      "month": "2026-02",
+      "area": "Юго-Восточный АО",
+      "category": "studiya",
+      "count": 91,
+      "mean": 54772,
+      "median": 54990,
+      "average_price": 53694
+    },
+    {
+      "month": "2026-02",
+      "area": "Юго-Восточный АО",
+      "category": "1 komn",
+      "count": 1119,
+      "mean": 53933,
+      "median": 52000,
+      "average_price": 53168
+    },
+    {
+      "month": "2026-02",
+      "area": "Юго-Восточный АО",
+      "category": "2 komn",
+      "count": 949,
+      "mean": 68436,
+      "median": 65000,
+      "average_price": 67835
+    },
+    {
+      "month": "2026-02",
+      "area": "Юго-Восточный АО",
+      "category": "3 komn",
+      "count": 309,
+      "mean": 88592,
+      "median": 85000,
+      "average_price": 87500
+    },
+    {
+      "month": "2026-02",
+      "area": "Юго-Восточный АО",
+      "category": "4 komn",
+      "count": 21,
+      "mean": 118809,
+      "median": 120000,
+      "average_price": 117105
+    },
+    {
+      "month": "2026-02",
+      "area": "Юго-Западный АО",
+      "category": "studiya",
+      "count": 49,
+      "mean": 52327,
+      "median": 55000,
+      "average_price": 52156
+    },
+    {
+      "month": "2026-02",
+      "area": "Юго-Западный АО",
+      "category": "1 komn",
+      "count": 1236,
+      "mean": 57988,
+      "median": 55000,
+      "average_price": 57310
+    },
+    {
+      "month": "2026-02",
+      "area": "Юго-Западный АО",
+      "category": "2 komn",
+      "count": 1182,
+      "mean": 77521,
+      "median": 75000,
+      "average_price": 76483
+    },
+    {
+      "month": "2026-02",
+      "area": "Юго-Западный АО",
+      "category": "3 komn",
+      "count": 520,
+      "mean": 108142,
+      "median": 100000,
+      "average_price": 106064
+    },
+    {
+      "month": "2026-02",
+      "area": "Юго-Западный АО",
+      "category": "4 komn",
+      "count": 51,
+      "mean": 200935,
+      "median": 180000,
+      "average_price": 184616
+    },
+    {
+      "month": "2026-02",
+      "area": "Юго-Западный АО",
+      "category": "mnogokomn",
+      "count": 16,
+      "mean": 367324,
+      "median": 199500,
+      "average_price": 331942
+    },
+    {
+      "month": "2026-02",
+      "area": "Южный АО",
+      "category": "studiya",
+      "count": 75,
+      "mean": 57200,
+      "median": 50000,
+      "average_price": 54942
+    },
+    {
+      "month": "2026-02",
+      "area": "Южный АО",
+      "category": "1 komn",
+      "count": 1242,
+      "mean": 56400,
+      "median": 55000,
+      "average_price": 55722
+    },
+    {
+      "month": "2026-02",
+      "area": "Южный АО",
+      "category": "2 komn",
+      "count": 1035,
+      "mean": 72723,
+      "median": 70000,
+      "average_price": 71025
+    },
+    {
+      "month": "2026-02",
+      "area": "Южный АО",
+      "category": "3 komn",
+      "count": 360,
+      "mean": 98398,
+      "median": 90000,
+      "average_price": 95172
+    },
+    {
+      "month": "2026-02",
+      "area": "Южный АО",
+      "category": "4 komn",
+      "count": 29,
+      "mean": 120690,
+      "median": 120000,
+      "average_price": 120185
+    },
+    {
+      "month": "2026-02",
+      "area": "Южный АО",
+      "category": "mnogokomn",
+      "count": 2,
+      "mean": 142500,
+      "median": 142500,
+      "average_price": 142500
+    }
+  ],
+  "kom": [
+    {
+      "month": "2025-07",
+      "category": "1 komn",
+      "count": 11061,
+      "mean": 57623,
+      "median": 55000,
+      "average_price": 54488
+    },
+    {
+      "month": "2025-07",
+      "category": "2 komn",
+      "count": 10848,
+      "mean": 81828,
+      "median": 70000,
+      "average_price": 73054
+    },
+    {
+      "month": "2025-07",
+      "category": "3 komn",
+      "count": 4394,
+      "mean": 132913,
+      "median": 100000,
+      "average_price": 103043
+    },
+    {
+      "month": "2025-07",
+      "category": "4 komn",
+      "count": 874,
+      "mean": 332627,
+      "median": 250000,
+      "average_price": 174983
+    },
+    {
+      "month": "2025-07",
+      "category": "mnogokomn",
+      "count": 359,
+      "mean": 721911,
+      "median": 500000,
+      "average_price": 310322
+    },
+    {
+      "month": "2025-07",
+      "category": "studiya",
+      "count": 1176,
+      "mean": 56358,
+      "median": 52000,
+      "average_price": 54287
+    },
+    {
+      "month": "2025-08",
+      "category": "1 komn",
+      "count": 11841,
+      "mean": 65644,
+      "median": 55000,
+      "average_price": 56327
+    },
+    {
+      "month": "2025-08",
+      "category": "2 komn",
+      "count": 11754,
+      "mean": 84443,
+      "median": 75000,
+      "average_price": 74914
+    },
+    {
+      "month": "2025-08",
+      "category": "3 komn",
+      "count": 4833,
+      "mean": 135314,
+      "median": 100000,
+      "average_price": 106338
+    },
+    {
+      "month": "2025-08",
+      "category": "4 komn",
+      "count": 912,
+      "mean": 337711,
+      "median": 250000,
+      "average_price": 179004
+    },
+    {
+      "month": "2025-08",
+      "category": "mnogokomn",
+      "count": 393,
+      "mean": 698523,
+      "median": 450000,
+      "average_price": 331208
+    },
+    {
+      "month": "2025-08",
+      "category": "studiya",
+      "count": 1228,
+      "mean": 59791,
+      "median": 55000,
+      "average_price": 55977
+    },
+    {
+      "month": "2025-09",
+      "category": "1 komn",
+      "count": 8080,
+      "mean": 65941,
+      "median": 57000,
+      "average_price": 57163
+    },
+    {
+      "month": "2025-09",
+      "category": "2 komn",
+      "count": 8758,
+      "mean": 95299,
+      "median": 75000,
+      "average_price": 76942
+    },
+    {
+      "month": "2025-09",
+      "category": "3 komn",
+      "count": 4017,
+      "mean": 143508,
+      "median": 110000,
+      "average_price": 106428
+    },
+    {
+      "month": "2025-09",
+      "category": "4 komn",
+      "count": 813,
+      "mean": 341459,
+      "median": 270000,
+      "average_price": 169927
+    },
+    {
+      "month": "2025-09",
+      "category": "mnogokomn",
+      "count": 365,
+      "mean": 715080,
+      "median": 450000,
+      "average_price": 310513
+    },
+    {
+      "month": "2025-09",
+      "category": "studiya",
+      "count": 802,
+      "mean": 64852,
+      "median": 60000,
+      "average_price": 57795
+    },
+    {
+      "month": "2025-10",
+      "category": "1 komn",
+      "count": 9757,
+      "mean": 65103,
+      "median": 57000,
+      "average_price": 56910
+    },
+    {
+      "month": "2025-10",
+      "category": "2 komn",
+      "count": 9971,
+      "mean": 87542,
+      "median": 75000,
+      "average_price": 76122
+    },
+    {
+      "month": "2025-10",
+      "category": "3 komn",
+      "count": 4460,
+      "mean": 163524,
+      "median": 110000,
+      "average_price": 106072
+    },
+    {
+      "month": "2025-10",
+      "category": "4 komn",
+      "count": 904,
+      "mean": 335102,
+      "median": 275000,
+      "average_price": 160538
+    },
+    {
+      "month": "2025-10",
+      "category": "mnogokomn",
+      "count": 380,
+      "mean": 714281,
+      "median": 450000,
+      "average_price": 478174
+    },
+    {
+      "month": "2025-10",
+      "category": "studiya",
+      "count": 959,
+      "mean": 63315,
+      "median": 57000,
+      "average_price": 57132
+    },
+    {
+      "month": "2025-11",
+      "category": "1 komn",
+      "count": 9862,
+      "mean": 59854,
+      "median": 55000,
+      "average_price": 56423
+    },
+    {
+      "month": "2025-11",
+      "category": "2 komn",
+      "count": 9807,
+      "mean": 93327,
+      "median": 75000,
+      "average_price": 74849
+    },
+    {
+      "month": "2025-11",
+      "category": "3 komn",
+      "count": 4185,
+      "mean": 182001,
+      "median": 105000,
+      "average_price": 105782
+    },
+    {
+      "month": "2025-11",
+      "category": "4 komn",
+      "count": 822,
+      "mean": 320688,
+      "median": 270000,
+      "average_price": 161966
+    },
+    {
+      "month": "2025-11",
+      "category": "mnogokomn",
+      "count": 376,
+      "mean": 1259386,
+      "median": 500000,
+      "average_price": 353480
+    },
+    {
+      "month": "2025-11",
+      "category": "studiya",
+      "count": 969,
+      "mean": 61013,
+      "median": 55000,
+      "average_price": 54731
+    },
+    {
+      "month": "2025-12",
+      "category": "1 komn",
+      "count": 9622,
+      "mean": 59053,
+      "median": 55000,
+      "average_price": 55460
+    },
+    {
+      "month": "2025-12",
+      "category": "2 komn",
+      "count": 9627,
+      "mean": 84531,
+      "median": 75000,
+      "average_price": 74504
+    },
+    {
+      "month": "2025-12",
+      "category": "3 komn",
+      "count": 3930,
+      "mean": 138620,
+      "median": 105000,
+      "average_price": 105831
+    },
+    {
+      "month": "2025-12",
+      "category": "4 komn",
+      "count": 768,
+      "mean": 321890,
+      "median": 280000,
+      "average_price": 159523
+    },
+    {
+      "month": "2025-12",
+      "category": "mnogokomn",
+      "count": 378,
+      "mean": 712006,
+      "median": 500000,
+      "average_price": 370429
+    },
+    {
+      "month": "2025-12",
+      "category": "studiya",
+      "count": 974,
+      "mean": 58761,
+      "median": 55000,
+      "average_price": 54397
+    },
+    {
+      "month": "2026-01",
+      "category": "1 komn",
+      "count": 9591,
+      "mean": 59835,
+      "median": 55000,
+      "average_price": 56146
+    },
+    {
+      "month": "2026-01",
+      "category": "2 komn",
+      "count": 9531,
+      "mean": 92112,
+      "median": 75000,
+      "average_price": 74940
+    },
+    {
+      "month": "2026-01",
+      "category": "3 komn",
+      "count": 3900,
+      "mean": 138525,
+      "median": 100000,
+      "average_price": 107218
+    },
+    {
+      "month": "2026-01",
+      "category": "4 komn",
+      "count": 738,
+      "mean": 317155,
+      "median": 270000,
+      "average_price": 164219
+    },
+    {
+      "month": "2026-01",
+      "category": "mnogokomn",
+      "count": 346,
+      "mean": 705950,
+      "median": 500000,
+      "average_price": 343693
+    },
+    {
+      "month": "2026-01",
+      "category": "studiya",
+      "count": 1003,
+      "mean": 59317,
+      "median": 55000,
+      "average_price": 54541
+    },
+    {
+      "month": "2026-02",
+      "category": "1 komn",
+      "count": 10323,
+      "mean": 59339,
+      "median": 55000,
+      "average_price": 55816
+    },
+    {
+      "month": "2026-02",
+      "category": "2 komn",
+      "count": 10070,
+      "mean": 83796,
+      "median": 75000,
+      "average_price": 74711
+    },
+    {
+      "month": "2026-02",
+      "category": "3 komn",
+      "count": 4033,
+      "mean": 172372,
+      "median": 100000,
+      "average_price": 106215
+    },
+    {
+      "month": "2026-02",
+      "category": "4 komn",
+      "count": 760,
+      "mean": 309202,
+      "median": 270000,
+      "average_price": 175358
+    },
+    {
+      "month": "2026-02",
+      "category": "mnogokomn",
+      "count": 363,
+      "mean": 666912,
+      "median": 500000,
+      "average_price": 337315
+    },
+    {
+      "month": "2026-02",
+      "category": "studiya",
+      "count": 1121,
+      "mean": 58933,
+      "median": 55000,
+      "average_price": 54119
+    }
+  ]
+}
