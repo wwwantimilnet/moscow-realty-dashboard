@@ -1,1 +1,16 @@
-{}
+{
+  "2026-02": {
+    "secondary_moscow": 10785,
+    "mortgage": 7789,
+    "ddu_residential": 3790,
+    "ddu_commercial": 2339,
+    "ddu_total": 6129
+  },
+  "2026-03": {
+    "secondary_moscow": 12123,
+    "mortgage": 7702,
+    "ddu_residential": 3787,
+    "ddu_commercial": 2473,
+    "ddu_total": 6260
+  }
+}
