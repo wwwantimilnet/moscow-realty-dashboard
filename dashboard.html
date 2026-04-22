@@ -275,6 +275,19 @@ footer{padding:14px 40px;border-top:1px solid var(--border);font-family:'IBM Ple
       <div class="kpi"><div class="kpi-lbl">Средний чек 2-комн.</div><div class="kpi-val" id="regm-k4" style="font-size:20px">—</div><div class="kpi-sub" id="regm-k4s">млн руб · фев 2026</div></div>
     </div>
     <div class="charts">
+      <!-- КОММЕНТАРИЙ АНАЛИТИКА -->
+      <div class="card full card-split" id="regm-comment-card" style="display:none">
+        <div class="split-chart" style="flex:2">
+          <div class="ct">Вторичный рынок Москвы</div>
+          <div class="cs" id="regm-comment-period">—</div>
+          <div class="sc-text" id="regm-comment-secondary" style="margin-top:12px"></div>
+        </div>
+        <div class="split-comment">
+          <div class="sc-lbl">ОБЩИЙ КОММЕНТАРИЙ</div>
+          <div class="sc-text" id="regm-comment-general"></div>
+        </div>
+      </div>
+
       <!-- УФРС: гистограмма по годам + таблица -->
       <div class="card full">
         <div class="card-head-row">
@@ -443,6 +456,7 @@ const YR_CLR=['#aab4be','#4a8fa8','#b8924a'];
 // Комментарии загружаются из data/comments.json
 let ANALYST_COMMENTS = {};
 let RENT_COMMENTS_DATA = {};
+let ROSREESTR_COMMENTS = {};
 
 // ═══════════════════════════════════════════
 // ДАННЫЕ — обновлять ежемесячно
@@ -733,16 +747,9 @@ async function loadData() {
       const cr = await fetch(URL_COMMENTS);
       if (cr.ok) {
         const cj = await cr.json();
-        ANALYST_COMMENTS = {};
-        if (cj.sales) {
-          Object.entries(cj.sales).forEach(([period, text]) => {
-            ANALYST_COMMENTS[period] = {
-              period: new Date(period+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}),
-              text
-            };
-          });
-        }
-        RENT_COMMENTS_DATA = cj.rent || {};
+        ANALYST_COMMENTS  = cj.sales     || {};
+        RENT_COMMENTS_DATA = cj.rent      || {};
+        ROSREESTR_COMMENTS = cj.rosreestr || {};
       }
     } catch(e) { console.warn('Комментарии не загружены:', e.message); }
 
@@ -892,14 +899,14 @@ function _mUpdate(){
   document.getElementById('mk-ns').textContent=periods.length?periods[0]+' — '+last:'';
   // Комментарий аналитика — KPI блок
   const comment = last ? ANALYST_COMMENTS[last] : null;
-  document.getElementById('mk-comment-period').textContent = comment ? comment.period : (last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : '—');
-  document.getElementById('mk-comment-text').textContent = comment ? comment.text : 'Комментарий для этого периода не добавлен.';
-  // Комментарий аналитика — блоки рядом с графиками (используем тот же текст)
-  const scText = comment ? comment.text : 'Комментарий для этого периода не добавлен.';
-  ['m-sc1','m-sc2','m-sc3'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = scText;
-  });
+  const periodLabel = last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : '—';
+  document.getElementById('mk-comment-period').textContent = periodLabel;
+  document.getElementById('mk-comment-text').innerHTML = comment ? (comment.general || 'Комментарий для этого периода не добавлен.') : 'Комментарий для этого периода не добавлен.';
+  // Комментарии к графикам
+  const charts = comment ? (comment.charts || {}) : {};
+  const el1 = document.getElementById('m-sc1'); if(el1) el1.innerHTML = charts.volume || 'Комментарий для этого периода не добавлен.';
+  const el2 = document.getElementById('m-sc2'); if(el2) el2.innerHTML = charts.rooms  || 'Комментарий для этого периода не добавлен.';
+  const el3 = document.getElementById('m-sc3'); if(el3) el3.innerHTML = charts.price  || 'Комментарий для этого периода не добавлен.';
 
   // КАРТА — округа с ценами из листа "Данные"
   if (GEO_AO && last) {
@@ -1280,8 +1287,8 @@ function _rUpdate() {
 
   // Комментарий
   const rc = last ? RENT_COMMENTS_DATA[last] : null;
-  document.getElementById('rk-comment-period').textContent = rc ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : (last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : '—');
-  document.getElementById('rk-comment-text').textContent = rc ? rc : 'Комментарий для этого периода не добавлен.';
+  document.getElementById('rk-comment-period').textContent = last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : '—';
+  document.getElementById('rk-comment-text').innerHTML = rc ? (rc.general || 'Комментарий для этого периода не добавлен.') : 'Комментарий для этого периода не добавлен.';
 
   // Чарт 1 — динамика по округам
   const o1 = cdefs(); o1.scales.y.ticks.callback = v => (v/1000).toFixed(0)+'K ₽';
@@ -1784,6 +1791,20 @@ function regMUpdate() {
   const tEl = document.getElementById('regm-t');
   const from = fEl ? fEl.value : '2024-01';
   const to   = tEl ? tEl.value : '2026-12';
+
+  // Комментарии Росреестра
+  const lastPeriod = to;
+  const rrComm = ROSREESTR_COMMENTS[lastPeriod] || ROSREESTR_COMMENTS[Object.keys(ROSREESTR_COMMENTS).sort().pop()];
+  const commCard = document.getElementById('regm-comment-card');
+  if (rrComm && (rrComm.general || (rrComm.sections || {}).secondary_moscow)) {
+    commCard.style.display = '';
+    const periodLabel = lastPeriod ? new Date(lastPeriod+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : '';
+    document.getElementById('regm-comment-period').textContent = periodLabel;
+    document.getElementById('regm-comment-general').innerHTML  = rrComm.general || '';
+    document.getElementById('regm-comment-secondary').innerHTML = (rrComm.sections||{}).secondary_moscow || '';
+  } else {
+    commCard.style.display = 'none';
+  }
 
   drawRegUrfrs(from, to);
   drawRegUrfrsTable();
