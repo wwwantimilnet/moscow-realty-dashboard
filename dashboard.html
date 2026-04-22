@@ -7,7 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0c0f14;--surface:#13171f;--s2:#1a1f2b;--border:#252b38;--gold:#c9a96e;--blue:#7eb8c9;--text:#e8e4dc;--muted:#6b7280;--pos:#5fb88a;--neg:#e06b6b;}
+:root{--bg:#faf8f4;--surface:#ffffff;--s2:#f3f0eb;--border:#e2ddd6;--gold:#b8924a;--blue:#4a8fa8;--text:#1c1a17;--muted:#7a7268;--pos:#2d8a5e;--neg:#c0392b;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-weight:300;}
 .header{padding:26px 40px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;}
@@ -17,10 +17,10 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-ser
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:16px;}
 .spinner{width:36px;height:36px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
-.load-txt{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:.08em;}
+.load-txt{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:.08em;text-align:center;line-height:1.8;}
 .load-bar{width:240px;height:2px;background:var(--border);}
 .load-fill{height:100%;background:var(--gold);width:0%;transition:width .3s;}
-.err{background:rgba(224,107,107,.1);border:1px solid var(--neg);padding:16px 24px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--neg);max-width:500px;text-align:center;line-height:1.6;}
+.err{background:rgba(192,57,43,.07);border:1px solid var(--neg);padding:16px 24px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--neg);max-width:500px;text-align:center;line-height:1.8;}
 .tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);}
 .tab{padding:13px 28px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:.2s;user-select:none;}
 .tab.active{color:var(--gold);border-bottom-color:var(--gold);}
@@ -31,7 +31,7 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-ser
 .cl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;}
 select,input[type=month]{background:var(--s2);border:1px solid var(--border);color:var(--text);padding:7px 11px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;outline:none;min-width:150px;-webkit-appearance:none;}
 select:focus,input:focus{border-color:var(--gold);}
-select option{background:var(--s2);}
+select option{background:var(--surface);color:var(--text);}
 .pills{display:flex;flex-wrap:wrap;gap:5px;max-width:760px;}
 .pill{padding:4px 10px;font-size:11px;font-family:'IBM Plex Mono',monospace;border:1px solid var(--border);cursor:pointer;transition:.15s;color:var(--muted);user-select:none;}
 .pill.on{border-color:var(--gold);color:var(--gold);background:rgba(201,169,110,.06);}
@@ -42,29 +42,61 @@ select option{background:var(--s2);}
 .tog{position:relative;width:36px;height:20px;cursor:pointer;}
 .tog input{opacity:0;width:0;height:0;}
 .tog-sl{position:absolute;inset:0;background:var(--border);border-radius:20px;transition:.2s;}
-.tog-sl:before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:#6b7280;border-radius:50%;transition:.2s;}
-.tog input:checked+.tog-sl{background:rgba(201,169,110,.3);}
+.tog-sl:before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:#aaa;border-radius:50%;transition:.2s;}
+.tog input:checked+.tog-sl{background:rgba(184,146,74,.25);}
 .tog input:checked+.tog-sl:before{transform:translateX(16px);background:var(--gold);}
 .tog-lbl{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.06em;cursor:pointer;user-select:none;}
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border);}
+.kpis-m{grid-template-columns:1fr 1fr 2fr;}
 .kpi{background:var(--surface);padding:18px 26px;}
 .kpi-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.11em;color:var(--muted);text-transform:uppercase;margin-bottom:7px;}
 .kpi-val{font-family:'Playfair Display',serif;font-size:24px;color:var(--text);}
 .kpi-sub{font-family:'IBM Plex Mono',monospace;font-size:11px;margin-top:4px;color:var(--muted);}
+.kpi-comment-period{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);margin-bottom:5px;letter-spacing:.06em;}
+.kpi-comment-text{font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text);line-height:1.6;opacity:.85;}
 .charts{background:var(--border);padding:1px;display:grid;grid-template-columns:1fr 1fr;gap:1px;}
 .card{background:var(--surface);padding:26px;}
 .card.full{grid-column:1/-1;}
+.opt-block{display:none;}
+.opt-block.visible{display:block;}
+.card-split{display:flex;gap:0;padding:0;}
+.card-split .split-chart{flex:1.6;padding:26px;min-width:0;}
+.card-split .split-comment{flex:1;padding:26px 28px;border-left:1px solid var(--border);display:flex;flex-direction:column;justify-content:flex-start;}
+.sc-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.11em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;}
+.sc-text{font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text);line-height:1.7;opacity:.85;}
 .ct{font-family:'Playfair Display',serif;font-size:15px;color:var(--gold);margin-bottom:3px;}
 .cs{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:18px;letter-spacing:.06em;text-transform:uppercase;}
 .cw{position:relative;height:270px;}
 .cw.tall{height:340px;}
+.cw.htall{height:420px;}
+/* MAP */
+.map-wrap{position:relative;width:100%;height:400px;background:var(--s2);overflow:hidden;border:1px solid var(--border);}
+.map-wrap svg{position:absolute;top:0;left:0;width:100%;height:100%;}
+
+.map-wrap path{stroke:#faf8f4;stroke-width:0.8;cursor:pointer;transition:opacity .15s;}
+.map-wrap path:hover{opacity:.85;stroke-width:2;stroke:var(--gold);}
+.map-wrap path.selected{stroke:var(--gold);stroke-width:2.5;}
+.map-legend{display:flex;align-items:center;gap:8px;padding:8px 0 0;flex-wrap:wrap;}
+.map-legend-bar{width:160px;height:8px;border-radius:4px;}
+.map-legend-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);}
+.map-tooltip{position:fixed;background:#ffffff;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,.12);padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);pointer-events:none;display:none;z-index:1000;border-radius:2px;line-height:1.8;}
+.map-tooltip .tt-name{font-size:12px;font-weight:500;color:var(--gold);margin-bottom:3px;letter-spacing:.03em;}
+.map-tooltip .tt-price{font-size:13px;color:var(--text);font-family:'Playfair Display',serif;}
+.r-map-switcher{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;}
+.r-map-btn{padding:4px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;border:1px solid var(--border);cursor:pointer;background:transparent;color:var(--muted);transition:.15s;letter-spacing:.04em;}
+.r-map-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(184,146,74,.08);}
+.r-map-btn:hover:not(.active){border-color:#bbb;color:var(--text);}
+/* no map on mobile */
+.map-card{display:block;}
+/* карта включена на мобильном */
+/* table */
 .tbl-sec{display:none;padding:26px 40px;}
 .tbl-sec.on{display:block;}
 .tbl-title{font-family:'Playfair Display',serif;font-size:15px;color:var(--gold);margin-bottom:14px;}
 .dt{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:11px;}
 .dt th{color:var(--muted);padding:5px 9px;text-align:right;font-weight:400;font-size:10px;border-bottom:1px solid var(--border);white-space:nowrap;}
 .dt th:first-child{text-align:left;}
-.dt td{padding:5px 9px;text-align:right;border-bottom:1px solid rgba(255,255,255,.03);font-size:11px;white-space:nowrap;}
+.dt td{padding:5px 9px;text-align:right;border-bottom:1px solid rgba(255,255,255,.03);white-space:nowrap;}
 .dt td:first-child{text-align:left;color:var(--muted);}
 .dt tr:hover td{background:rgba(255,255,255,.02);}
 .tp{color:var(--pos)}.tn{color:var(--neg)}
@@ -74,44 +106,55 @@ select option{background:var(--s2);}
 .hmt th.rh{text-align:left;}
 .hmt td{padding:4px 6px;text-align:center;font-size:10px;white-space:nowrap;border:1px solid rgba(255,255,255,.02);}
 .hmt td.rl{text-align:left;color:var(--muted);padding-right:12px;}
-.upd-bar{background:var(--s2);border-bottom:1px solid var(--border);padding:6px 40px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;}
+.upd-bar{background:var(--s2);border-bottom:1px solid var(--border);padding:6px 40px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
 .upd-btn{border:1px solid var(--border);padding:3px 10px;cursor:pointer;font-size:10px;color:var(--muted);background:transparent;font-family:'IBM Plex Mono',monospace;transition:.15s;}
 .upd-btn:hover{border-color:var(--gold);color:var(--gold);}
+.card-head-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.card-head-row .card-titles{flex:1;min-width:0;}
+.export-btn{flex-shrink:0;border:1px solid var(--border);padding:3px 9px;cursor:pointer;font-size:10px;color:var(--muted);background:transparent;font-family:'IBM Plex Mono',monospace;letter-spacing:.05em;transition:.15s;white-space:nowrap;margin-top:2px;}
+.export-btn:hover{border-color:var(--gold);color:var(--gold);}
+.waffle-wrap{display:flex;gap:20px;align-items:flex-start;padding:10px 0;flex-wrap:wrap;}
+.waffle-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;flex-shrink:0;}
+.waffle-cell{width:22px;height:22px;border-radius:3px;cursor:default;transition:opacity .1s;}
+.waffle-cell:hover{opacity:.75;}
+.waffle-legend{display:flex;flex-direction:column;gap:7px;padding-top:1px;}
+.waffle-leg-row{display:flex;align-items:center;gap:7px;}
+.waffle-leg-dot{width:11px;height:11px;border-radius:2px;flex-shrink:0;}
+.waffle-leg-lbl{font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);}
+.waffle-leg-val{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);font-weight:500;margin-left:4px;}
 footer{padding:14px 40px;border-top:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
 @media(max-width:860px){
   .header,.ctrl-bar,.tog-row,.tbl-sec,.upd-bar{padding:14px 16px;}
   .kpis{grid-template-columns:1fr 1fr;}
-  .charts{display:block;}
-  .card{margin-bottom:1px;}
-  .card.full{grid-column:1;}
+  .charts{display:block;}.card{margin-bottom:1px;}.card.full{grid-column:1;}
   .tab{padding:11px 14px;}
 }
 </style>
 </head>
 <body>
-
 <div class="header">
   <div><h1>Рынок недвижимости Москвы</h1><p>СРЕДНЕВЗВЕШЕННЫЕ ЦЕНЫ И ДИНАМИКА</p></div>
   <span class="badge" id="hdr-badge">ЗАГРУЗКА...</span>
 </div>
-
 <div class="loading" id="loading">
   <div class="spinner"></div>
   <div class="load-bar"><div class="load-fill" id="load-fill"></div></div>
   <div class="load-txt" id="load-txt">ЗАГРУЗКА ДАННЫХ...</div>
 </div>
-
 <div id="main" style="display:none">
   <div class="upd-bar">
     <span id="upd-info">—</span>
-    <button class="upd-btn" onclick="loadData()">↻ ОБНОВИТЬ</button>
+    <button class="upd-btn" onclick="loadData()">↻ ОБНОВИТЬ ДАННЫЕ</button>
   </div>
   <div class="tabs">
     <div class="tab active" id="tab-m" onclick="switchTab('m')">ВСЯ МОСКВА</div>
     <div class="tab" id="tab-d" onclick="switchTab('d')">ПО ОКРУГУ</div>
+    <div class="tab" id="tab-reg-m" onclick="switchTab('reg-m')">РОСРЕЕСТР МСК</div>
+    <div class="tab" id="tab-reg-mo" onclick="switchTab('reg-mo')">РОСРЕЕСТР МО</div>
+    <div class="tab" id="tab-r" onclick="switchTab('r')">АРЕНДА</div>
   </div>
 
-  <!-- MOSCOW -->
+  <!-- МОСКВА -->
   <div class="panel active" id="panel-m">
     <div class="ctrl-bar">
       <div class="cg"><span class="cl">Период с</span><input type="month" id="mf" onchange="mUpdate()"></div>
@@ -121,24 +164,64 @@ footer{padding:14px 40px;border-top:1px solid var(--border);font-family:'IBM Ple
     <div class="tog-row">
       <label class="tog"><input type="checkbox" id="m-tog" onchange="mUpdate()"><span class="tog-sl"></span></label>
       <span class="tog-lbl" onclick="var e=document.getElementById('m-tog');e.checked=!e.checked;mUpdate()">ПОКАЗАТЬ ТАБЛИЦУ ЗНАЧЕНИЙ</span>
-      <span style="color:var(--muted);font-size:10px;font-family:'IBM Plex Mono',monospace;margin-left:8px">— для тех, кто предпочитает цифры</span>
+      <span style="margin-left:24px;color:var(--border)">|</span>
+      <label class="tog" style="margin-left:24px"><input type="checkbox" id="m-tog-opt" onchange="mToggleOpt()"><span class="tog-sl"></span></label>
+      <span class="tog-lbl" onclick="var e=document.getElementById('m-tog-opt');e.checked=!e.checked;mToggleOpt()">ПОКАЗАТЬ ДОПОЛНИТЕЛЬНЫЕ ГРАФИКИ ЦЕН</span>
     </div>
-    <div class="kpis">
-      <div class="kpi"><div class="kpi-lbl">Средняя цена</div><div class="kpi-val" id="mk-p">—</div><div class="kpi-sub" id="mk-ps"></div></div>
-      <div class="kpi"><div class="kpi-lbl">Объём предложения</div><div class="kpi-val" id="mk-v">—</div><div class="kpi-sub" id="mk-vs"></div></div>
-      <div class="kpi"><div class="kpi-lbl">Изм. цены к пред. мес.</div><div class="kpi-val" id="mk-c">—</div><div class="kpi-sub">среднее по выборке</div></div>
-      <div class="kpi"><div class="kpi-lbl">Округов в выборке</div><div class="kpi-val" id="mk-n">—</div><div class="kpi-sub" id="mk-ns"></div></div>
+    <div class="kpis" style="grid-template-columns:3fr 1fr;">
+      <div class="kpi kpi-comment">
+        <div class="kpi-lbl">Комментарий аналитика</div>
+        <div class="kpi-comment-period" id="mk-comment-period">—</div>
+        <div class="kpi-comment-text" id="mk-comment-text">—</div>
+      </div>
+      <div class="kpi" style="display:flex;flex-direction:column;justify-content:space-between;">
+        <div><div class="kpi-lbl">Округов в выборке</div><div class="kpi-val" id="mk-n">—</div><div class="kpi-sub" id="mk-ns"></div></div>
+        <div style="margin-top:14px"><div class="kpi-lbl">Изм. цены к пред. мес.</div><div class="kpi-val" id="mk-c" style="font-size:20px">—</div><div class="kpi-sub">среднее по выборке</div></div>
+      </div>
     </div>
     <div class="charts">
-      <div class="card full"><div class="ct">Динамика цен по округам</div><div class="cs">₽/м² · средневзвешенная цена</div><div class="cw tall"><canvas id="m-c1"></canvas></div></div>
-      <div class="card"><div class="ct">Изменение цены к предыдущему месяцу</div><div class="cs">% · последние 18 месяцев</div><div class="cw"><canvas id="m-c2"></canvas></div></div>
-      <div class="card"><div class="ct">Цены по округам — последний месяц</div><div class="cs">₽/м²</div><div class="cw"><canvas id="m-c3"></canvas></div></div>
+      <!-- КАРТА + ГИСТОГРАММА ОБЪЯВЛЕНИЙ ПО ОКРУГАМ -->
+      <div class="card full map-card">
+        <div class="ct">Карта цен по округам</div>
+        <div class="cs" id="m-map-sub">₽/м² · последний месяц · нажмите на округ для перехода</div>
+        <div class="map-wrap" id="m-map-wrap">
+          <svg id="m-map-svg" viewBox="0 0 1130 920" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMin meet"></svg>
+        </div>
+        <div class="map-legend">
+          <span class="map-legend-lbl" id="m-leg-min">—</span>
+          <canvas class="map-legend-bar" id="m-leg-bar" width="160" height="8"></canvas>
+          <span class="map-legend-lbl" id="m-leg-max">—</span>
+          <span class="map-legend-lbl" style="margin-left:12px;color:var(--muted)">· серый = нет данных</span>
+        </div>
+      </div>
+      <div class="card full"><div class="card-head-row"><div class="card-titles"><div class="ct">Количество новых объявлений и объектов по округам</div><div class="cs" id="m-c8-sub">март 2026 · объявлений / объектов · коэффициент дублирования</div></div><button class="export-btn" onclick="exportChart('m-c8',this)">↓ PNG</button></div><div class="cw htall"><canvas id="m-c8"></canvas></div></div>
+
+      <!-- ДИНАМИКА ЦЕН — опциональные блоки под toggle -->
+      <div class="card full opt-block" id="opt-c1"><div class="card-head-row"><div class="card-titles"><div class="ct">Динамика цен по округам</div><div class="cs">₽/м² · средневзвешенная цена</div></div><button class="export-btn" onclick="exportChart('m-c1',this)">↓ PNG</button></div><div class="cw tall"><canvas id="m-c1"></canvas></div></div>
+      <div class="card opt-block" id="opt-c2"><div class="card-head-row"><div class="card-titles"><div class="ct">Изменение цены к предыдущему месяцу</div><div class="cs">% · последние 18 месяцев</div></div><button class="export-btn" onclick="exportChart('m-c2',this)">↓ PNG</button></div><div class="cw"><canvas id="m-c2"></canvas></div></div>
+      <div class="card opt-block" id="opt-c3"><div class="card-head-row"><div class="card-titles"><div class="ct" id="m-c3-title">Цены по округам — последний месяц</div><div class="cs">₽/м²</div></div><button class="export-btn" onclick="exportChart('m-c3',this)">↓ PNG</button></div><div class="cw htall"><canvas id="m-c3"></canvas></div></div>
+      <div class="card full opt-block" id="opt-c4"><div class="card-head-row"><div class="card-titles"><div class="ct" id="m-c4-title">Сравнение цен по годам</div><div class="cs" id="m-c4-sub">₽/м² · один и тот же месяц в разные годы</div></div><button class="export-btn" onclick="exportChart('m-c4',this)">↓ PNG</button></div><div class="cw tall"><canvas id="m-c4"></canvas></div></div>
       <div class="card full"><div class="ct">Тепловая карта изменений цен</div><div class="cs">% к предыдущему месяцу · 12 месяцев</div><div class="hm-wrap"><div id="m-hm"></div></div></div>
+
+      <!-- БЛОКИ С КОММЕНТАРИЕМ -->
+      <div class="card full card-split">
+        <div class="split-chart"><div class="card-head-row"><div class="card-titles"><div class="ct">Динамика объявлений и объектов</div><div class="cs">авг 2025 — март 2026</div></div><button class="export-btn" onclick="exportChart('m-c5',this)">↓ PNG</button></div><div class="cw tall"><canvas id="m-c5"></canvas></div></div>
+        <div class="split-comment"><div class="sc-lbl">КОММЕНТАРИЙ</div><div class="sc-text" id="m-sc1">Комментарий для этого периода не добавлен.</div></div>
+      </div>
+      <div class="card full card-split">
+        <div class="split-chart"><div class="card-head-row"><div class="card-titles"><div class="ct">Структура новых объектов по комнатности</div><div class="cs" id="m-c7-sub">март 2026</div></div><button class="export-btn" onclick="exportWaffle('m-c7',this)">↓ PNG</button></div><div class="waffle-wrap" id="m-c7"></div></div>
+        <div class="split-comment"><div class="sc-lbl">КОММЕНТАРИЙ</div><div class="sc-text" id="m-sc2">Комментарий для этого периода не добавлен.</div></div>
+      </div>
+      <div class="card full card-split">
+        <div class="split-chart"><div class="card-head-row"><div class="card-titles"><div class="ct">Средняя стоимость м²</div><div class="cs">новые объявления vs все объекты · ₽/м²</div></div><button class="export-btn" onclick="exportChart('m-c6',this)">↓ PNG</button></div><div class="cw tall"><canvas id="m-c6"></canvas></div></div>
+        <div class="split-comment"><div class="sc-lbl">КОММЕНТАРИЙ</div><div class="sc-text" id="m-sc3">Комментарий для этого периода не добавлен.</div></div>
+      </div>
+      <div class="card full"><div class="card-head-row"><div class="card-titles"><div class="ct">Средняя стоимость м² и ключевая ставка ЦБ</div><div class="cs">вторичный рынок Москвы · окт 2025 — март 2026</div></div><button class="export-btn" onclick="exportChart('m-c9',this)">↓ PNG</button></div><div class="cw"><canvas id="m-c9"></canvas></div></div>
     </div>
     <div class="tbl-sec" id="m-tbl"><div class="tbl-title">Таблица значений</div><div style="overflow-x:auto" id="m-tbl-c"></div></div>
   </div>
 
-  <!-- DISTRICT -->
+  <!-- ОКРУГ -->
   <div class="panel" id="panel-d">
     <div class="ctrl-bar">
       <div class="cg"><span class="cl">Округ</span><select id="d-sel" onchange="dDistChange()"></select></div>
@@ -149,73 +232,536 @@ footer{padding:14px 40px;border-top:1px solid var(--border);font-family:'IBM Ple
     <div class="tog-row">
       <label class="tog"><input type="checkbox" id="d-tog" onchange="dUpdate()"><span class="tog-sl"></span></label>
       <span class="tog-lbl" onclick="var e=document.getElementById('d-tog');e.checked=!e.checked;dUpdate()">ПОКАЗАТЬ ТАБЛИЦУ ЗНАЧЕНИЙ</span>
-      <span style="color:var(--muted);font-size:10px;font-family:'IBM Plex Mono',monospace;margin-left:8px">— для тех, кто предпочитает цифры</span>
     </div>
     <div class="kpis">
       <div class="kpi"><div class="kpi-lbl">Средняя цена</div><div class="kpi-val" id="dk-p">—</div><div class="kpi-sub" id="dk-ps"></div></div>
-      <div class="kpi"><div class="kpi-lbl">Объём предложения</div><div class="kpi-val" id="dk-v">—</div><div class="kpi-sub" id="dk-vs"></div></div>
       <div class="kpi"><div class="kpi-lbl">Изм. цены к пред. мес.</div><div class="kpi-val" id="dk-c">—</div><div class="kpi-sub">среднее по выборке</div></div>
       <div class="kpi"><div class="kpi-lbl">Муниципалитетов</div><div class="kpi-val" id="dk-n">—</div><div class="kpi-sub" id="dk-ns"></div></div>
+      <div class="kpi"><div class="kpi-lbl">Период данных</div><div class="kpi-val" id="dk-d" style="font-size:16px">—</div><div class="kpi-sub">по муниципалитетам</div></div>
     </div>
     <div class="charts">
-      <div class="card full"><div class="ct">Динамика цен по муниципалитетам</div><div class="cs">₽/м² · средневзвешенная цена</div><div class="cw tall"><canvas id="d-c1"></canvas></div></div>
-      <div class="card"><div class="ct">Изменение цены к предыдущему месяцу</div><div class="cs">% · выбранный период</div><div class="cw"><canvas id="d-c2"></canvas></div></div>
-      <div class="card"><div class="ct">Цены по муниципалитетам — последний месяц</div><div class="cs">₽/м²</div><div class="cw"><canvas id="d-c3"></canvas></div></div>
+      <!-- КАРТА ОКРУГА -->
+      <div class="card full map-card">
+        <div class="ct" id="d-map-title">Карта цен по муниципалитетам</div>
+        <div class="cs" id="d-map-sub">₽/м² · последний месяц</div>
+        <div class="map-wrap" id="d-map-wrap">
+          <svg id="d-map-svg" viewBox="0 0 1130 920" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMin meet"></svg>
+        </div>
+        <div class="map-legend">
+          <span class="map-legend-lbl" id="d-leg-min">—</span>
+          <canvas class="map-legend-bar" id="d-leg-bar" width="160" height="8"></canvas>
+          <span class="map-legend-lbl" id="d-leg-max">—</span>
+        </div>
+      </div>
+      <div class="card full"><div class="card-head-row"><div class="card-titles"><div class="ct">Динамика цен по муниципалитетам</div><div class="cs">₽/м² · средневзвешенная цена</div></div><button class="export-btn" onclick="exportChart('d-c1',this)">↓ PNG</button></div><div class="cw tall"><canvas id="d-c1"></canvas></div></div>
+      <div class="card"><div class="card-head-row"><div class="card-titles"><div class="ct">Изменение цены к предыдущему месяцу</div><div class="cs">% · выбранный период</div></div><button class="export-btn" onclick="exportChart('d-c2',this)">↓ PNG</button></div><div class="cw"><canvas id="d-c2"></canvas></div></div>
+      <div class="card"><div class="card-head-row"><div class="card-titles"><div class="ct" id="d-c3-title">Цены — последний месяц</div><div class="cs">₽/м²</div></div><button class="export-btn" onclick="exportChart('d-c3',this)">↓ PNG</button></div><div class="cw"><canvas id="d-c3"></canvas></div></div>
+      <div class="card full"><div class="card-head-row"><div class="card-titles"><div class="ct" id="d-c4-title">Сравнение цен по годам</div><div class="cs" id="d-c4-sub">₽/м²</div></div><button class="export-btn" onclick="exportChart('d-c4',this)">↓ PNG</button></div><div class="cw htall"><canvas id="d-c4"></canvas></div></div>
       <div class="card full"><div class="ct">Тепловая карта изменений цен</div><div class="cs">% к предыдущему месяцу · 12 месяцев</div><div class="hm-wrap"><div id="d-hm"></div></div></div>
     </div>
     <div class="tbl-sec" id="d-tbl"><div class="tbl-title">Таблица значений</div><div style="overflow-x:auto" id="d-tbl-c"></div></div>
   </div>
-</div>
 
+  <!-- РОСРЕЕСТР МОСКВА -->
+  <div class="panel" id="panel-reg-m">
+    <div class="ctrl-bar">
+      <div class="cg"><span class="cl">Период с</span><input type="month" id="regm-f" onchange="regMUpdate()"></div>
+      <div class="cg"><span class="cl">Период по</span><input type="month" id="regm-t" onchange="regMUpdate()"></div>
+    </div>
+    <div class="kpis" style="grid-template-columns:1fr 1fr 1fr 1fr;">
+      <div class="kpi"><div class="kpi-lbl">Переходов прав (фев 2026)</div><div class="kpi-val" id="regm-k1">—</div><div class="kpi-sub" id="regm-k1s">—</div></div>
+      <div class="kpi"><div class="kpi-lbl">К февралю 2025</div><div class="kpi-val" id="regm-k2" style="font-size:20px">—</div><div class="kpi-sub">год к году</div></div>
+      <div class="kpi"><div class="kpi-lbl">Средний чек 1-комн.</div><div class="kpi-val" id="regm-k3" style="font-size:20px">—</div><div class="kpi-sub" id="regm-k3s">млн руб · фев 2026</div></div>
+      <div class="kpi"><div class="kpi-lbl">Средний чек 2-комн.</div><div class="kpi-val" id="regm-k4" style="font-size:20px">—</div><div class="kpi-sub" id="regm-k4s">млн руб · фев 2026</div></div>
+    </div>
+    <div class="charts">
+      <!-- УФРС: гистограмма по годам + таблица -->
+      <div class="card full">
+        <div class="card-head-row">
+          <div class="card-titles">
+            <div class="ct">Переходы прав по договорам купли-продажи жилья в Москве</div>
+            <div class="cs">по данным УФРС Москвы · 2019–2026</div>
+          </div>
+          <button class="export-btn" onclick="exportChart('regm-c1',this)">↓ PNG</button>
+        </div>
+        <div class="cw htall"><canvas id="regm-c1"></canvas></div>
+      </div>
+      <div class="card full">
+        <div class="ct">Таблица переходов прав по годам</div>
+        <div class="cs">количество сделок · изменение к аналогичному периоду прошлого года</div>
+        <div class="hm-wrap"><div id="regm-tbl-urfrs"></div></div>
+      </div>
+
+      <!-- СТРУКТУРА ПО БЮДЖЕТУ -->
+      <div class="card full">
+        <div class="card-head-row">
+          <div class="card-titles">
+            <div class="ct">Структура продаж по бюджету покупки</div>
+            <div class="cs">% от общего · с учётом комнат · старая Москва</div>
+          </div>
+          <button class="export-btn" onclick="exportChart('regm-c2',this)">↓ PNG</button>
+        </div>
+        <div class="cw tall"><canvas id="regm-c2"></canvas></div>
+      </div>
+
+      <!-- СТРУКТУРА ПО ТИПОЛОГИИ -->
+      <div class="card full">
+        <div class="card-head-row">
+          <div class="card-titles">
+            <div class="ct">Структура продаж по типологии</div>
+            <div class="cs">% от общего · 1-комн / 2-комн / 3-комн / многоком / комнаты</div>
+          </div>
+          <button class="export-btn" onclick="exportChart('regm-c3',this)">↓ PNG</button>
+        </div>
+        <div class="cw tall"><canvas id="regm-c3"></canvas></div>
+      </div>
+
+      <!-- СРЕДНИЙ ЧЕК ПО КОМНАТНОСТИ -->
+      <div class="card full">
+        <div class="card-head-row">
+          <div class="card-titles">
+            <div class="ct">Средний чек продажи по комнатности</div>
+            <div class="cs">млн руб · без комнат · старая Москва</div>
+          </div>
+          <button class="export-btn" onclick="exportChart('regm-c4',this)">↓ PNG</button>
+        </div>
+        <div class="cw"><canvas id="regm-c4"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- РОСРЕЕСТР МО -->
+  <div class="panel" id="panel-reg-mo">
+    <div class="ctrl-bar">
+      <div class="cg"><span class="cl">Период с</span><input type="month" id="regmo-f" onchange="regMoUpdate()"></div>
+      <div class="cg"><span class="cl">Период по</span><input type="month" id="regmo-t" onchange="regMoUpdate()"></div>
+    </div>
+    <div class="kpis" style="grid-template-columns:1fr 1fr 1fr 1fr;">
+      <div class="kpi"><div class="kpi-lbl">Средний чек 1-комн.</div><div class="kpi-val" id="regmo-k1" style="font-size:20px">—</div><div class="kpi-sub" id="regmo-k1s">млн руб</div></div>
+      <div class="kpi"><div class="kpi-lbl">Средний чек 2-комн.</div><div class="kpi-val" id="regmo-k2" style="font-size:20px">—</div><div class="kpi-sub" id="regmo-k2s">млн руб</div></div>
+      <div class="kpi"><div class="kpi-lbl">Средний чек 3-комн.</div><div class="kpi-val" id="regmo-k3" style="font-size:20px">—</div><div class="kpi-sub" id="regmo-k3s">млн руб</div></div>
+      <div class="kpi"><div class="kpi-lbl">Изм. чека 2-комн.</div><div class="kpi-val" id="regmo-k4" style="font-size:20px">—</div><div class="kpi-sub">к предыдущему месяцу</div></div>
+    </div>
+    <div class="charts">
+      <div class="card full">
+        <div class="card-head-row"><div class="card-titles">
+          <div class="ct">Структура продаж по бюджету покупки</div>
+          <div class="cs">% от общего · с учётом комнат · Московская область</div>
+        </div><button class="export-btn" onclick="exportChart('regmo-c1',this)">↓ PNG</button></div>
+        <div class="cw tall"><canvas id="regmo-c1"></canvas></div>
+      </div>
+      <div class="card full">
+        <div class="card-head-row"><div class="card-titles">
+          <div class="ct">Структура продаж по типологии</div>
+          <div class="cs">% от общего · 1-комн / 2-комн / 3-комн / многоком / комнаты</div>
+        </div><button class="export-btn" onclick="exportChart('regmo-c2',this)">↓ PNG</button></div>
+        <div class="cw tall"><canvas id="regmo-c2"></canvas></div>
+      </div>
+      <div class="card full">
+        <div class="card-head-row"><div class="card-titles">
+          <div class="ct">Средний чек продажи по комнатности</div>
+          <div class="cs">млн руб · без комнат · Московская область</div>
+        </div><button class="export-btn" onclick="exportChart('regmo-c3',this)">↓ PNG</button></div>
+        <div class="cw"><canvas id="regmo-c3"></canvas></div>
+      </div>
+      <div class="card full">
+        <div class="card-head-row"><div class="card-titles">
+          <div class="ct">Диапазон цен по комнатности</div>
+          <div class="cs">млн руб · 5-й и 95-й перцентиль · средний чек · Московская область</div>
+        </div><button class="export-btn" onclick="exportChart('regmo-c4',this)">↓ PNG</button></div>
+        <div class="cw tall"><canvas id="regmo-c4"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- АРЕНДА -->
+  <div class="panel" id="panel-r">
+    <div class="ctrl-bar">
+      <div class="cg"><span class="cl">Период с</span><input type="month" id="rf" onchange="rUpdate()"></div>
+      <div class="cg"><span class="cl">Период по</span><input type="month" id="rt" onchange="rUpdate()"></div>
+      <div class="cg" style="flex:1"><span class="cl">Комнатность</span><div class="pills" id="r-cat-pills"></div></div>
+      <div class="cg" style="flex:2"><span class="cl">Округа</span><div class="pills" id="r-pills"></div></div>
+    </div>
+    <div class="tog-row">
+      <label class="tog"><input type="checkbox" id="r-tog" onchange="rUpdate()"><span class="tog-sl"></span></label>
+      <span class="tog-lbl" onclick="var e=document.getElementById('r-tog');e.checked=!e.checked;rUpdate()">ПОКАЗАТЬ ТАБЛИЦУ ЗНАЧЕНИЙ</span>
+    </div>
+    <div class="kpis">
+      <div class="kpi kpi-comment">
+        <div class="kpi-lbl">Комментарий аналитика</div>
+        <div class="kpi-comment-period" id="rk-comment-period">—</div>
+        <div class="kpi-comment-text" id="rk-comment-text">—</div>
+      </div>
+      <div class="kpi"><div class="kpi-lbl">Средняя цена</div><div class="kpi-val" id="rk-p">—</div><div class="kpi-sub" id="rk-ps"></div></div>
+      <div class="kpi"><div class="kpi-lbl">Изм. к пред. мес.</div><div class="kpi-val" id="rk-c">—</div><div class="kpi-sub">среднее по выборке</div></div>
+      <div class="kpi"><div class="kpi-lbl">Округов в выборке</div><div class="kpi-val" id="rk-n">—</div><div class="kpi-sub" id="rk-ns"></div></div>
+    </div>
+    <div class="charts">
+      <!-- КАРТА АРЕНДЫ -->
+      <div class="card full map-card">
+        <div class="ct" id="r-map-title">Карта аренды по округам</div>
+        <div class="cs" id="r-map-sub">₽/мес · последний месяц</div>
+        <div class="r-map-switcher" id="r-map-switcher"></div>
+        <div class="map-wrap" id="r-map-wrap">
+          <svg id="r-map-svg" viewBox="0 0 1130 920" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMin meet"></svg>
+        </div>
+        <div class="map-legend">
+          <span class="map-legend-lbl" id="r-leg-min">—</span>
+          <canvas class="map-legend-bar" id="r-leg-bar" width="160" height="8"></canvas>
+          <span class="map-legend-lbl" id="r-leg-max">—</span>
+          <span class="map-legend-lbl" style="margin-left:12px;color:var(--muted)">· серый = нет данных</span>
+        </div>
+      </div>
+      <div class="card full"><div class="card-head-row"><div class="card-titles"><div class="ct">Динамика аренды по округам</div><div class="cs">₽/мес · средневзвешенная цена</div></div><button class="export-btn" onclick="exportChart('r-c1',this)">↓ PNG</button></div><div class="cw tall"><canvas id="r-c1"></canvas></div></div>
+      <div class="card"><div class="card-head-row"><div class="card-titles"><div class="ct">Изменение цены к предыдущему месяцу</div><div class="cs">% · по округам</div></div><button class="export-btn" onclick="exportChart('r-c2',this)">↓ PNG</button></div><div class="cw"><canvas id="r-c2"></canvas></div></div>
+      <div class="card"><div class="card-head-row"><div class="card-titles"><div class="ct" id="r-c3-title">Цены по округам — последний месяц</div><div class="cs">₽/мес</div></div><button class="export-btn" onclick="exportChart('r-c3',this)">↓ PNG</button></div><div class="cw htall"><canvas id="r-c3"></canvas></div></div>
+      <div class="card full"><div class="card-head-row"><div class="card-titles"><div class="ct" id="r-c4-title">Сравнение по комнатности</div><div class="cs" id="r-c4-sub">₽/мес · последний месяц · по округам</div></div><button class="export-btn" onclick="exportChart('r-c4',this)">↓ PNG</button></div><div class="cw tall"><canvas id="r-c4"></canvas></div></div>
+      <div class="card full"><div class="ct">Тепловая карта изменений цен</div><div class="cs">% к предыдущему месяцу</div><div class="hm-wrap"><div id="r-hm"></div></div></div>
+    </div>
+    <div class="tbl-sec" id="r-tbl"><div class="tbl-title">Таблица значений</div><div style="overflow-x:auto" id="r-tbl-c"></div></div>
+  </div>
+</div>
+<div class="map-tooltip" id="map-tt"></div>
 <footer>
-  <span>РЫНОК НЕДВИЖИМОСТИ МОСКВЫ</span>
+  <span>РЫНОК НЕДВИЖИМОСТИ МОСКВЫ · ДАННЫЕ: ВЫБОРКА ~60% РЫНКА</span>
   <span id="footer-info">—</span>
 </footer>
 
 <script>
-// ═══════════════════════════════════════════════════
-// НАСТРОЙКИ — меняй только здесь
-// ═══════════════════════════════════════════════════
-const BASE = 'https://wwwantimilnet.github.io/moscow-realty-dashboard/';
-const URL_MOS  = BASE + 'data_moscow.json';
-const URL_DIST = BASE + 'data_districts.json';
-
-// Включать/выключать блоки
-const CONFIG = {
-  showPriceChart:  true,
-  showChangeChart: true,
-  showBarChart:    true,
-  showHeatmap:     true,
-};
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
+// НАСТРОЙКИ
+// ═══════════════════════════════════════════
+const URL_GEO_AO   = 'https://wwwantimilnet.github.io/moscow-realty-dashboard/moscow_ao.geojson';
+const URL_GEO_MUN  = 'https://wwwantimilnet.github.io/moscow-realty-dashboard/moscow_districts.geojson';
+const URL_SALES    = 'data/sales.json';
+const URL_RENT     = 'data/rent.json';
+const URL_COMMENTS = 'data/comments.json';
 
 const CLR=['#c9a96e','#7eb8c9','#9b8fd4','#6ec9a0','#e07b7b','#d4af6e','#7ec9c0','#c96e9b','#a0c96e','#6e8dc9','#c9bf6e','#c99b6e','#89c97e','#c97eb8','#7e9bc9','#c9c97e','#e0a07b'];
-let MOS=[], MUNI={};
+const YR_CLR=['#aab4be','#4a8fa8','#b8924a'];
+
+// Комментарии загружаются из data/comments.json
+let ANALYST_COMMENTS = {};
+let RENT_COMMENTS_DATA = {};
+
+// ═══════════════════════════════════════════
+// ДАННЫЕ — обновлять ежемесячно
+// ═══════════════════════════════════════════
+
+// Объявления и объекты по округам — последний месяц (обновлять вручную)
+const AO_ADS_DATA = {
+  labels:  ['ЗАО','ЮВАО','ЦАО','ЮАО','САО','СВАО','СЗАО','НАО','ЮЗАО','ВАО','ТАО','ЗелАО'],
+  objects: [3497, 2577, 2968, 2774, 2691, 2276, 2294, 2179, 1873, 1903,  299,  338],
+  ads:     [6382, 6095, 5515, 5413, 5172, 4521, 4121, 3899, 3889, 3844,  559,  536],
+  ratio:   [1.82, 2.37, 1.86, 1.95, 1.92, 1.99, 1.80, 1.79, 2.08, 2.02, 1.87, 1.59]
+};
+
+// Динамика объявлений и объектов — из sales.json (заполняется динамически)
+let VOLUME_DATA = { months: [], ads: [], objects: [] };
+
+// Средняя стоимость м² — из sales.json (заполняется динамически)
+let PRICE2_DATA = { months: [], new_ads: [], all_obj: [] };
+
+// Структура новых объектов по комнатности — последний месяц (обновлять вручную)
+const ROOMS_DATA = {
+  labels: ['1-комн.','2-комн.','3-комн.','4-комн.','Другие'],
+  values: [34, 33, 24, 7, 2]
+};
+const ROOMS_CLR = ['#b8924a','#4a8fa8','#7a9e7e','#a0789e','#aab4be'];
+
+// Средняя цена м² и ключевая ставка ЦБ (обновлять вручную)
+const RATE_DATA = {
+  months: ['2025-10','2025-11','2025-12','2026-01','2026-02','2026-03'],
+  prices: [331024,   336206,   344294,   353741,   361538,   369565],
+  rates:  [16,       16,       15.5,     15,       15,       15]
+};
+
+let MOS=[], MUNI={}, GEO_AO=null, GEO_MUN=null;
+let REG_URFRS=[], REG_BUDGET_MSK=[], REG_TYPO_MSK=[], REG_PRICE_MSK=[];
+let REG_BUDGET_MO=[], REG_TYPO_MO=[], REG_PRICE_MO=[], REG_RANGE_MO=[];
+let regMInited = false, regMoInited = false;
 
 const fmtP=n=>new Intl.NumberFormat('ru-RU').format(Math.round(n))+' ₽';
 const fmtK=n=>n>=1e6?(n/1e6).toFixed(1)+'М':n>=1e3?Math.round(n/1e3)+'K':Math.round(n);
 const setLoad=(p,t)=>{document.getElementById('load-fill').style.width=p+'%';document.getElementById('load-txt').textContent=t;};
+
+// ── Цвет по цене (тепловая: синий->жёлтый->красный)
+function priceColor(val, min, max) {
+  if (!val || val<=0) return '#ddd9d2';
+  const t = Math.max(0, Math.min(1, (val-min)/(max-min)));
+  // светло-голубой (#a8c8d8) -> золотистый (#c9a96e) -> кирпичный (#c96e6e)
+  let r,g,b;
+  if (t < 0.5) {
+    const s = t*2;
+    r = Math.round(168 + (201-168)*s);
+    g = Math.round(200 + (169-200)*s);
+    b = Math.round(216 + (110-216)*s);
+  } else {
+    const s = (t-0.5)*2;
+    r = Math.round(201 + (201-201)*s);
+    g = Math.round(169 + (100-169)*s);
+    b = Math.round(110 + (90-110)*s);
+  }
+  return `rgb(${r},${g},${b})`;
+}
+
+function drawLegend(canvasId, minId, maxId, min, max) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createLinearGradient(0,0,160,0);
+  grad.addColorStop(0, priceColor(min,min,max));
+  grad.addColorStop(0.5, priceColor((min+max)/2,min,max));
+  grad.addColorStop(1, priceColor(max,min,max));
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,160,8);
+  document.getElementById(minId).textContent = Math.round(min/1000)+'K ₽';
+  document.getElementById(maxId).textContent = Math.round(max/1000)+'K ₽';
+}
+
+// ── GeoJSON -> SVG проекция (простая плоская)
+function projectGeo(geojson, width, height, padding=20, cropBounds=null) {
+  // cropBounds = {minLat, maxLat, minLng, maxLng} — обрезка по координатам
+  let minLng, maxLng, minLat, maxLat;
+  if (cropBounds) {
+    minLng=cropBounds.minLng; maxLng=cropBounds.maxLng;
+    minLat=cropBounds.minLat; maxLat=cropBounds.maxLat;
+  } else {
+    minLng=Infinity; maxLng=-Infinity; minLat=Infinity; maxLat=-Infinity;
+    function scanCoords(coords) {
+      if (!Array.isArray(coords)) return;
+      if (typeof coords[0]==='number') {
+        const [lng,lat]=coords;
+        if(lng<minLng)minLng=lng; if(lng>maxLng)maxLng=lng;
+        if(lat<minLat)minLat=lat; if(lat>maxLat)maxLat=lat;
+      } else coords.forEach(scanCoords);
+    }
+    geojson.features.forEach(f=>scanCoords(f.geometry.coordinates));
+  }
+
+  const latCenter=(minLat+maxLat)/2;
+  const lngCorr=Math.cos(latCenter*Math.PI/180);
+  const scaleX=(width-padding*2)/((maxLng-minLng)*lngCorr);
+  const scaleY=(height-padding*2)/(maxLat-minLat);
+  const scale=Math.min(scaleX,scaleY);
+  const mapW=(maxLng-minLng)*lngCorr*scale;
+  const mapH=(maxLat-minLat)*scale;
+  const offX=(width-mapW)/2;
+  const offY=(height-mapH)/2;
+
+  function project([lng,lat]) {
+    const x = (lng-minLng)*lngCorr*scale + offX;
+    const y = height - ((lat-minLat)*scale + offY);
+    return [x,y];
+  }
+
+  function coordsToPath(coords) {
+    if (typeof coords[0][0]==='number') {
+      return coords.map((c,i)=>{const [x,y]=project(c);return `${i===0?'M':'L'}${x.toFixed(1)},${y.toFixed(1)}`;}).join(' ')+'Z';
+    }
+    return coords.map(ring=>coordsToPath(ring)).join(' ');
+  }
+
+  return {project, coordsToPath};
+}
+
+// ── Строим SVG карту
+// Границы обрезки для карты Москвы:
+// Сверху — верхняя граница Зеленограда, снизу — нижняя граница НАО
+const MOSCOW_CROP = {minLng:36.80, maxLng:37.97, minLat:55.513, maxLat:55.99};
+
+function buildMap(svgId, geojson, priceMap, onClickDistrict, crop=true) {
+  const svg = document.getElementById(svgId);
+  if (!svg || !geojson) return;
+  svg.innerHTML = '';
+
+  const vb = svg.getAttribute('viewBox').split(' ').map(Number);
+  const W=vb[2], H=vb[3];
+
+  const features = geojson.features;
+  const {coordsToPath} = projectGeo({features}, W, H, crop ? 20 : 8, crop ? MOSCOW_CROP : null);
+
+  const prices = features.map(f=>priceMap[f.properties.name]).filter(v=>v&&v>0);
+  const minP = Math.min(...prices), maxP = Math.max(...prices);
+
+  const tt = document.getElementById('map-tt');
+
+  features.forEach(f => {
+    const name = f.properties.name;
+    const price = priceMap[name];
+    const geom = f.geometry;
+    let d = '';
+
+    if (geom.type==='Polygon') {
+      d = coordsToPath(geom.coordinates);
+    } else if (geom.type==='MultiPolygon') {
+      d = geom.coordinates.map(poly=>coordsToPath(poly)).join(' ');
+    }
+    if (!d) return;
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', d);
+    path.setAttribute('fill', priceColor(price, minP, maxP));
+    path.setAttribute('data-name', name);
+    path.setAttribute('data-price', price||0);
+
+    if (onClickDistrict) {
+      path.addEventListener('click', ()=>onClickDistrict(name));
+    }
+
+    svg.appendChild(path);
+  });
+
+  // Tooltip навешен на SVG целиком — один обработчик вместо N на каждый path
+  svg.addEventListener('mousemove', e => {
+    const path = e.target.closest('path[data-name]');
+    if (!path) { tt.style.display='none'; return; }
+    tt.style.display='block';
+    tt.style.left=(e.clientX+14)+'px';
+    tt.style.top=(e.clientY-10)+'px';
+    const pName  = path.dataset.name;
+    const pPrice = parseFloat(path.dataset.price);
+    const priceStr = pPrice>0 ? new Intl.NumberFormat('ru-RU').format(Math.round(pPrice))+' ₽/м²' : 'нет данных';
+    tt.innerHTML = `<div class="tt-name">${pName}</div><div class="tt-price">${priceStr}</div>`;
+  });
+  svg.addEventListener('mouseleave', ()=>tt.style.display='none');
+
+  return {minP, maxP};
+}
+
+function parseMainData(rows) {
+  if (!rows.length) return [];
+  const keys = Object.keys(rows[0]);
+  const kP=keys.find(k=>k.toLowerCase().includes('период'));
+  const kD=keys.find(k=>k.toLowerCase().includes('округ')||k.toLowerCase().includes('район'));
+  const kPr=keys.find(k=>k.toLowerCase().includes('средне')||k.toLowerCase().includes('цена'));
+  const kV=keys.find(k=>k.toLowerCase().includes('объём')||k.toLowerCase().includes('объем')||k.toLowerCase().includes('предложени'));
+  const kC=keys.find(k=>k.toLowerCase().includes('изменение цены')||k.toLowerCase().includes('прирост цены'));
+  return rows.map(r=>{
+    try{
+      let period=String(r[kP]||'').trim().slice(0,7);
+      if(!/^\d{4}-\d{2}$/.test(period))return null;
+      const district=String(r[kD]||'').trim();
+      if(!district)return null;
+      const price=parseFloat(r[kPr]);
+      if(!price||price<=0)return null;
+      const volume=parseFloat(r[kV])||0;
+      let chg=kC?parseFloat(r[kC]):null;
+      if(chg!==null&&!isNaN(chg)&&Math.abs(chg)<1&&chg!==0)chg=chg*100;
+      return{period,district,price:Math.round(price),volume:Math.round(volume),price_change:isNaN(chg)?null:Math.round(chg*100)/100};
+    }catch(e){return null;}
+  }).filter(Boolean);
+}
 
 async function loadData() {
   document.getElementById('loading').style.display='flex';
   document.getElementById('main').style.display='none';
   document.getElementById('hdr-badge').textContent='ЗАГРУЗКА...';
   try {
-    setLoad(10,'ЗАГРУЗКА ДАННЫХ ПО МОСКВЕ...');
-    MOS = await fetch(URL_MOS).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();});
-    setLoad(55,'ЗАГРУЗКА ДАННЫХ ПО ОКРУГАМ...');
-    MUNI = await fetch(URL_DIST).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();});
+    // ── Загрузка данных продаж из /data/sales.json
+    setLoad(15,'ЗАГРУЗКА ДАННЫХ ПО ОКРУГАМ...');
+    try {
+      const resp = await fetch(URL_SALES);
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const json = await resp.json();
+
+      // ── volume → VOLUME_DATA и PRICE2_DATA
+      if (json.volume && json.volume.length) {
+        const vSorted = [...json.volume].sort((a,b) => a.period < b.period ? -1 : 1);
+        VOLUME_DATA = {
+          months:  vSorted.map(r => r.period),
+          objects: vSorted.map(r => r.price_all || 0),
+          ads:     vSorted.map(r => r.price_new || 0)
+        };
+        PRICE2_DATA = {
+          months:  vSorted.map(r => r.period),
+          new_ads: vSorted.map(r => r.price_new || null),
+          all_obj: vSorted.map(r => r.price_all || null)
+        };
+      }
+
+      if (json.okrug && json.okrug.length) {
+        MOS = json.okrug.map(row => ({
+          period:       row.period,
+          district:     row.district,
+          price:        row.price,
+          volume:       row.volume || 0,
+          price_change: null
+        }));
+      }
+      // Вычисляем price_change динамически
+      const _byDist = {};
+      MOS.forEach(r => { if (!_byDist[r.district]) _byDist[r.district] = []; _byDist[r.district].push(r); });
+      Object.values(_byDist).forEach(arr => {
+        arr.sort((a,b) => a.period < b.period ? -1 : 1);
+        arr.forEach((r, i) => {
+          if (i > 0 && arr[i-1].price > 0) {
+            r.price_change = Math.round((r.price / arr[i-1].price - 1) * 10000) / 100;
+          }
+        });
+      });
+      // SALES_Muni → MUNI
+      if (json.muni && json.muni.length) {
+        MUNI = {};
+        json.muni.forEach(row => {
+          if (!MUNI[row.ao]) MUNI[row.ao] = {};
+          if (!MUNI[row.ao][row.district]) MUNI[row.ao][row.district] = [];
+          MUNI[row.ao][row.district].push({
+            period: row.period,
+            price:  row.price,
+            price_change: null,
+            volume: null
+          });
+        });
+        Object.values(MUNI).forEach(ao => {
+          Object.values(ao).forEach(arr => {
+            arr.sort((a,b) => a.period < b.period ? -1 : 1);
+            arr.forEach((r, i) => {
+              if (i > 0 && arr[i-1].price > 0) {
+                r.price_change = Math.round((r.price / arr[i-1].price - 1) * 10000) / 100;
+              }
+            });
+          });
+        });
+      }
+    } catch(e) { console.warn('Продажи не загружены:', e.message); }
+
+    console.log('MOS после загрузки:', MOS.length, 'строк');
+
+    // ── Загрузка комментариев из /data/comments.json
+    try {
+      const cr = await fetch(URL_COMMENTS);
+      if (cr.ok) {
+        const cj = await cr.json();
+        ANALYST_COMMENTS = {};
+        if (cj.sales) {
+          Object.entries(cj.sales).forEach(([period, text]) => {
+            ANALYST_COMMENTS[period] = {
+              period: new Date(period+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}),
+              text
+            };
+          });
+        }
+        RENT_COMMENTS_DATA = cj.rent || {};
+      }
+    } catch(e) { console.warn('Комментарии не загружены:', e.message); }
+
+    setLoad(70,'ЗАГРУЗКА КАРТЫ...');
+    try {
+      const [r3,r4]=await Promise.all([fetch(URL_GEO_AO),fetch(URL_GEO_MUN)]);
+      if(r3.ok) GEO_AO=await r3.json();
+      if(r4.ok) GEO_MUN=await r4.json();
+    } catch(e) { console.warn('Карта не загружена:', e); }
+
+    if(!MOS.length) throw new Error('Нет данных для отображения.');
+
     setLoad(100,'ГОТОВО');
     const periods=[...new Set(MOS.map(r=>r.period))].sort();
     const latest=periods[periods.length-1];
     document.getElementById('hdr-badge').textContent=latest||'ЗАГРУЖЕНО';
-    document.getElementById('upd-info').textContent=`Обновлено: ${new Date().toLocaleString('ru-RU')} · Период данных: ${periods[0]} — ${latest}`;
-    document.getElementById('footer-info').textContent=`ДАННЫЕ: ${periods[0]} — ${latest} · ${MOS.length} ЗАПИСЕЙ`;
-    // set date inputs
-    ['mf','mt','df','dt2'].forEach(id=>{
-      const el=document.getElementById(id);
-      el.min=periods[0]; el.max=latest;
-    });
+    document.getElementById('upd-info').textContent=`Обновлено: ${new Date().toLocaleString('ru-RU')} · Данные: ${periods[0]} — ${latest}`;
+    document.getElementById('footer-info').textContent=`ДАННЫЕ: ${periods[0]} — ${latest}`;
+    ['mf','mt','df','dt2'].forEach(id=>{const el=document.getElementById(id);el.min=periods[0];el.max=latest;});
     document.getElementById('mf').value=periods.length>30?periods[periods.length-31]:periods[0];
     document.getElementById('mt').value=latest;
     document.getElementById('df').value=periods.length>30?periods[periods.length-31]:periods[0];
@@ -223,132 +769,1548 @@ async function loadData() {
     setTimeout(()=>{
       document.getElementById('loading').style.display='none';
       document.getElementById('main').style.display='block';
-      initMPills(); initDSelect(); mUpdate();
+      initMPills();initDSelect();dDistChange();mUpdate();
+      initRentMapSwitcher();
+      // Грузим аренду сразу (не ждём открытия вкладки)
+      rInited = true;
+      loadRentData();
+      // Восстанавливаем состояние из URL
+      restoreFromURL();
     },300);
-  } catch(e) {
-    document.getElementById('load-txt').innerHTML=`<div class="err">ОШИБКА ЗАГРУЗКИ:<br>${e.message}<br><br>Убедитесь что файлы data_moscow.json и data_districts.json загружены в репозиторий GitHub.</div>`;
+  }catch(e){
+    document.getElementById('load-txt').innerHTML=`<div class="err">ОШИБКА:<br>${e.message}</div>`;
     document.getElementById('hdr-badge').textContent='ОШИБКА';
+    console.error(e);
   }
 }
 
 let CH={};
 function mkChart(id,type,data,opts){if(CH[id])CH[id].destroy();CH[id]=new Chart(document.getElementById(id),{type,data,options:opts});}
-function cdefs(){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#9ca3af',font:{family:'IBM Plex Mono',size:10},boxWidth:11,padding:12},position:'bottom'},tooltip:{backgroundColor:'#1a1f2b',borderColor:'#252b38',borderWidth:1,titleColor:'#c9a96e',bodyColor:'#e8e4dc',titleFont:{family:'IBM Plex Mono'},bodyFont:{family:'IBM Plex Sans'},padding:9}},scales:{x:{ticks:{color:'#6b7280',font:{family:'IBM Plex Mono',size:10},maxRotation:45},grid:{color:'#1a1f2b'},border:{color:'#252b38'}},y:{ticks:{color:'#6b7280',font:{family:'IBM Plex Mono',size:10}},grid:{color:'rgba(37,43,56,.6)'},border:{color:'#252b38'}}}};}
-
+function cdefs(){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},boxWidth:11,padding:12},position:'bottom'},tooltip:{backgroundColor:'#ffffff',borderColor:'#e2ddd6',borderWidth:1,titleColor:'#b8924a',bodyColor:'#1c1a17',titleFont:{family:'IBM Plex Mono',size:11},bodyFont:{family:'IBM Plex Sans',size:12},padding:10,mode:'index',intersect:false,itemSort:(a,b)=>b.raw-a.raw,callbacks:{label:ctx=>{const v=ctx.raw;if(v==null)return null;const lbl=ctx.dataset.label||'';if(typeof v==='number'){if(Math.abs(v)<20)return` ${lbl}: ${v>0?'+':''}${v.toFixed(1)}%`;return` ${lbl}: ${new Intl.NumberFormat('ru-RU').format(Math.round(v))} ₽`;}return` ${lbl}: ${v}`;}}}},scales:{x:{ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},maxRotation:45},grid:{color:'#f0ece5'},border:{color:'#e2ddd6'}},y:{ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10}},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}}}};}
 function mkHeatmap(el,labels,periods,map){
-  if(!CONFIG.showHeatmap){document.getElementById(el).innerHTML='';return;}
   const ps=periods.slice(-12);
+  if(!ps.length||!labels.length){
+    document.getElementById(el).innerHTML='<p style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;color:var(--muted);padding:8px 0">Недостаточно данных для тепловой карты</p>';
+    return;
+  }
   let h='<table class="hmt"><thead><tr><th class="rh">Название</th>';
-  ps.forEach(p=>h+=`<th>${p.slice(2)}</th>`);
-  h+='</tr></thead><tbody>';
-  labels.forEach(lbl=>{
-    h+=`<tr><td class="rl">${lbl}</td>`;
-    ps.forEach(p=>{
-      const v=map[lbl]?.[p];
-      let bg='transparent',cl='#6b7280';
-      if(v!=null){const i=Math.min(Math.abs(v),5)/5;if(v>0){bg=`rgba(95,184,138,${.15+i*.5})`;cl='#5fb88a';}else if(v<0){bg=`rgba(224,107,107,${.15+i*.5})`;cl='#e06b6b';}}
-      h+=`<td style="background:${bg};color:${cl}">${v!=null?(v>0?'+':'')+v.toFixed(1)+'%':'—'}</td>`;
-    });
-    h+='</tr>';
-  });
-  h+='</tbody></table>';
-  document.getElementById(el).innerHTML=h;
+  ps.forEach(p=>h+=`<th>${p.slice(2)}</th>`);h+='</tr></thead><tbody>';
+  labels.forEach(lbl=>{h+=`<tr><td class="rl">${lbl}</td>`;
+    ps.forEach(p=>{const v=map[lbl]?.[p];let bg='transparent',cl='#aaa5a0';
+      if(v!=null){const i=Math.min(Math.abs(v),5)/5;if(v>0){bg=`rgba(45,138,94,${.12+i*.4})`;cl='#1f6b47';}else if(v<0){bg=`rgba(192,57,43,${.12+i*.4})`;cl='#9b2c20';}}
+      h+=`<td style="background:${bg};color:${cl}">${v!=null?(v>0?'+':'')+v.toFixed(1)+'%':'—'}</td>`;});h+='</tr>';});
+  h+='</tbody></table>';document.getElementById(el).innerHTML=h;
 }
-
 function mkTable(el,labels,periods,pm,cm){
-  const ps=periods.slice(-18);
-  let h='<table class="dt"><thead><tr><th>Название</th>';
-  ps.forEach(p=>h+=`<th colspan="2">${p.slice(2)}</th>`);
-  h+='</tr><tr><th></th>';ps.forEach(()=>h+='<th>₽/м²</th><th>изм.%</th>');
-  h+='</tr></thead><tbody>';
+  const ps=periods.slice(-18);let h='<table class="dt"><thead><tr><th>Название</th>';
+  ps.forEach(p=>h+=`<th colspan="2">${p.slice(2)}</th>`);h+='</tr><tr><th></th>';
+  ps.forEach(()=>h+='<th>₽/м²</th><th>изм.%</th>');h+='</tr></thead><tbody>';
+  const FOOTNOTE_MUNIS = {'Внуково':'*', 'Внуковское':'*'};
+  let hasFootnote = false;
   labels.forEach(lbl=>{
-    h+=`<tr><td>${lbl}</td>`;
-    ps.forEach(p=>{
-      const pr=pm[lbl]?.[p],ch=cm[lbl]?.[p];
+    const mark = FOOTNOTE_MUNIS[lbl]||'';
+    if(mark) hasFootnote=true;
+    h+=`<tr><td>${lbl}${mark?`<sup style="color:var(--gold)">${mark}</sup>`:''}</td>`;
+    ps.forEach(p=>{const pr=pm[lbl]?.[p],ch=cm[lbl]?.[p];
       const ps2=pr?new Intl.NumberFormat('ru-RU').format(Math.round(pr)):'—';
       let cs='—',cc='';if(ch!=null){cs=(ch>0?'+':'')+ch.toFixed(1)+'%';cc=ch>0?'tp':ch<0?'tn':'';}
-      h+=`<td>${ps2}</td><td class="${cc}">${cs}</td>`;
-    });
-    h+='</tr>';
-  });
+      h+=`<td>${ps2}</td><td class="${cc}">${cs}</td>`;});h+='</tr>';});
   h+='</tbody></table>';
+  if(hasFootnote) h+=`<p style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-top:8px">* До 8 мая 2024 года район Внуково входил в состав Западного АО, после — в состав Новомосковского АО. Данные могут содержать показания из обоих периодов. В расчёт среднего по округу не включается. <a href="https://www.mos.ru/mayor/themes/15299/12068050/" target="_blank" style="color:var(--gold)">Подробнее →</a></p>`;
   document.getElementById(el).innerHTML=h;
 }
 
-function switchTab(id){['m','d'].forEach(x=>{document.getElementById('panel-'+x).classList.toggle('active',x===id);document.getElementById('tab-'+x).classList.toggle('active',x===id);});}
+function mkYearCompare(canvasId,titleId,subId,labels,pm,lastPeriod){
+  const yr=parseInt(lastPeriod.slice(0,4)),mo=lastPeriod.slice(4);
+  const years=[yr-2,yr-1,yr].filter(y=>y>=2020);
+  const moName=new Date(lastPeriod+'-01').toLocaleString('ru-RU',{month:'long'});
+  document.getElementById(titleId).textContent=`Сравнение цен — ${moName}`;
+  document.getElementById(subId).textContent=years.join(' → ')+' · ₽/м²';
+  const o=cdefs();
+  o.scales.x={ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:11}},grid:{display:false},border:{color:'#e2ddd6'}};
+  o.scales.y={ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},callback:v=>(v/1000).toFixed(0)+'K ₽'},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}};
+  o.plugins.legend={display:true,position:'bottom',labels:{font:{family:'IBM Plex Mono',size:10},boxWidth:10,padding:8,usePointStyle:true}};
+  mkChart(canvasId,'line',{labels:years.map(String),datasets:labels.map((l,i)=>({label:l.replace(' АО',''),data:years.map(y=>pm[l]?.[y+mo]||null),borderColor:CLR[i%CLR.length],backgroundColor:'transparent',borderWidth:2,pointRadius:4,pointHoverRadius:6,tension:0.2,spanGaps:true}))},o);
+}
+function mkYearCompareH(canvasId,titleId,subId,labels,pm,lastPeriod){
+  const yr=parseInt(lastPeriod.slice(0,4)),mo=lastPeriod.slice(4);
+  const years=[yr-2,yr-1,yr].filter(y=>y>=2020);
+  const moName=new Date(lastPeriod+'-01').toLocaleString('ru-RU',{month:'long'});
+  document.getElementById(titleId).textContent=`Сравнение цен — ${moName}`;
+  document.getElementById(subId).textContent=years.join(' / ')+' · ₽/м²';
+  const o=cdefs();o.indexAxis='y';o.scales.x.ticks.callback=v=>(v/1000).toFixed(0)+'K';o.scales.y.ticks.font={family:'IBM Plex Mono',size:10};o.plugins.legend.position='top';
+  mkChart(canvasId,'bar',{labels,datasets:years.map((y,i)=>({label:String(y),data:labels.map(l=>pm[l]?.[y+mo]||null),backgroundColor:YR_CLR[i]+'aa',borderColor:YR_CLR[i],borderWidth:1,borderRadius:2}))},o);
+}
 
+let rInited = false;
+function switchTab(id){
+  ['m','d','r','reg-m','reg-mo'].forEach(x=>{document.getElementById('panel-'+x).classList.toggle('active',x===id);document.getElementById('tab-'+x).classList.toggle('active',x===id);});
+  if (id === 'reg-m') {
+    if (!regMInited) { regMInited = true; loadRegData(); }
+    const lastP = REG_URFRS.length ? REG_URFRS[REG_URFRS.length-1].period : null;
+    if (lastP) document.getElementById('hdr-badge').textContent = lastP;
+  } else if (id === 'reg-mo') {
+    if (!regMoInited) { regMoInited = true; loadRegData(); }
+    const lastP = REG_PRICE_MO.length ? REG_PRICE_MO[REG_PRICE_MO.length-1].period : null;
+    if (lastP) document.getElementById('hdr-badge').textContent = lastP;
+  } else {
+    const periods = [...new Set(MOS.map(r=>r.period))].sort();
+    const latest = periods[periods.length-1];
+    if (latest) document.getElementById('hdr-badge').textContent = latest;
+  }
+  pushURL();
+}
+
+// ── МОСКВА ──
 let mOn=new Set();
 function initMPills(){
-  const ALL=[...new Set(MOS.map(r=>r.district))].sort();
-  mOn=new Set(ALL);
+  const ALL=[...new Set(MOS.map(r=>r.district))].sort();mOn=new Set(ALL);
   const c=document.getElementById('m-pills');c.innerHTML='';
   const ap=document.createElement('span');ap.className='pill pill-all on';ap.id='m-ap';ap.textContent='Все';
   ap.onclick=()=>{if(mOn.size===ALL.length){mOn.clear();ap.classList.remove('on');}else{mOn=new Set(ALL);ap.classList.add('on');}c.querySelectorAll('.pd').forEach(p=>p.classList.toggle('on',mOn.has(p.dataset.v)));mUpdate();};
   c.appendChild(ap);
-  ALL.forEach(d=>{const p=document.createElement('span');p.className='pill pd on';p.dataset.v=d;p.textContent=d;p.onclick=()=>{mOn.has(d)?mOn.delete(d):mOn.add(d);p.classList.toggle('on',mOn.has(d));document.getElementById('m-ap').classList.toggle('on',mOn.size===ALL.length);mUpdate();};c.appendChild(p);});
+  ALL.forEach(d=>{const p=document.createElement('span');p.className='pill pd on';p.dataset.v=d;p.textContent=d;
+    p.onclick=()=>{mOn.has(d)?mOn.delete(d):mOn.add(d);p.classList.toggle('on',mOn.has(d));document.getElementById('m-ap').classList.toggle('on',mOn.size===ALL.length);mUpdate();};c.appendChild(p);});
 }
 
-function mUpdate(){
+let _mT,_dT,_rT;
+function mUpdate(){clearTimeout(_mT);_mT=setTimeout(_mUpdate,80);}
+function _mUpdate(){
   const from=document.getElementById('mf').value,to=document.getElementById('mt').value,showT=document.getElementById('m-tog').checked;
   const rows=MOS.filter(r=>mOn.has(r.district)&&r.period>=from&&r.period<=to&&r.price>0);
   const periods=[...new Set(rows.map(r=>r.period))].sort(),dists=[...mOn].sort();
   const pm={},cm={},vm={};dists.forEach(d=>{pm[d]={};cm[d]={};vm[d]={};});
   rows.forEach(r=>{if(pm[r.district]){pm[r.district][r.period]=r.price;cm[r.district][r.period]=r.price_change;vm[r.district][r.period]=r.volume;}});
-  const last=periods[periods.length-1],ld=rows.filter(r=>r.period===last);
+  const last=periods[periods.length-1];
+  const ld=rows.filter(r=>r.period===last);
   const avgP=ld.length?ld.reduce((s,r)=>s+r.price,0)/ld.length:0;
   const totV=ld.reduce((s,r)=>s+(r.volume||0),0);
   const vc=ld.filter(r=>r.price_change!=null),avgC=vc.length?vc.reduce((s,r)=>s+r.price_change,0)/vc.length:0;
-  document.getElementById('mk-p').textContent=avgP?fmtP(avgP):'—';
-  document.getElementById('mk-v').textContent=totV?fmtK(totV)+' лотов':'—';
+  // mk-v убран из интерфейса
   const cel=document.getElementById('mk-c');cel.textContent=vc.length?(avgC>0?'+':'')+avgC.toFixed(2)+'%':'—';cel.style.color=avgC>0?'var(--pos)':avgC<0?'var(--neg)':'var(--text)';
   document.getElementById('mk-n').textContent=mOn.size;
-  document.getElementById('mk-ps').textContent=last?'Данные: '+last:'';
   document.getElementById('mk-ns').textContent=periods.length?periods[0]+' — '+last:'';
-  if(CONFIG.showPriceChart){const o=cdefs();o.scales.y.ticks.callback=v=>(v/1000).toFixed(0)+'K ₽';mkChart('m-c1','line',{labels:periods,datasets:dists.map((d,i)=>({label:d,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.map(p=>pm[d][p]||null),borderWidth:1.5,pointRadius:0,pointHoverRadius:4,tension:.3,spanGaps:true}))},o);}
-  if(CONFIG.showChangeChart){const o=cdefs();o.scales.y.ticks.callback=v=>v.toFixed(1)+'%';mkChart('m-c2','line',{labels:periods.slice(-18),datasets:dists.map((d,i)=>({label:d,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.slice(-18).map(p=>cm[d][p]??null),borderWidth:1.5,pointRadius:2,pointHoverRadius:4,tension:.2,spanGaps:true}))},o);}
-  if(CONFIG.showBarChart){const o=cdefs();o.plugins.legend.display=false;o.scales.y.ticks.callback=v=>(v/1000).toFixed(0)+'K';mkChart('m-c3','bar',{labels:dists.map(d=>d.replace(' АО','')),datasets:[{data:dists.map(d=>pm[d][last]||0),backgroundColor:dists.map((_,i)=>CLR[i%CLR.length]+'99'),borderColor:dists.map((_,i)=>CLR[i%CLR.length]),borderWidth:1}]},o);}
+  // Комментарий аналитика — KPI блок
+  const comment = last ? ANALYST_COMMENTS[last] : null;
+  document.getElementById('mk-comment-period').textContent = comment ? comment.period : (last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : '—');
+  document.getElementById('mk-comment-text').textContent = comment ? comment.text : 'Комментарий для этого периода не добавлен.';
+  // Комментарий аналитика — блоки рядом с графиками (используем тот же текст)
+  const scText = comment ? comment.text : 'Комментарий для этого периода не добавлен.';
+  ['m-sc1','m-sc2','m-sc3'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = scText;
+  });
+
+  // КАРТА — округа с ценами из листа "Данные"
+  if (GEO_AO && last) {
+    const aoPriceMap = {};
+    dists.forEach(d => { if(pm[d][last]) aoPriceMap[d]=pm[d][last]; });
+    const moName = new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'});
+    document.getElementById('m-map-sub').textContent = `₽/м² · ${moName} · нажмите на округ для перехода`;
+    const res = buildMap('m-map-svg', GEO_AO, aoPriceMap, (name)=>{
+      if(MUNI[name]) {
+        document.getElementById('df').value  = document.getElementById('mf').value;
+        document.getElementById('dt2').value = document.getElementById('mt').value;
+        switchTab('d');
+        document.getElementById('d-sel').value = name;
+        dDistChange();
+      }
+    });
+    if (res) drawLegend('m-leg-bar','m-leg-min','m-leg-max',res.minP,res.maxP);
+  }
+
+  const o1=cdefs();o1.scales.y.ticks.callback=v=>(v/1000).toFixed(0)+'K ₽';
+  mkChart('m-c1','line',{labels:periods,datasets:dists.map((d,i)=>({label:d,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.map(p=>pm[d][p]||null),borderWidth:1.5,pointRadius:0,pointHoverRadius:4,tension:.3,spanGaps:true}))},o1);
+  const o2=cdefs();
+  o2.scales.y.ticks.callback=v=>v.toFixed(1)+'%';
+  o2.plugins.legend.display=false;
+  const c2periods=periods.slice(-18);
+  const c2avg=c2periods.map(p=>{const vals=dists.map(d=>cm[d][p]).filter(v=>v!=null);return vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length*100)/100:null;});
+  mkChart('m-c2','bar',{labels:c2periods,datasets:[{data:c2avg,backgroundColor:c2avg.map(v=>v==null?'transparent':v>=0?'rgba(45,138,94,0.75)':'rgba(192,57,43,0.75)'),borderColor:c2avg.map(v=>v==null?'transparent':v>=0?'#2d8a5e':'#c0392b'),borderWidth:1,borderRadius:3}]},o2);
+  const moName2=last?new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}):'';
+  document.getElementById('m-c3-title').textContent=`Цены по округам — ${moName2}`;
+  const o3=cdefs();o3.plugins.legend.display=false;
+  o3.indexAxis='y';
+  o3.scales.x={ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},callback:v=>(v/1000).toFixed(0)+'K'},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}};
+  o3.scales.y={ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10}},grid:{display:false},border:{color:'#e2ddd6'}};
+  const c3sorted=dists.map((d,i)=>({d,v:pm[d][last]||0,i})).sort((a,b)=>b.v-a.v);
+  mkChart('m-c3','bar',{labels:c3sorted.map(s=>s.d.replace(' АО','')),datasets:[{data:c3sorted.map(s=>s.v),backgroundColor:c3sorted.map(s=>CLR[s.i%CLR.length]+'99'),borderColor:c3sorted.map(s=>CLR[s.i%CLR.length]),borderWidth:1,borderRadius:3}]},o3);
+  if(last)mkYearCompare('m-c4','m-c4-title','m-c4-sub',dists,pm,last);
   mkHeatmap('m-hm',dists,periods,cm);
+
+  // ── Гистограмма объявлений vs объектов по округам
+  const c8Sorted = AO_ADS_DATA.labels.map((l,i)=>({l,o:AO_ADS_DATA.objects[i],a:AO_ADS_DATA.ads[i],r:AO_ADS_DATA.ratio[i]})).sort((a,b)=>b.a-a.a);
+  const oC8 = cdefs();
+  oC8.indexAxis = 'y';
+  oC8.scales.x = {ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},callback:v=>v>=1000?(v/1000).toFixed(0)+'K':v},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}};
+  oC8.scales.y = {ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10}},grid:{display:false},border:{color:'#e2ddd6'}};
+  oC8.plugins.tooltip.callbacks.label = ctx => {
+    const i = ctx.dataIndex;
+    if(ctx.datasetIndex===0) return ` Объектов: ${new Intl.NumberFormat('ru-RU').format(ctx.raw)}`;
+    return ` Объявлений: ${new Intl.NumberFormat('ru-RU').format(ctx.raw)} (×${c8Sorted[i].r.toFixed(2)})`;
+  };
+  mkChart('m-c8','bar',{labels:c8Sorted.map(d=>d.l),datasets:[
+    {label:'Объектов',data:c8Sorted.map(d=>d.o),backgroundColor:'#4a8fa8cc',borderColor:'#4a8fa8',borderWidth:1,borderRadius:3},
+    {label:'Объявлений',data:c8Sorted.map(d=>d.a),backgroundColor:'#b8924a66',borderColor:'#b8924a',borderWidth:1,borderRadius:3}
+  ]},oC8);
+
+  // ── Динамика объявлений и объектов
+  const vLabels = VOLUME_DATA.months.map(m => new Date(m+'-01').toLocaleString('ru-RU',{month:'short',year:'2-digit'}));
+  const oV = cdefs();
+  oV.scales.y = {ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},callback:v=>v>=1000?(v/1000).toFixed(0)+'K':v},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}};
+  oV.plugins.tooltip.callbacks.label = ctx => ` ${ctx.dataset.label}: ${new Intl.NumberFormat('ru-RU').format(ctx.raw)}`;
+  mkChart('m-c5','line',{labels:vLabels,datasets:[
+    {label:'Объявлений',borderColor:'#b8924a',backgroundColor:'rgba(184,146,74,.08)',fill:true,data:VOLUME_DATA.ads,borderWidth:2,pointRadius:3,pointHoverRadius:5,tension:.3},
+    {label:'Объектов',borderColor:'#4a8fa8',backgroundColor:'rgba(74,143,168,.08)',fill:true,data:VOLUME_DATA.objects,borderWidth:2,pointRadius:3,pointHoverRadius:5,tension:.3}
+  ]},oV);
+
+  // ── Средняя стоимость м² (новые vs все)
+  const p2Labels = PRICE2_DATA.months.map(m => new Date(m+'-01').toLocaleString('ru-RU',{month:'short',year:'2-digit'}));
+  const oP2 = cdefs();
+  oP2.scales.y.ticks.callback = v => (v/1000).toFixed(0)+'K ₽';
+  oP2.plugins.tooltip.callbacks.label = ctx => ctx.raw == null ? null : ` ${ctx.dataset.label}: ${new Intl.NumberFormat('ru-RU').format(ctx.raw)} ₽`;
+  mkChart('m-c6','line',{labels:p2Labels,datasets:[
+    {label:'Новые объявления',borderColor:'#b8924a',backgroundColor:'transparent',data:PRICE2_DATA.new_ads,borderWidth:2,pointRadius:3,pointHoverRadius:5,tension:.3,spanGaps:true},
+    {label:'Все объекты',borderColor:'#4a8fa8',backgroundColor:'transparent',data:PRICE2_DATA.all_obj,borderWidth:2,pointRadius:3,pointHoverRadius:5,tension:.3,spanGaps:true,borderDash:[5,3]}
+  ]},oP2);
+
+  // ── Структура по комнатности — waffle chart
+  document.getElementById('m-c7-sub').textContent = last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : 'март 2026';
+  drawWaffle('m-c7', ROOMS_DATA.labels.map((lbl,i)=>({label:lbl, value:ROOMS_DATA.values[i]})), ROOMS_CLR);
+
+  // ── Ключевая ставка ЦБ vs средняя цена м²
+  const rLabels = RATE_DATA.months.map(m => new Date(m+'-01').toLocaleString('ru-RU',{month:'short',year:'2-digit'}));
+  const oRate = cdefs();
+  oRate.scales = {
+    x:{ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10}},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}},
+    yPrice:{type:'linear',position:'left',ticks:{color:'#4a8fa8',font:{family:'IBM Plex Mono',size:10},callback:v=>(v/1000).toFixed(0)+'K ₽'},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}},
+    yRate:{type:'linear',position:'right',ticks:{color:'#b8924a',font:{family:'IBM Plex Mono',size:10},callback:v=>v+'%'},grid:{drawOnChartArea:false},border:{color:'#e2ddd6'}}
+  };
+  oRate.plugins.tooltip.callbacks.label = ctx => ctx.dataset.yAxisID==='yRate' ? ` Ключевая ставка: ${ctx.raw}%` : ` Средняя цена м²: ${new Intl.NumberFormat('ru-RU').format(ctx.raw)} ₽`;
+  mkChart('m-c9','line',{labels:rLabels,datasets:[
+    {label:'Средняя цена м²',data:RATE_DATA.prices,borderColor:'#4a8fa8',backgroundColor:'rgba(74,143,168,.08)',fill:true,borderWidth:2,pointRadius:4,pointHoverRadius:6,tension:.3,yAxisID:'yPrice',spanGaps:true},
+    {label:'Ключевая ставка ЦБ',data:RATE_DATA.rates,borderColor:'#b8924a',backgroundColor:'transparent',borderWidth:2,pointRadius:4,pointHoverRadius:6,tension:.1,yAxisID:'yRate',borderDash:[6,3]}
+  ]},oRate);
+
   document.getElementById('m-tbl').classList.toggle('on',showT);
   if(showT)mkTable('m-tbl-c',dists,periods,pm,cm);
+  pushURL();
 }
 
+function mToggleOpt(){
+  const on = document.getElementById('m-tog-opt').checked;
+  ['opt-c1','opt-c2','opt-c3','opt-c4'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList.toggle('visible',on);
+  });
+}
+
+// ── ОКРУГ ──
 let dOn=new Set();
 function initDSelect(){const sel=document.getElementById('d-sel');sel.innerHTML='';Object.keys(MUNI).sort().forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;sel.appendChild(o);});}
-
 function dDistChange(){
   const dist=document.getElementById('d-sel').value,munis=Object.keys(MUNI[dist]||{}).sort();
-  dOn=new Set(munis);
-  const c=document.getElementById('d-pills');c.innerHTML='';
+  dOn=new Set(munis);const c=document.getElementById('d-pills');c.innerHTML='';
   const ap=document.createElement('span');ap.className='pill pill-all on';ap.id='d-ap';ap.textContent='Все';
   ap.onclick=()=>{if(dOn.size===munis.length){dOn.clear();ap.classList.remove('on');}else{dOn=new Set(munis);ap.classList.add('on');}c.querySelectorAll('.pm').forEach(p=>p.classList.toggle('on',dOn.has(p.dataset.v)));dUpdate();};
   c.appendChild(ap);
-  munis.forEach(m=>{const p=document.createElement('span');p.className='pill pm on';p.dataset.v=m;p.textContent=m;p.onclick=()=>{dOn.has(m)?dOn.delete(m):dOn.add(m);p.classList.toggle('on',dOn.has(m));document.getElementById('d-ap').classList.toggle('on',dOn.size===munis.length);dUpdate();};c.appendChild(p);});
+  munis.forEach(m=>{const p=document.createElement('span');p.className='pill pm on';p.dataset.v=m;p.textContent=m;
+    p.onclick=()=>{dOn.has(m)?dOn.delete(m):dOn.add(m);p.classList.toggle('on',dOn.has(m));document.getElementById('d-ap').classList.toggle('on',dOn.size===munis.length);dUpdate();};c.appendChild(p);});
   dUpdate();
 }
 
-function dUpdate(){
+function dUpdate(){clearTimeout(_dT);_dT=setTimeout(_dUpdate,80);}
+function _dUpdate(){
   const dist=document.getElementById('d-sel').value,from=document.getElementById('df').value,to=document.getElementById('dt2').value,showT=document.getElementById('d-tog').checked;
   if(!dist||!MUNI[dist])return;
-  const munis=[...dOn].sort(),allP=new Set();
+  const munis=[...dOn].sort();
+  if(!munis.length){
+    ['dk-p','dk-c','dk-n','dk-ns','dk-d','dk-ps'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
+    return;
+  }
+  const allP=new Set();
   munis.forEach(m=>(MUNI[dist][m]||[]).forEach(r=>{if(r.period>=from&&r.period<=to&&r.price>0)allP.add(r.period);}));
+  // Если данных нет в выбранном диапазоне — показываем все доступные данные по этим районам
+  const useAllPeriods = !allP.size;
+  if(useAllPeriods){
+    munis.forEach(m=>(MUNI[dist][m]||[]).forEach(r=>{if(r.price>0)allP.add(r.period);}));
+  }
   const periods=[...allP].sort(),pm={},cm={},vm={};
-  munis.forEach(m=>{pm[m]={};cm[m]={};vm[m]={};(MUNI[dist][m]||[]).forEach(r=>{if(r.period>=from&&r.period<=to&&r.price>0){pm[m][r.period]=r.price;cm[m][r.period]=r.price_change;vm[m][r.period]=r.volume;}});});
-  const last=periods[periods.length-1],lp=munis.map(m=>pm[m][last]).filter(Boolean);
+  munis.forEach(m=>{pm[m]={};cm[m]={};vm[m]={};(MUNI[dist][m]||[]).forEach(r=>{
+    const inRange = useAllPeriods ? r.price>0 : (r.period>=from&&r.period<=to&&r.price>0);
+    if(inRange){pm[m][r.period]=r.price;cm[m][r.period]=r.price_change;vm[m][r.period]=r.volume;}
+  });});
+  const last=periods[periods.length-1];
+  const lp=munis.map(m=>pm[m][last]).filter(Boolean);
   const avgP=lp.length?lp.reduce((a,b)=>a+b,0)/lp.length:0;
-  const totV=munis.reduce((s,m)=>s+(vm[m][last]||0),0);
   const vc=munis.map(m=>cm[m][last]).filter(v=>v!=null),avgC=vc.length?vc.reduce((a,b)=>a+b,0)/vc.length:0;
   document.getElementById('dk-p').textContent=avgP?fmtP(avgP):'—';
-  document.getElementById('dk-v').textContent=totV?fmtK(totV)+' лотов':'—';
-  const cel=document.getElementById('dk-c');cel.textContent=vc.length?(avgC>0?'+':'')+avgC.toFixed(2)+'%':'—';cel.style.color=avgC>0?'var(--pos)':avgC<0?'var(--neg)':'var(--text)';
+  const dcel=document.getElementById('dk-c');dcel.textContent=vc.length?(avgC>0?'+':'')+avgC.toFixed(2)+'%':'—';dcel.style.color=avgC>0?'var(--pos)':avgC<0?'var(--neg)':'var(--text)';
   document.getElementById('dk-n').textContent=munis.length;
   document.getElementById('dk-ps').textContent=last?'Данные: '+last:'';
   document.getElementById('dk-ns').textContent=periods.length?periods[0]+' — '+last:'';
-  if(CONFIG.showPriceChart){const o=cdefs();o.scales.y.ticks.callback=v=>(v/1000).toFixed(0)+'K ₽';mkChart('d-c1','line',{labels:periods,datasets:munis.map((m,i)=>({label:m,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.map(p=>pm[m][p]||null),borderWidth:1.5,pointRadius:0,pointHoverRadius:4,tension:.3,spanGaps:true}))},o);}
-  if(CONFIG.showChangeChart){const o=cdefs();o.scales.y.ticks.callback=v=>v.toFixed(1)+'%';mkChart('d-c2','line',{labels:periods,datasets:munis.map((m,i)=>({label:m,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.map(p=>cm[m][p]??null),borderWidth:1.5,pointRadius:2,pointHoverRadius:4,tension:.2,spanGaps:true}))},o);}
-  if(CONFIG.showBarChart){const o=cdefs();o.plugins.legend.display=false;o.scales.y.ticks.callback=v=>(v/1000).toFixed(0)+'K';mkChart('d-c3','bar',{labels:munis,datasets:[{data:munis.map(m=>pm[m][last]||0),backgroundColor:munis.map((_,i)=>CLR[i%CLR.length]+'99'),borderColor:munis.map((_,i)=>CLR[i%CLR.length]),borderWidth:1}]},o);}
+  document.getElementById('dk-d').textContent=periods.length?(periods[0].slice(0,4)+' — '+last.slice(0,4)):'—';
+
+  // КАРТА ОКРУГА — только для округов со стандартными муниципалитетами
+  const NO_MAP_DISTS = ['Новомосковский', 'Троицкий', 'Зеленоградский АО'];
+  const dMapCard = document.querySelector('#panel-d .map-card');
+  if (NO_MAP_DISTS.includes(dist)) {
+    if (dMapCard) dMapCard.style.display='none';
+  } else {
+    if (dMapCard) dMapCard.style.display='block';
+    if (GEO_MUN && last) {
+      const distMunis = Object.keys(MUNI[dist]||{});
+      const distGeo = {
+        type:'FeatureCollection',
+        features: GEO_MUN.features.filter(f=>distMunis.includes(f.properties.name))
+      };
+      // Для карты берём цены ВСЕХ районов округа (не только выбранных)
+      const muniPriceMap = {};
+      const allDistMunis = Object.keys(MUNI[dist]||{});
+      allDistMunis.forEach(m => {
+        const entries = MUNI[dist][m] || [];
+        const entry = entries.find(r => r.period === last);
+        if (entry && entry.price) muniPriceMap[m] = entry.price;
+      });
+      document.getElementById('d-map-title').textContent=`Карта цен — ${dist}`;
+      const moName=new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'});
+      document.getElementById('d-map-sub').textContent=`₽/м² · ${moName}`;
+      const res=buildMap('d-map-svg', distGeo, muniPriceMap, null, false);
+      if(res) drawLegend('d-leg-bar','d-leg-min','d-leg-max',res.minP,res.maxP);
+    }
+  }
+
+  const o1=cdefs();o1.scales.y.ticks.callback=v=>(v/1000).toFixed(0)+'K ₽';
+  mkChart('d-c1','line',{labels:periods,datasets:munis.map((m,i)=>({label:m,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.map(p=>pm[m][p]||null),borderWidth:1.5,pointRadius:munis.length===1?3:0,pointHoverRadius:4,tension:.3,spanGaps:true}))},o1);
+  const o2=cdefs();o2.scales.y.ticks.callback=v=>v.toFixed(1)+'%';
+  mkChart('d-c2','line',{labels:periods,datasets:munis.map((m,i)=>({label:m,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.map(p=>cm[m][p]??null),borderWidth:1.5,pointRadius:2,pointHoverRadius:4,tension:.2,spanGaps:true}))},o2);
+  const moName2=last?new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}):'';
+  document.getElementById('d-c3-title').textContent=`Цены — ${moName2}`;
+  const o3=cdefs();o3.plugins.legend.display=false;o3.scales.y.ticks.callback=v=>(v/1000).toFixed(0)+'K';
+  mkChart('d-c3','bar',{labels:munis,datasets:[{data:munis.map(m=>pm[m][last]||0),backgroundColor:munis.map((_,i)=>CLR[i%CLR.length]+'99'),borderColor:munis.map((_,i)=>CLR[i%CLR.length]),borderWidth:1,borderRadius:2}]},o3);
+  if(last) mkYearCompareH('d-c4','d-c4-title','d-c4-sub',munis,pm,last);
   mkHeatmap('d-hm',munis,periods,cm);
   document.getElementById('d-tbl').classList.toggle('on',showT);
   if(showT)mkTable('d-tbl-c',munis,periods,pm,cm);
+  // Сноска Внуково
+  const fnMunis = munis.filter(m=>m==='Внуково'||m==='Внуковское');
+  let fnEl = document.getElementById('d-footnote');
+  if(!fnEl){fnEl=document.createElement('p');fnEl.id='d-footnote';fnEl.style.cssText='font-family:IBM Plex Mono,monospace;font-size:10px;color:var(--muted);padding:8px 40px 0';document.getElementById('panel-d').appendChild(fnEl);}
+  const NAO_TAO = ['Новомосковский','Троицкий'];
+  const isNaoTao = NAO_TAO.includes(dist);
+  const fnVnukovo = fnMunis.length ? `<br>* <b>Внуково</b> — до 8 мая 2024 входил в состав Западного АО, после — в состав Новомосковского АО. В расчёт среднего по округу не включается.` : '';
+  const fnReform = isNaoTao ? `<br>† До 8 мая 2024 года данные собирались по старым поселениям (Внуковское, Воскресенское, Десеновское и др.). После реформы поселения были упразднены и объединены в укрупнённые районы (Коммунарка, Филимонковский, Вороново и др.). Данные разных периодов не полностью сопоставимы. <a href="https://www.mos.ru/mayor/themes/15299/12068050/" target="_blank" style="color:var(--gold)">Подробнее →</a>` : '';
+  fnEl.innerHTML = (fnVnukovo || fnReform) ? `<span style="opacity:.8">${fnVnukovo}${fnReform}</span>` : '';
+  pushURL();
+}
+
+
+// ═══════════════════════════════════════════
+// АРЕНДА
+// ═══════════════════════════════════════════
+
+// Комментарии аренды — загружаются из data/comments.json в loadData()
+
+const CAT_NAMES = {
+  '0': 'Студии', '1': '1-комн.', '2': '2-комн.', '3': '3-комн.', '4': '4-комн.', '5': 'Многокомн.'
+};
+
+// Аренда загружается из data/rent.json
+
+// Глобальные переменные — заполняются после загрузки из GAS
+let RENT_RAW = {};
+let RENT = {};
+let RENT_AREAS = [];
+let RENT_MONTHS = [];
+const RENT_CATS = ['0','1','2','3','4','5'];
+
+let rOn = new Set();
+let rCatOn = new Set(['1','2','3']);
+
+// Маппинг латинских названий категорий (из GAS) обратно в числовые ключи
+const CAT_KEY_MAP = {
+  'studiya': '0', '1 komn': '1', '2 komn': '2',
+  '3 komn': '3', '4 komn': '4', 'mnogokomn': '5'
+};
+
+// Конвертирует плоский массив из GAS в структуру {area: {cat: {month: price}}}
+function buildRentRawFromGAS(rows) {
+  const raw = {};
+  for (const row of rows) {
+    const area = row.area;
+    const catKey = CAT_KEY_MAP[row.category] || row.category;
+    const month = row.month;
+    const price = Number(row.average_price);
+    if (!area || !month || !price) continue;
+    if (!raw[area]) raw[area] = {};
+    if (!raw[area][catKey]) raw[area][catKey] = {};
+    raw[area][catKey][month] = price;
+  }
+  return raw;
+}
+
+function buildRentData(raw) {
+  const result = {};
+  for (const area of Object.keys(raw)) {
+    result[area] = {};
+    for (const cat of Object.keys(raw[area])) {
+      const months = Object.keys(raw[area][cat]).sort();
+      result[area][cat] = {};
+      months.forEach((m, i) => {
+        const price = raw[area][cat][m];
+        let change = null;
+        if (i > 0) {
+          const prev = raw[area][cat][months[i-1]];
+          if (prev && prev > 0) change = Math.round((price - prev) / prev * 10000) / 100;
+        }
+        result[area][cat][m] = { price, change };
+      });
+    }
+  }
+  return result;
+}
+
+async function loadRentData() {
+  try {
+    const resp = await fetch(URL_RENT);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const json = await resp.json();
+    if (json.okrug && json.okrug.length > 0) {
+      RENT_RAW = buildRentRawFromGAS(json.okrug);
+    }
+  } catch(e) {
+    console.warn('Аренда не загружена:', e);
+  }
+  RENT = buildRentData(RENT_RAW);
+  RENT_AREAS = Object.keys(RENT).sort();
+  RENT_MONTHS = [...new Set(Object.values(RENT_RAW).flatMap(a => Object.values(a).flatMap(c => Object.keys(c))))].sort();
+  rOn = new Set(RENT_AREAS);
+
+  // Инициализируем фильтры периода
+  const rentFirst = RENT_MONTHS[0], rentLast = RENT_MONTHS[RENT_MONTHS.length - 1];
+  ['rf','rt'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.min = rentFirst; el.max = rentLast; }
+  });
+  const rfEl = document.getElementById('rf');
+  const rtEl = document.getElementById('rt');
+  if (rfEl && !rfEl.value) rfEl.value = rentFirst;
+  if (rtEl && !rtEl.value) rtEl.value = rentLast;
+
+  initRentPills();
+  rUpdate();
+}
+
+function initRentPills() {
+  // Округа
+  const ap = document.createElement('span');
+  ap.className = 'pill pill-all on'; ap.id = 'r-ap'; ap.textContent = 'Все';
+  ap.onclick = () => {
+    if (rOn.size === RENT_AREAS.length) { rOn.clear(); ap.classList.remove('on'); }
+    else { rOn = new Set(RENT_AREAS); ap.classList.add('on'); }
+    document.querySelectorAll('.rp').forEach(p => p.classList.toggle('on', rOn.has(p.dataset.v)));
+    rUpdate();
+  };
+  const pc = document.getElementById('r-pills');
+  pc.innerHTML = ''; pc.appendChild(ap);
+  RENT_AREAS.forEach(a => {
+    const p = document.createElement('span'); p.className = 'pill rp on'; p.dataset.v = a;
+    p.textContent = a.replace(' АО','');
+    p.onclick = () => { rOn.has(a) ? rOn.delete(a) : rOn.add(a); p.classList.toggle('on', rOn.has(a)); document.getElementById('r-ap').classList.toggle('on', rOn.size === RENT_AREAS.length); rUpdate(); };
+    pc.appendChild(p);
+  });
+
+  // Комнатность
+  const cc = document.getElementById('r-cat-pills');
+  cc.innerHTML = '';
+  const ca = document.createElement('span'); ca.className = 'pill pill-all'; ca.id = 'r-ca'; ca.textContent = 'Все';
+  ca.onclick = () => {
+    if (rCatOn.size === RENT_CATS.length) { rCatOn.clear(); ca.classList.remove('on'); }
+    else { rCatOn = new Set(RENT_CATS); ca.classList.add('on'); }
+    document.querySelectorAll('.rcp').forEach(p => p.classList.toggle('on', rCatOn.has(p.dataset.v)));
+    rUpdate();
+  };
+  cc.appendChild(ca);
+  RENT_CATS.forEach(c => {
+    const p = document.createElement('span'); p.className = 'pill rcp' + (rCatOn.has(c) ? ' on' : ''); p.dataset.v = c;
+    p.textContent = CAT_NAMES[c];
+    p.onclick = () => { rCatOn.has(c) ? rCatOn.delete(c) : rCatOn.add(c); p.classList.toggle('on', rCatOn.has(c)); document.getElementById('r-ca').classList.toggle('on', rCatOn.size === RENT_CATS.length); rUpdate(); };
+    cc.appendChild(p);
+  });
+}
+
+function rUpdate(){clearTimeout(_rT);_rT=setTimeout(_rUpdate,80);}
+function _rUpdate() {
+  const from = document.getElementById('rf').value;
+  const to   = document.getElementById('rt').value;
+  const showT = document.getElementById('r-tog').checked;
+
+  const areas  = [...rOn].sort();
+  const cats   = [...rCatOn].sort();
+  const periods = RENT_MONTHS.filter(m => m >= from && m <= to);
+  const last   = periods[periods.length - 1];
+
+  // Строим pm[area_cat][month] = price, cm[area_cat][month] = change
+  // Для динамики — группируем по выбранным округам с агрегацией по комнатности
+  // Если выбрано несколько комнатностей — усредняем цены по ним для каждого округа
+  const pm = {}, cm = {};
+  areas.forEach(a => {
+    pm[a] = {}; cm[a] = {};
+    periods.forEach(m => {
+      const prices = cats.map(c => RENT[a]?.[c]?.[m]?.price).filter(Boolean);
+      const changes = cats.map(c => RENT[a]?.[c]?.[m]?.change).filter(v => v != null);
+      if (prices.length) { pm[a][m] = Math.round(prices.reduce((s,v) => s+v,0) / prices.length); }
+      if (changes.length) { cm[a][m] = Math.round(changes.reduce((s,v) => s+v,0) / changes.length * 100) / 100; }
+    });
+  });
+
+  // KPI
+  const lp = areas.map(a => pm[a][last]).filter(Boolean);
+  const avgP = lp.length ? Math.round(lp.reduce((s,v) => s+v,0) / lp.length) : 0;
+  const vc = areas.map(a => cm[a][last]).filter(v => v != null);
+  const avgC = vc.length ? Math.round(vc.reduce((s,v) => s+v,0) / vc.length * 100) / 100 : null;
+
+  document.getElementById('rk-p').textContent = avgP ? fmtP(avgP) : '—';
+  document.getElementById('rk-ps').textContent = last ? 'Данные: ' + last : '';
+  const rcel = document.getElementById('rk-c');
+  rcel.textContent = avgC != null ? (avgC > 0 ? '+' : '') + avgC.toFixed(2) + '%' : '—';
+  rcel.style.color = avgC > 0 ? 'var(--pos)' : avgC < 0 ? 'var(--neg)' : 'var(--text)';
+  document.getElementById('rk-n').textContent = areas.length;
+  document.getElementById('rk-ns').textContent = periods.length ? periods[0] + ' — ' + last : '';
+
+  // Комментарий
+  const rc = last ? RENT_COMMENTS_DATA[last] : null;
+  document.getElementById('rk-comment-period').textContent = rc ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : (last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : '—');
+  document.getElementById('rk-comment-text').textContent = rc ? rc : 'Комментарий для этого периода не добавлен.';
+
+  // Чарт 1 — динамика по округам
+  const o1 = cdefs(); o1.scales.y.ticks.callback = v => (v/1000).toFixed(0)+'K ₽';
+  mkChart('r-c1','line',{labels:periods,datasets:areas.map((a,i)=>({label:a,borderColor:CLR[i%CLR.length],backgroundColor:'transparent',data:periods.map(m=>pm[a][m]||null),borderWidth:1.5,pointRadius:0,pointHoverRadius:4,tension:.3,spanGaps:true}))},o1);
+
+  // Чарт 2 — изменение %
+  const o2 = cdefs();
+  o2.scales.y.ticks.callback = v => v.toFixed(1)+'%';
+  o2.plugins.legend.display = false;
+  const r2avg = periods.map(p=>{const vals=areas.map(a=>cm[a][p]).filter(v=>v!=null);return vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length*100)/100:null;});
+  mkChart('r-c2','bar',{labels:periods,datasets:[{data:r2avg,backgroundColor:r2avg.map(v=>v==null?'transparent':v>=0?'rgba(45,138,94,0.75)':'rgba(192,57,43,0.75)'),borderColor:r2avg.map(v=>v==null?'transparent':v>=0?'#2d8a5e':'#c0392b'),borderWidth:1,borderRadius:3}]},o2);
+
+  // Чарт 3 — бар последний месяц
+  const moName = last ? new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : '';
+  document.getElementById('r-c3-title').textContent = `Цены по округам — ${moName}`;
+  const o3 = cdefs(); o3.plugins.legend.display = false;
+  o3.indexAxis = 'y';
+  o3.scales.x = {ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},callback:v=>(v/1000).toFixed(0)+'K'},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}};
+  o3.scales.y = {ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10}},grid:{display:false},border:{color:'#e2ddd6'}};
+  const r3sorted = areas.map((a,i)=>({a,v:pm[a][last]||0,i})).sort((x,y)=>y.v-x.v);
+  mkChart('r-c3','bar',{labels:r3sorted.map(s=>s.a.replace(' АО','')),datasets:[{data:r3sorted.map(s=>s.v),backgroundColor:r3sorted.map(s=>CLR[s.i%CLR.length]+'99'),borderColor:r3sorted.map(s=>CLR[s.i%CLR.length]),borderWidth:1,borderRadius:3}]},o3);
+
+  // Чарт 4 — сравнение по комнатности (горизонтальный бар, последний месяц)
+  document.getElementById('r-c4-title').textContent = `Сравнение по комнатности — ${moName}`;
+  document.getElementById('r-c4-sub').textContent = cats.map(c=>CAT_NAMES[c]).join(' · ') + ' · ₽/мес';
+  const o4 = cdefs(); o4.indexAxis = 'y'; o4.scales.x.ticks.callback = v => (v/1000).toFixed(0)+'K';
+  o4.scales.y.ticks.font = {family:'IBM Plex Mono',size:10}; o4.plugins.legend.position = 'top';
+  const catColors = ['#aab4be','#b8924a','#4a8fa8','#6e9b7e','#9b8fd4','#c96e9b'];
+  mkChart('r-c4','bar',{labels:areas,datasets:cats.map((c,i)=>({label:CAT_NAMES[c],data:areas.map(a=>RENT[a]?.[c]?.[last]?.price||null),backgroundColor:catColors[i]+'99',borderColor:catColors[i],borderWidth:1,borderRadius:2}))},o4);
+
+  // Тепловая
+  mkHeatmap('r-hm', areas, periods, cm);
+
+  // Таблица
+  document.getElementById('r-tbl').classList.toggle('on', showT);
+  if (showT) {
+    // Таблица: строки=округа, колонки=месяцы*2 (цена+изм%)
+    const ps = periods.slice(-8);
+    let h = '<table class="dt"><thead><tr><th>Округ</th>';
+    ps.forEach(p => h += `<th colspan="2">${p.slice(2)}</th>`);
+    h += '</tr><tr><th></th>'; ps.forEach(() => h += '<th>₽/мес</th><th>изм.%</th>'); h += '</tr></thead><tbody>';
+    areas.forEach(a => {
+      h += `<tr><td>${a}</td>`;
+      ps.forEach(m => {
+        const pr = pm[a][m], ch = cm[a][m];
+        const ps2 = pr ? new Intl.NumberFormat('ru-RU').format(pr) : '—';
+        let cs = '—', cc = '';
+        if (ch != null) { cs = (ch>0?'+':'')+ch.toFixed(1)+'%'; cc = ch>0?'tp':ch<0?'tn':''; }
+        h += `<td>${ps2}</td><td class="${cc}">${cs}</td>`;
+      });
+      h += '</tr>';
+    });
+    h += '</tbody></table>';
+    document.getElementById('r-tbl-c').innerHTML = h;
+  }
+
+  // КАРТА АРЕНДЫ
+  if (GEO_AO && last) buildRentMap(last);
+  pushURL();
+}
+
+// Категории для переключателя карты
+const MAP_CAT_BTNS = [
+  {label:'Все',    cats:['0','1','2','3','4','5']},
+  {label:'Студии', cats:['0']},
+  {label:'1-комн.',cats:['1']},
+  {label:'2-комн.',cats:['2']},
+  {label:'3-комн.',cats:['3']},
+  {label:'3к+',   cats:['4','5']},
+];
+let rMapCat = 0; // индекс активной кнопки
+
+function initRentMapSwitcher() {
+  const sw = document.getElementById('r-map-switcher');
+  if (!sw) return;
+  sw.innerHTML = '';
+  MAP_CAT_BTNS.forEach((btn, i) => {
+    const b = document.createElement('button');
+    b.className = 'r-map-btn' + (i === rMapCat ? ' active' : '');
+    b.textContent = btn.label;
+    b.onclick = () => {
+      rMapCat = i;
+      sw.querySelectorAll('.r-map-btn').forEach((el, j) => el.classList.toggle('active', j === i));
+      const last = document.getElementById('rt').value;
+      if (last) buildRentMap(last);
+    };
+    sw.appendChild(b);
+  });
+}
+
+function buildRentMap(last) {
+  if (!GEO_AO || !last) return;
+  const cats = MAP_CAT_BTNS[rMapCat].cats;
+  const priceMap = {};
+  RENT_AREAS.forEach(a => {
+    const prices = cats.map(c => RENT[a]?.[c]?.[last]?.price).filter(Boolean);
+    if (prices.length) priceMap[a] = Math.round(prices.reduce((s,v) => s+v,0) / prices.length);
+  });
+  const catLabel = MAP_CAT_BTNS[rMapCat].label;
+  const moName = new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'});
+  document.getElementById('r-map-title').textContent = `Карта аренды — ${catLabel}`;
+  document.getElementById('r-map-sub').textContent = `₽/мес · ${moName}`;
+  const res = buildMap('r-map-svg', GEO_AO, priceMap, null, true);
+  if (res) drawLegend('r-leg-bar','r-leg-min','r-leg-max', res.minP, res.maxP);
+}
+
+// ═══════════════════════════════════════════
+// ЭКСПОРТ ГРАФИКОВ В PNG
+// ═══════════════════════════════════════════
+const LOGO_B64 = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAyNC4yLjEsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9IjAgMCA1MDAgNTAwIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA1MDAgNTAwOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8c3R5bGUgdHlwZT0idGV4dC9jc3MiPg0KCS5zdDB7ZmlsbDojOTYwMDRGO30NCgkuc3Qxe2ZpbGw6I0ZGRkZGRjt9DQo8L3N0eWxlPg0KPGc+DQoJPGc+DQoJCTxyZWN0IGNsYXNzPSJzdDAiIHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIi8+DQoJCTxwYXRoIGNsYXNzPSJzdDEiIGQ9Ik0zODguOCw3NS45Yy0yLjUsMC4xLTguNy0wLjItMTcuNCw2LjljLTMuOSwzLjItMTEuNSwxNS4zLTkuMywyNS40YzAuNywzLjMsMi41LDUuOSwzLjgsNy43DQoJCQljMy42LDQuOCwxMS4xLDcuOCwxNC40LDQuOWM0LTMuNSwxMS40LTMsMTQuMy00LjhjMi4yLTEuMyw4LjItNS4xLDExLjMtMTMuN0M0MDcuMiw5OC45LDQxNS4xLDc1LjMsMzg4LjgsNzUuOSIvPg0KCQk8cGF0aCBjbGFzcz0ic3QxIiBkPSJNNDMxLjksMjQ0Yy0xMy4yLTE2LjItNTYtNC4zLTY3LjUtMS45YzIuMS05LjksMjQuNC04MS45LDI1LjEtODkuNWMwLjUtNS4xLDAuNS0xMS4xLTYuNi0xNC43DQoJCQljLTE0LjMtNy4yLTMzLjgsNC4xLTQxLjEsOS44Yy05LjEsNy4xLTMuMiwwLjctMjcuOCwyMy4xYy0zMC4yLDI3LjYtNDEuMiw0MC4zLTQyLjYsMzkuOWMtMy4xLTAuNSwxNC4xLTM5LDE2LjgtNDkuMg0KCQkJYzEuOC02LjcsMy41LTExLjIsMS43LTE2LjljLTEuNy01LjQtNi0xMC0xNC4zLTEwLjljLTkuMy0xLTIxLjgsMy40LTM3LjksMTAuNWMtMjIuOCwxMC02OC4yLDM1LjQtODguNyw0OC42DQoJCQlDNDIuOCwyNjEuOCwzNS4xLDI3NSwzMi4yLDI4MS42Yy0yLjUsNS43LTEuNiwxMS42LDEsMTMuNGMzLjQsMi40LDguMSw0LjEsMTYtMmMxMC41LTgsMTQuNy0xOC4xLDM2LjQtMzcuNg0KCQkJYzQzLjgtMzkuMiw4Ni44LTYyLjIsMTA0LjEtNzIuNGMyMi43LTEzLjQsNDguMS0yMy43LDYwLjctMjguMWMwLjMtMC4xLTIwLjIsNTYtMjMuNyw2Ni41Yy04LjMsMjUuMS04LjEsMzMuOS0zLjIsMzkuNg0KCQkJYzYuNSw3LjQsMTcuOCw1LjIsMjYuMi0xLjFjNC45LTMuNiwxNy4xLTE4LjUsMjIuOS0yNC43YzUuOC02LjIsMTUuMi0xNS4zLDIzLjMtMjRzMjEuNy0yMS4zLDI5LjgtMjhjNi45LTUuNywxMi42LTEwLjMsMTQuMi05LjYNCgkJCWMyLjQsMS4xLTEuMiw4LjgtMS4yLDguOFMzMjguMiwyMTQsMzI0LjYsMjI2Yy0xLjUsNS4xLTQuMiwxNS4zLTcuMSwyNi43Yy02NC45LDE2LTEzMS43LDMzLTE2NC44LDQ0LjkNCgkJCUM4Ni4zLDMyMS40LDQzLDMzNi4yLDQ4LjEsMzUwLjNjNS44LDE1LjcsMzAuOS0xMCwxMTMuNi00MC4zYzM5LjYtMTQuNSw1MC43LTE3LjMsNzIuNy0yMi45YzMwLTcuNiw1NS4zLTEyLjcsNzkuNC0xNw0KCQkJYy0xLjEsNi4yLTEuNCwxNC4zLTAuNSwxOS4yYzIuMiwxMi4xLDEwLjEsMTUuMywxNi40LDE2LjZjOS43LDIsMjQuNy0wLjIsMjYuOC0yMS41YzAuNi02LjIsMi4yLTE1LjYsMi42LTE3LjkNCgkJCWMyLjEtMC40LDYuMy0xLjEsOS4xLTEuNGMyOC4yLTIuNywyOC40LDAuNCwzMS4zLDIuNmMzLDIuMiw1LjQsMTMsMjMuNCw1LjRDNDM5LjEsMjY2LjIsNDM2LjYsMjQ5LjksNDMxLjksMjQ0Ii8+DQoJCTxwYXRoIGNsYXNzPSJzdDEiIGQ9Ik0zMzMuMSwzNTUuM2wtMiw5LjloMTlsLTEsNC45aC0xOWwtMiw5LjloMTlsLTEsNC44aC0xOWwtMiw5LjloMTljMTguMiwwLDIwLjItNS41LDIzLjEtMTkuNw0KCQkJYzEuOC04LjcsNC0xOS44LTEyLjMtMTkuOEwzMzMuMSwzNTUuM0wzMzMuMSwzNTUuM3oiLz4NCgkJPHBhdGggY2xhc3M9InN0MSIgZD0iTTMwOCwzNTUuM2wtNiwyOS41aC02LjFsNi0yOS41aC0xOWwtNC43LDIzYy0yLjIsOS42LDEuMSwxNi40LDE1LjcsMTYuNEgzMTlsOC0zOS41TDMwOCwzNTUuM0wzMDgsMzU1LjN6Ii8+DQoJCTxwb2x5Z29uIGNsYXNzPSJzdDEiIHBvaW50cz0iMjQ4LjcsMzQyIDIzNi4yLDM3MC44IDIzNS45LDM3MC44IDIzNC45LDM0MiAyMDMuMSwzNDIgMTkyLjQsMzk0LjcgMjExLjUsMzk0LjcgMjE5LjksMzUzLjMgDQoJCQkyMjAuNCwzNTMuMyAyMjIuMSwzOTQuNyAyMzguOSwzOTQuNyAyNTcuNywzNTMuMyAyNTguMiwzNTMuMyAyNDkuNywzOTQuNyAyNjguOCwzOTQuNyAyNzkuNSwzNDIgCQkiLz4NCgkJPHBhdGggY2xhc3M9InN0MSIgZD0iTTM5NS40LDM1NS4zYy0xMy41LDAtMjAuMSw1LjMtMjIsMTQuOGwtNSwyNC43aDE5bDUuOS0yOS4xaDYuMWwtNiwyOS4xaDE5LjFsOC0zOS41SDM5NS40eiIvPg0KCQk8cGF0aCBjbGFzcz0ic3QxIiBkPSJNNDQ5LjcsMzY4Yy0wLjIsMC02LjYsMC02LjYsMGwyLjYtMTIuN2gtMTlsLTgsMzkuNWgyMi4xYzE0LjUsMCwyMi45LTQsMjQuNy0xMy4xDQoJCQlDNDY3LjMsMzcyLjQsNDU5LjksMzY4LjEsNDQ5LjcsMzY4IE00MzkuNiwzODQuOGwxLjUtNy4yaDYuMWwtMS41LDcuMkg0MzkuNnoiLz4NCgk8L2c+DQo8L2c+DQo8L3N2Zz4NCg==';
+
+// Получает строку «данные за XXX 2026» из последнего периода данных
+function getDataPeriodLabel() {
+  const periods = [...new Set(MOS.map(r => r.period))].sort();
+  const last = periods[periods.length - 1];
+  if (!last) return '';
+  return 'данные за ' + new Date(last + '-01').toLocaleString('ru-RU', {month: 'long', year: 'numeric'});
+}
+
+async function exportChart(canvasId, btn) {
+  const src = document.getElementById(canvasId);
+  if (!src) return;
+
+  const origText = btn.textContent;
+  btn.textContent = '...';
+  btn.disabled = true;
+
+  // Получаем заголовок из ближайшего .ct над кнопкой
+  const card = btn.closest('.card, .split-chart');
+  const titleEl = card ? card.querySelector('.ct') : null;
+  const titleText = titleEl ? titleEl.textContent.trim() : '';
+  const periodLabel = getDataPeriodLabel();
+
+  const PADDING   = 28;   // отступы по бокам и снизу
+  const TOP_BAR   = 52;   // полоса сверху: заголовок + дата
+  const BOT_BAR   = 44;   // полоса снизу: логотип
+  const LOGO_SIZE = 32;   // высота логотипа
+  const LOGO_OFF  = (BOT_BAR - LOGO_SIZE) / 2; // отступ логотипа сверху внутри нижней полосы
+
+  const W = src.width;
+  const H = src.height;
+
+  const out = document.createElement('canvas');
+  out.width  = W + PADDING * 2;
+  out.height = H + TOP_BAR + BOT_BAR;
+
+  const ctx = out.getContext('2d');
+
+  // Фон — белый
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, out.width, out.height);
+
+  // Тонкая разделительная линия под заголовком
+  ctx.strokeStyle = '#e2ddd6';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(PADDING, TOP_BAR - 1);
+  ctx.lineTo(out.width - PADDING, TOP_BAR - 1);
+  ctx.stroke();
+
+  // Заголовок графика
+  ctx.fillStyle = '#b8924a';
+  ctx.font = '500 15px "Playfair Display", Georgia, serif';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(titleText, PADDING, TOP_BAR * 0.38);
+
+  // Период данных
+  ctx.fillStyle = '#7a7268';
+  ctx.font = '400 11px "IBM Plex Mono", monospace';
+  ctx.fillText(periodLabel, PADDING, TOP_BAR * 0.72);
+
+  // Сам график
+  ctx.drawImage(src, PADDING, TOP_BAR);
+
+  // Нижняя разделительная линия
+  ctx.strokeStyle = '#e2ddd6';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(PADDING, TOP_BAR + H + 1);
+  ctx.lineTo(out.width - PADDING, TOP_BAR + H + 1);
+  ctx.stroke();
+
+  // Логотип — справа, смещение = половина высоты логотипа от края
+  const logo = new Image();
+  logo.src = LOGO_B64;
+  await logo.decode();
+  const logoH = LOGO_SIZE;
+  const logoW = logoH; // логотип квадратный 500×500
+  // правый край: из.width - logoW/2 = правая граница логотипа, т.е. x = out.width - logoW - logoW/2
+  const logoX = out.width - logoW - PADDING - logoW / 2;
+  const logoY = TOP_BAR + H + LOGO_OFF;
+  ctx.drawImage(logo, logoX, logoY, logoW, logoH);
+
+  // Имя файла: транслитерируем заголовок
+  const fname = (titleText || canvasId)
+    .toLowerCase()
+    .replace(/[а-яё]/g, c => ({а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'ts',ч:'ch',ш:'sh',щ:'sch',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya'}[c] || c))
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_|_$/g, '')
+    .slice(0, 40);
+
+  out.toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = fname + '.png';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    btn.textContent = origText;
+    btn.disabled = false;
+  }, 'image/png');
+}
+
+// ═══════════════════════════════════════════
+// WAFFLE CHART
+// ═══════════════════════════════════════════
+function drawWaffle(elId, items, colors) {
+  const wrap = document.getElementById(elId);
+  if (!wrap) return;
+
+  const tt = document.getElementById('map-tt');
+  const total = items.reduce((s,d) => s+d.value, 0);
+
+  // Строим плоский массив 100 ячеек
+  const cells = [];
+  items.forEach((d,i) => {
+    const count = Math.round(d.value / total * 100);
+    for (let j = 0; j < count; j++) cells.push({...d, colorIdx: i});
+  });
+  // Дополняем/обрезаем до ровно 100
+  while (cells.length < 100) cells.push({...items[0], colorIdx: 0});
+  cells.length = 100;
+
+  // Сетка
+  const grid = document.createElement('div');
+  grid.className = 'waffle-grid';
+  cells.forEach(d => {
+    const cell = document.createElement('div');
+    cell.className = 'waffle-cell';
+    cell.style.background = colors[d.colorIdx] + 'cc';
+    cell.style.border = '1.5px solid ' + colors[d.colorIdx];
+    cell.addEventListener('mousemove', e => {
+      tt.style.display='block';
+      tt.style.left=(e.clientX+14)+'px';
+      tt.style.top=(e.clientY-10)+'px';
+      tt.innerHTML=`<div class="tt-name">${d.label}</div><div class="tt-price">${d.value}% новых объектов</div>`;
+    });
+    cell.addEventListener('mouseleave', () => tt.style.display='none');
+    grid.appendChild(cell);
+  });
+
+  // Легенда
+  const legend = document.createElement('div');
+  legend.className = 'waffle-legend';
+  items.forEach((d,i) => {
+    const row = document.createElement('div');
+    row.className = 'waffle-leg-row';
+    row.innerHTML = `
+      <div class="waffle-leg-dot" style="background:${colors[i]}cc;border:1.5px solid ${colors[i]}"></div>
+      <span class="waffle-leg-lbl">${d.label}</span>
+      <span class="waffle-leg-val">${d.value}%</span>
+    `;
+    legend.appendChild(row);
+  });
+
+  wrap.innerHTML = '';
+  wrap.appendChild(grid);
+  wrap.appendChild(legend);
+}
+
+// Экспорт waffle в PNG — рисуем на offscreen canvas
+async function exportWaffle(elId, btn) {
+  const wrap = document.getElementById(elId);
+  if (!wrap) return;
+  const origText = btn.textContent;
+  btn.textContent = '...'; btn.disabled = true;
+
+  const card = btn.closest('.card, .split-chart');
+  const titleEl = card ? card.querySelector('.ct') : null;
+  const titleText = titleEl ? titleEl.textContent.trim() : '';
+  const periodLabel = getDataPeriodLabel();
+
+  // Параметры сетки
+  const COLS=10, ROWS=10, CELL=24, GAP=3, PAD_GRID=0;
+  const gridW = COLS*CELL + (COLS-1)*GAP;
+  const gridH = ROWS*CELL + (ROWS-1)*GAP;
+  const LEG_X = gridW + 24;
+  const LEG_W = 160;
+  const TOP_BAR=52, BOT_BAR=44, SIDE_PAD=28;
+  const W = SIDE_PAD + gridW + LEG_W + 24 + SIDE_PAD;
+  const H = TOP_BAR + Math.max(gridH, ROOMS_DATA.labels.length*28) + 20 + BOT_BAR;
+
+  const out = document.createElement('canvas');
+  out.width=W; out.height=H;
+  const ctx = out.getContext('2d');
+
+  // Фон
+  ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,W,H);
+
+  // Линия под заголовком
+  ctx.strokeStyle='#e2ddd6'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(SIDE_PAD,TOP_BAR-1); ctx.lineTo(W-SIDE_PAD,TOP_BAR-1); ctx.stroke();
+
+  // Заголовок
+  ctx.fillStyle='#b8924a';
+  ctx.font='500 15px "Playfair Display",Georgia,serif';
+  ctx.textBaseline='middle';
+  ctx.fillText(titleText, SIDE_PAD, TOP_BAR*0.38);
+  ctx.fillStyle='#7a7268';
+  ctx.font='400 11px "IBM Plex Mono",monospace';
+  ctx.fillText(periodLabel, SIDE_PAD, TOP_BAR*0.72);
+
+  // Ячейки
+  const cells=[];
+  ROOMS_DATA.labels.forEach((lbl,i)=>{
+    const count=Math.round(ROOMS_DATA.values[i]/100*100);
+    for(let j=0;j<count;j++) cells.push({label:lbl,value:ROOMS_DATA.values[i],ci:i});
+  });
+  while(cells.length<100) cells.push({...cells[0]});
+  cells.length=100;
+
+  cells.forEach((d,idx)=>{
+    const col=idx%COLS, row=Math.floor(idx/COLS);
+    const cx=SIDE_PAD + col*(CELL+GAP);
+    const cy=TOP_BAR + 10 + row*(CELL+GAP);
+    const clr=ROOMS_CLR[d.ci];
+    const rad=3;
+    ctx.beginPath();
+    ctx.moveTo(cx+rad,cy); ctx.lineTo(cx+CELL-rad,cy);
+    ctx.arcTo(cx+CELL,cy,cx+CELL,cy+rad,rad);
+    ctx.lineTo(cx+CELL,cy+CELL-rad);
+    ctx.arcTo(cx+CELL,cy+CELL,cx+CELL-rad,cy+CELL,rad);
+    ctx.lineTo(cx+rad,cy+CELL);
+    ctx.arcTo(cx,cy+CELL,cx,cy+CELL-rad,rad);
+    ctx.lineTo(cx,cy+rad);
+    ctx.arcTo(cx,cy,cx+rad,cy,rad);
+    ctx.closePath();
+    ctx.fillStyle=clr+'cc'; ctx.fill();
+    ctx.strokeStyle=clr; ctx.lineWidth=1.5; ctx.stroke();
+  });
+
+  // Легенда
+  ROOMS_DATA.labels.forEach((lbl,i)=>{
+    const ly = TOP_BAR + 14 + i*28;
+    const clr=ROOMS_CLR[i];
+    ctx.fillStyle=clr+'cc';
+    ctx.strokeStyle=clr; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.roundRect(SIDE_PAD+LEG_X,ly,12,12,2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#7a7268';
+    ctx.font='400 12px "IBM Plex Sans",sans-serif';
+    ctx.textBaseline='middle'; ctx.textAlign='left';
+    ctx.fillText(lbl, SIDE_PAD+LEG_X+18, ly+6);
+    ctx.fillStyle='#1c1a17';
+    ctx.font='500 11px "IBM Plex Mono",monospace';
+    ctx.fillText(ROOMS_DATA.values[i]+'%', SIDE_PAD+LEG_X+80, ly+6);
+  });
+
+  // Нижняя линия
+  ctx.strokeStyle='#e2ddd6'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(SIDE_PAD,H-BOT_BAR+1); ctx.lineTo(W-SIDE_PAD,H-BOT_BAR+1); ctx.stroke();
+
+  // Логотип
+  const logo=new Image(); logo.src=LOGO_B64; await logo.decode();
+  const lh=32, lw=32;
+  ctx.drawImage(logo, W-lw-SIDE_PAD-lw/2, H-BOT_BAR+(BOT_BAR-lh)/2, lw, lh);
+
+  const fname='struktura_po_komnatnosti';
+  out.toBlob(blob=>{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=fname+'.png'; a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+    btn.textContent=origText; btn.disabled=false;
+  },'image/png');
+}
+
+// ═══════════════════════════════════════════
+// PERMALINK — состояние фильтров в URL
+// ═══════════════════════════════════════════
+
+function pushURL() {
+  const sp = new URLSearchParams();
+  const tab = ['m','d','r','reg-m','reg-mo'].find(x => document.getElementById('panel-'+x).classList.contains('active')) || 'm';
+  sp.set('tab', tab);
+  if (tab === 'm') {
+    sp.set('from', document.getElementById('mf').value);
+    sp.set('to',   document.getElementById('mt').value);
+  } else if (tab === 'd') {
+    const dist = document.getElementById('d-sel').value;
+    if (dist) sp.set('dist', dist);
+    sp.set('from', document.getElementById('df').value);
+    sp.set('to',   document.getElementById('dt2').value);
+  } else if (tab === 'r') {
+    sp.set('from', document.getElementById('rf').value);
+    sp.set('to',   document.getElementById('rt').value);
+  }
+  history.replaceState(null, '', '?' + sp.toString());
+}
+
+function restoreFromURL() {
+  const sp = new URLSearchParams(location.search);
+  if (!sp.has('tab')) return;
+
+  const tab  = sp.get('tab');
+  const from = sp.get('from');
+  const to   = sp.get('to');
+  const dist = sp.get('dist');
+
+  if (tab === 'd' && dist) {
+    const sel = document.getElementById('d-sel');
+    if (sel && [...sel.options].some(o => o.value === dist)) {
+      sel.value = dist;
+      if (from) document.getElementById('df').value  = from;
+      if (to)   document.getElementById('dt2').value = to;
+      dDistChange();
+    }
+    switchTab('d');
+  } else if (tab === 'r') {
+    if (from) document.getElementById('rf').value = from;
+    if (to)   document.getElementById('rt').value = to;
+    switchTab('r');
+    rUpdate();
+  } else if (tab === 'reg-m') {
+    switchTab('reg-m');
+  } else if (tab === 'reg-mo') {
+    switchTab('reg-mo');
+  } else {
+    if (from) document.getElementById('mf').value = from;
+    if (to)   document.getElementById('mt').value = to;
+    mUpdate();
+  }
+}
+
+// ═══════════════════════════════════════════
+// РОСРЕЕСТР МОСКВА
+// ═══════════════════════════════════════════
+
+async function loadRegData() {
+  try {
+    const resp = await fetch('data/rosreestr.json');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+
+    // Данные уже нормализованы — period в формате YYYY-MM, числа как числа
+    REG_URFRS      = data.urfrs_moscow  || [];
+    REG_BUDGET_MSK = data.budget_moscow || [];
+    REG_TYPO_MSK   = data.typo_moscow   || [];
+    REG_PRICE_MSK  = data.price_moscow  || [];
+    REG_BUDGET_MO  = data.budget_mo     || [];
+    REG_TYPO_MO    = data.typo_mo       || [];
+    REG_PRICE_MO   = data.price_mo      || [];
+    REG_RANGE_MO   = data.range_mo      || [];
+
+    // Определяем последний период
+    const allP = [...new Set([
+      ...REG_BUDGET_MSK.map(r=>r.period),
+      ...REG_TYPO_MSK.map(r=>r.period),
+      ...REG_PRICE_MSK.map(r=>r.period)
+    ])].filter(Boolean).sort();
+
+    const latest = allP[allP.length-1] || '2026-02';
+    // Правильное вычисление "2 года назад"
+    const latestYear = parseInt(latest.slice(0,4));
+    const latestMo   = latest.slice(4); // '-02'
+    const twoYearsAgo = (latestYear - 2) + latestMo;
+
+    const fEl = document.getElementById('regm-f');
+    const tEl = document.getElementById('regm-t');
+    if (fEl && !fEl.value) fEl.value = twoYearsAgo >= (allP[0]||'') ? twoYearsAgo : (allP[0]||'');
+    if (tEl && !tEl.value) tEl.value = latest;
+
+    // Фильтры МО
+    const allPMo = [...new Set([
+      ...REG_BUDGET_MO.map(r=>r.period),
+      ...REG_PRICE_MO.map(r=>r.period),
+    ])].filter(Boolean).sort();
+    const latestMoPeriod = allPMo[allPMo.length-1] || latest;
+    const latestMoYear = parseInt(latestMoPeriod.slice(0,4));
+    const twoYearsAgoMo = (latestMoYear - 2) + latestMoPeriod.slice(4);
+    const fMoEl = document.getElementById('regmo-f');
+    const tMoEl = document.getElementById('regmo-t');
+    if (fMoEl && !fMoEl.value) fMoEl.value = twoYearsAgoMo >= (allPMo[0]||'') ? twoYearsAgoMo : (allPMo[0]||'');
+    if (tMoEl && !tMoEl.value) tMoEl.value = latestMoPeriod;
+
+    // Обновляем badge
+    const lastPeriod = REG_URFRS.length ? REG_URFRS[REG_URFRS.length-1].period : latest;
+    document.getElementById('hdr-badge').textContent = lastPeriod;
+
+    regMUpdate();
+    if (regMoInited) regMoUpdate();
+  } catch(e) {
+    console.warn('Росреестр МСК не загружен:', e.message);
+    document.getElementById('regm-data-period').textContent = 'ошибка загрузки данных';
+  }
+}
+
+function regMUpdate() {
+  if (!REG_URFRS.length && !REG_BUDGET_MSK.length) return;
+
+  const fEl = document.getElementById('regm-f');
+  const tEl = document.getElementById('regm-t');
+  const from = fEl ? fEl.value : '2024-01';
+  const to   = tEl ? tEl.value : '2026-12';
+
+  drawRegUrfrs(from, to);
+  drawRegUrfrsTable();
+  drawRegBudget(from, to);
+  drawRegTypo(from, to);
+  drawRegPrice(from, to);
+  drawRegKPIs();
+}
+
+// ── KPI ──────────────────────────────────────────────
+function drawRegKPIs() {
+  // Последний период УФРС
+  const urfrsAll = REG_URFRS.slice().sort((a,b)=>a.period<b.period?-1:1);
+  const last2 = urfrsAll.filter(r=>r.period>='2026-01').slice(-2);
+  const lastR = urfrsAll[urfrsAll.length-1];
+  if (lastR) {
+    document.getElementById('regm-k1').textContent = new Intl.NumberFormat('ru-RU').format(lastR.rights);
+    document.getElementById('regm-k1s').textContent = lastR.period.replace('-','/');
+    // к прошлому году
+    const lastMo = lastR.period.slice(5);
+    const lastYr = parseInt(lastR.period.slice(0,4));
+    const prevYear = urfrsAll.find(r=>r.period === `${lastYr-1}-${lastMo}`);
+    if (prevYear) {
+      const chg = (lastR.rights / prevYear.rights - 1) * 100;
+      const el = document.getElementById('regm-k2');
+      el.textContent = (chg > 0 ? '+' : '') + chg.toFixed(1) + '%';
+      el.style.color = chg > 0 ? 'var(--pos)' : 'var(--neg)';
+    }
+  }
+  // Последний чек по комнатности
+  const priceData = REG_PRICE_MSK.slice().sort((a,b)=>a.period<b.period?-1:1);
+  const lastPrice = priceData[priceData.length-1];
+  if (lastPrice) {
+    if (lastPrice.avg_k1) {
+      document.getElementById('regm-k3').textContent = lastPrice.avg_k1.toFixed(1);
+      document.getElementById('regm-k3s').textContent = `млн руб · ${lastPrice.period.replace('-','/')}`;
+    }
+    if (lastPrice.avg_k2) {
+      document.getElementById('regm-k4').textContent = lastPrice.avg_k2.toFixed(1);
+      document.getElementById('regm-k4s').textContent = `млн руб · ${lastPrice.period.replace('-','/')}`;
+    }
+  }
+}
+
+// ── УФРС: multi-line по годам ────────────────────────
+function drawRegUrfrs(from, to) {
+  const MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+  const data = REG_URFRS.filter(r => r.period >= '2019-01');
+  const years = [...new Set(data.map(r => r.period.slice(0,4)))].sort();
+  const currentYear = years[years.length-1];
+
+  const datasets = years.map(yr => {
+    const isCurrent = yr === currentYear;
+    const baseColor = isCurrent ? REG_CURRENT_COLOR : CLR[years.indexOf(yr) % CLR.length];
+    const values = MONTHS.map((_, mi) => {
+      const p = `${yr}-${String(mi+1).padStart(2,'0')}`;
+      const row = data.find(r => r.period === p);
+      return row ? row.rights : null;
+    });
+    return {
+      label: yr,
+      data: values,
+      borderColor: baseColor,
+      backgroundColor: isCurrent ? baseColor + '18' : 'transparent',
+      borderWidth: isCurrent ? 2.5 : 1.5,
+      pointRadius: isCurrent ? 5 : 2,
+      pointHoverRadius: 6,
+      pointBackgroundColor: isCurrent ? baseColor : baseColor + '80',
+      tension: 0.3,
+      spanGaps: true,
+      fill: isCurrent,
+      order: isCurrent ? 0 : 1,
+    };
+  });
+
+  const o = cdefs();
+  o.scales.x = { ticks: { color: '#7a7268', font: { family: 'IBM Plex Mono', size: 10 } }, grid: { color: '#f0ece5' }, border: { color: '#e2ddd6' } };
+  o.scales.y = {
+    grace: '15%',
+    ticks: { color: '#7a7268', font: { family: 'IBM Plex Mono', size: 10 }, callback: v => new Intl.NumberFormat('ru-RU').format(v) },
+    grid: { color: 'rgba(226,221,214,.7)' }, border: { color: '#e2ddd6' }
+  };
+  o.plugins.legend = { display: true, position: 'bottom', labels: { font: { family: 'IBM Plex Mono', size: 10 }, boxWidth: 24, padding: 10 } };
+  o.plugins.tooltip.callbacks.label = ctx => {
+    const v = ctx.raw;
+    if (v == null) return null;
+    return ` ${ctx.dataset.label}: ${new Intl.NumberFormat('ru-RU').format(v)}`;
+  };
+
+  // Inline плагин для подписей текущего года
+  const labelPlugin = {
+    id: 'regmLabels',
+    afterDatasetsDraw(chart) {
+      const dsIdx = chart.data.datasets.findIndex(d => d.label === currentYear);
+      if (dsIdx < 0) return;
+      const meta = chart.getDatasetMeta(dsIdx);
+      if (!meta || !meta.data) return;
+      const ctx = chart.ctx;
+      ctx.save();
+      ctx.font = 'bold 9px "IBM Plex Mono", monospace';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      meta.data.forEach((pt, i) => {
+        const v = chart.data.datasets[dsIdx].data[i];
+        if (v == null || v === 0) return;
+        const label = new Intl.NumberFormat('ru-RU').format(v);
+        const tw = ctx.measureText(label).width;
+        const px = pt.x + 7;   // правее точки
+        const py = pt.y - 1;   // чуть выше центра точки
+        const pad = 3;
+        // Подложка
+        ctx.fillStyle = 'rgba(255,255,255,0.88)';
+        ctx.fillRect(px - pad, py - 7, tw + pad * 2, 14);
+        // Текст
+        ctx.fillStyle = REG_CURRENT_COLOR;
+        ctx.fillText(label, px, py);
+      });
+      ctx.restore();
+    }
+  };
+
+  if (CH['regm-c1']) CH['regm-c1'].destroy();
+  CH['regm-c1'] = new Chart(document.getElementById('regm-c1'), {
+    type: 'line',
+    data: { labels: MONTHS, datasets },
+    options: o,
+    plugins: [labelPlugin],
+  });
+}
+
+// ── УФРС: таблица ────────────────────────────────────
+function drawRegUrfrsTable() {
+  const MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+  const data = REG_URFRS.filter(r => r.period >= '2019-01');
+  const years = [...new Set(data.map(r => r.period.slice(0,4)))].sort();
+
+  const map = {};
+  data.forEach(r => { map[r.period] = r.rights; });
+
+  const latestYear = years[years.length-1];
+  const prevYear   = years[years.length-2];
+
+  function fmtChg(chg) {
+    if (chg === null) return '—';
+    const arrow = chg > 0 ? '↑' : '↓';
+    const cls   = chg > 0 ? 'tp' : 'tn';
+    const sign  = chg > 0 ? '+' : '';
+    return `<span class="${cls}" style="font-weight:600">${arrow} ${sign}${chg.toFixed(1)}%</span>`;
+  }
+
+  let h = '<table class="dt"><thead><tr><th>Месяц</th>';
+  years.forEach(yr => {
+    const style = yr === latestYear ? ' style="color:var(--gold)"' : '';
+    h += `<th${style}>${yr}</th>`;
+  });
+  h += '<th style="color:var(--gold)">% к пред. году</th></tr></thead><tbody>';
+
+  MONTHS.forEach((mon, mi) => {
+    h += `<tr><td>${mon}</td>`;
+    years.forEach(yr => {
+      const p = `${yr}-${String(mi+1).padStart(2,'0')}`;
+      const v = map[p];
+      const style = yr === latestYear ? ' style="color:var(--gold);font-weight:500"' : '';
+      h += `<td${style}>${v ? new Intl.NumberFormat('ru-RU').format(v) : '—'}</td>`;
+    });
+    // % к прошлому году
+    const pLast = `${latestYear}-${String(mi+1).padStart(2,'0')}`;
+    const pPrev = `${prevYear}-${String(mi+1).padStart(2,'0')}`;
+    if (map[pLast] && map[pPrev]) {
+      const chg = (map[pLast] / map[pPrev] - 1) * 100;
+      h += `<td>${fmtChg(chg)}</td>`;
+    } else {
+      h += '<td>—</td>';
+    }
+    h += '</tr>';
+  });
+
+  // Итоговая строка — только месяцы где есть данные
+  h += '<tr style="border-top:2px solid var(--border)"><td style="color:var(--gold);font-weight:600">ИТОГО</td>';
+  const yearSums = {};
+  years.forEach(yr => {
+    let sum = 0, count = 0;
+    MONTHS.forEach((_, mi) => {
+      const v = map[`${yr}-${String(mi+1).padStart(2,'0')}`];
+      if (v) { sum += v; count++; }
+    });
+    yearSums[yr] = count > 0 ? sum : null;
+    const style = yr === latestYear ? ' style="color:var(--gold);font-weight:600"' : '';
+    h += `<td${style}>${yearSums[yr] ? new Intl.NumberFormat('ru-RU').format(yearSums[yr]) : '—'}</td>`;
+  });
+  // % итого
+  if (yearSums[latestYear] && yearSums[prevYear]) {
+    const chg = (yearSums[latestYear] / yearSums[prevYear] - 1) * 100;
+    h += `<td>${fmtChg(chg)}</td>`;
+  } else h += '<td>—</td>';
+  h += '</tr></tbody></table>';
+
+  document.getElementById('regm-tbl-urfrs').innerHTML = h;
+}
+
+// ── Ручные подписи точек текущего года на canvas ─────
+const REG_CURRENT_COLOR = '#960047';
+
+function drawRegUrfrsLabels(currentYear, data, months) {
+  const chart = CH['regm-c1'];
+  if (!chart) return;
+  // Ждём пока Chart.js завершит анимацию
+  const dsIdx = chart.data.datasets.findIndex(d => d.label === currentYear);
+  if (dsIdx < 0) return;
+  const meta = chart.getDatasetMeta(dsIdx);
+  if (!meta || !meta.data || !meta.data.length) return;
+  const ctx = chart.ctx;
+  ctx.save();
+  ctx.font = 'bold 9px IBM Plex Mono, monospace';
+  ctx.fillStyle = REG_CURRENT_COLOR;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  meta.data.forEach((pt, i) => {
+    const v = chart.data.datasets[dsIdx].data[i];
+    if (v == null || v === 0) return;
+    const label = new Intl.NumberFormat('ru-RU').format(v);
+    ctx.fillText(label, pt.x, pt.y - 5);
+  });
+  ctx.restore();
+}
+
+// ── БЮДЖЕТ МСК: stacked bar ──────────────────────────
+function drawRegBudget(from, to) {
+  const data = REG_BUDGET_MSK.filter(r => r.period >= from && r.period <= to)
+                              .sort((a,b) => a.period < b.period ? -1 : 1);
+  if (!data.length) return;
+
+  const labels = data.map(r => {
+    const d = new Date(r.period + '-01');
+    return d.toLocaleString('ru-RU', { month: 'short', year: '2-digit' });
+  });
+
+  const fields = [
+    { key: 'lt9',    label: 'до 9 млн',     color: '#4a8fa8' },
+    { key: 'b9_12',  label: '9–12 млн',     color: '#7a9e7e' },
+    { key: 'b12_15', label: '12–15 млн',    color: '#b8924a' },
+    { key: 'b15_30', label: '15–30 млн',    color: '#9b8fd4' },
+    { key: 'gt30',   label: 'свыше 30 млн', color: '#e07b7b' },
+  ];
+
+  const o = cdefs();
+  o.scales.x = { stacked: true, ticks: { color: '#7a7268', font: { family: 'IBM Plex Mono', size: 10 } }, grid: { display: false }, border: { color: '#e2ddd6' } };
+  o.scales.y = { stacked: true, min: 0, max: 1, ticks: { color: '#7a7268', font: { family: 'IBM Plex Mono', size: 10 }, callback: v => Math.round(v*100) + '%' }, grid: { color: 'rgba(226,221,214,.7)' }, border: { color: '#e2ddd6' } };
+  o.plugins.tooltip.callbacks.label = ctx => {
+    const v = ctx.raw;
+    if (v == null) return null;
+    return ` ${ctx.dataset.label}: ${(v*100).toFixed(1)}%`;
+  };
+  o.plugins.legend = { display: true, position: 'bottom', labels: { font: { family: 'IBM Plex Mono', size: 10 }, boxWidth: 12, padding: 10 } };
+
+  mkChart('regm-c2', 'bar', {
+    labels,
+    datasets: fields.map(f => ({
+      label: f.label,
+      data: data.map(r => {
+        const v = parseFloat(r[f.key]);
+        return isNaN(v) ? null : v;
+      }),
+      backgroundColor: f.color + 'cc',
+      borderColor: f.color,
+      borderWidth: 0,
+    }))
+  }, o);
+}
+
+// ── ТИПОЛОГИЯ МСК: stacked bar ───────────────────────
+function drawRegTypo(from, to) {
+  const data = REG_TYPO_MSK.filter(r => r.period >= from && r.period <= to)
+                             .sort((a,b) => a.period < b.period ? -1 : 1);
+  if (!data.length) return;
+
+  const labels = data.map(r => {
+    const d = new Date(r.period + '-01');
+    return d.toLocaleString('ru-RU', { month: 'short', year: '2-digit' });
+  });
+
+  const fields = [
+    { key: 'rooms', label: 'Комнаты',    color: '#aab4be' },
+    { key: 'k1',    label: '1-комн.',    color: '#4a8fa8' },
+    { key: 'k2',    label: '2-комн.',    color: '#7a9e7e' },
+    { key: 'k3',    label: '3-комн.',    color: '#b8924a' },
+    { key: 'multi', label: 'Многокомн.', color: '#9b8fd4' },
+  ];
+
+  const o = cdefs();
+  o.scales.x = { stacked: true, ticks: { color: '#7a7268', font: { family: 'IBM Plex Mono', size: 10 } }, grid: { display: false }, border: { color: '#e2ddd6' } };
+  o.scales.y = { stacked: true, min: 0, max: 1, ticks: { color: '#7a7268', font: { family: 'IBM Plex Mono', size: 10 }, callback: v => Math.round(v*100) + '%' }, grid: { color: 'rgba(226,221,214,.7)' }, border: { color: '#e2ddd6' } };
+  o.plugins.tooltip.callbacks.label = ctx => {
+    const v = ctx.raw;
+    if (v == null) return null;
+    return ` ${ctx.dataset.label}: ${(v*100).toFixed(1)}%`;
+  };
+  o.plugins.legend = { display: true, position: 'bottom', labels: { font: { family: 'IBM Plex Mono', size: 10 }, boxWidth: 12, padding: 10 } };
+
+  mkChart('regm-c3', 'bar', {
+    labels,
+    datasets: fields.map(f => ({
+      label: f.label,
+      data: data.map(r => {
+        const v = parseFloat(r[f.key]);
+        return isNaN(v) ? null : v;
+      }),
+      backgroundColor: f.color + 'cc',
+      borderColor: f.color,
+      borderWidth: 0,
+    }))
+  }, o);
+}
+
+// ── СРЕДНИЙ ЧЕК: линейный ───────────────────────────
+function drawRegPrice(from, to) {
+  const data = REG_PRICE_MSK.filter(r => r.period >= from && r.period <= to && (r.avg_k1 || r.avg_k2 || r.avg_k3))
+                              .sort((a,b) => a.period < b.period ? -1 : 1);
+  if (!data.length) return;
+
+  const labels = data.map(r => {
+    const d = new Date(r.period + '-01');
+    return d.toLocaleString('ru-RU', { month: 'short', year: '2-digit' });
+  });
+
+  const fields = [
+    { key: 'avg_k1', label: '1-комн.', color: '#4a8fa8' },
+    { key: 'avg_k2', label: '2-комн.', color: '#b8924a' },
+    { key: 'avg_k3', label: '3-комн.', color: '#9b8fd4' },
+  ];
+
+  const o = cdefs();
+  o.scales.x = { ticks: { color: '#7a7268', font: { family: 'IBM Plex Mono', size: 10 }, maxRotation: 45 }, grid: { color: '#f0ece5' }, border: { color: '#e2ddd6' } };
+  o.scales.y = { ticks: { color: '#7a7268', font: { family: 'IBM Plex Mono', size: 10 }, callback: v => v + ' млн' }, grid: { color: 'rgba(226,221,214,.7)' }, border: { color: '#e2ddd6' } };
+  o.plugins.tooltip.callbacks.label = ctx => {
+    const v = ctx.raw;
+    if (v == null) return null;
+    return ` ${ctx.dataset.label}: ${v} млн руб`;
+  };
+  o.plugins.legend = { display: true, position: 'bottom', labels: { font: { family: 'IBM Plex Mono', size: 10 }, boxWidth: 24, padding: 10, usePointStyle: true } };
+
+  mkChart('regm-c4', 'line', {
+    labels,
+    datasets: fields.map(f => ({
+      label: f.label,
+      data: data.map(r => r[f.key]),
+      borderColor: f.color,
+      backgroundColor: f.color + '15',
+      borderWidth: 2,
+      pointRadius: 3,
+      pointHoverRadius: 6,
+      tension: 0.3,
+      spanGaps: true,
+    }))
+  }, o);
+}
+
+// ═══════════════════════════════════════════
+// РОСРЕЕСТР МО
+// ═══════════════════════════════════════════
+
+function regMoUpdate() {
+  if (!REG_BUDGET_MO.length && !REG_PRICE_MO.length) return;
+  const from = document.getElementById('regmo-f')?.value || '2024-01';
+  const to   = document.getElementById('regmo-t')?.value || '2026-12';
+  drawRegMoKPIs();
+  drawRegMoBudget(from, to);
+  drawRegMoTypo(from, to);
+  drawRegMoPrice(from, to);
+  drawRegMoRange(from, to);
+}
+
+function drawRegMoKPIs() {
+  const data = REG_PRICE_MO.slice().sort((a,b)=>a.period<b.period?-1:1);
+  const last = data[data.length-1];
+  const prev = data[data.length-2];
+  if (!last) return;
+  ['k1','k2','k3'].forEach((k,i) => {
+    const el = document.getElementById(`regmo-k${i+1}`);
+    const sub = document.getElementById(`regmo-k${i+1}s`);
+    if (el && last[`avg_${k}`]) {
+      el.textContent = last[`avg_${k}`].toFixed(2);
+      if (sub) sub.textContent = `млн руб · ${last.period.replace('-','/')}`;
+    }
+  });
+  // Изм. чека 2-комн к пред. месяцу
+  if (last.avg_k2 && prev?.avg_k2) {
+    const chg = (last.avg_k2 / prev.avg_k2 - 1) * 100;
+    const el = document.getElementById('regmo-k4');
+    if (el) {
+      el.textContent = (chg > 0 ? '+' : '') + chg.toFixed(1) + '%';
+      el.style.color = chg > 0 ? 'var(--pos)' : 'var(--neg)';
+    }
+  }
+}
+
+function drawRegMoBudget(from, to) {
+  const data = REG_BUDGET_MO.filter(r=>r.period>=from&&r.period<=to).sort((a,b)=>a.period<b.period?-1:1);
+  if (!data.length) return;
+  const labels = data.map(r=>new Date(r.period+'-01').toLocaleString('ru-RU',{month:'short',year:'2-digit'}));
+  const fields = [
+    {key:'lt6',   label:'до 6 млн',   color:'#4a8fa8'},
+    {key:'b6_9',  label:'6–9 млн',    color:'#7a9e7e'},
+    {key:'b9_12', label:'9–12 млн',   color:'#b8924a'},
+    {key:'b12_15',label:'12–15 млн',  color:'#9b8fd4'},
+    {key:'gt15',  label:'свыше 15 млн',color:'#e07b7b'},
+  ];
+  const o = cdefs();
+  o.scales.x = {stacked:true,ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10}},grid:{display:false},border:{color:'#e2ddd6'}};
+  o.scales.y = {stacked:true,min:0,max:1,ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},callback:v=>Math.round(v*100)+'%'},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}};
+  o.plugins.tooltip.callbacks.label = ctx => ctx.raw==null?null:` ${ctx.dataset.label}: ${(ctx.raw*100).toFixed(1)}%`;
+  o.plugins.legend = {display:true,position:'bottom',labels:{font:{family:'IBM Plex Mono',size:10},boxWidth:12,padding:10}};
+  mkChart('regmo-c1','bar',{labels,datasets:fields.map(f=>({
+    label:f.label, data:data.map(r=>{const v=parseFloat(r[f.key]);return isNaN(v)?null:v;}),
+    backgroundColor:f.color+'cc', borderColor:f.color, borderWidth:0,
+  }))},o);
+}
+
+function drawRegMoTypo(from, to) {
+  const data = REG_TYPO_MO.filter(r=>r.period>=from&&r.period<=to).sort((a,b)=>a.period<b.period?-1:1);
+  if (!data.length) return;
+  const labels = data.map(r=>new Date(r.period+'-01').toLocaleString('ru-RU',{month:'short',year:'2-digit'}));
+  const fields = [
+    {key:'rooms',label:'Комнаты',   color:'#aab4be'},
+    {key:'k1',   label:'1-комн.',   color:'#4a8fa8'},
+    {key:'k2',   label:'2-комн.',   color:'#7a9e7e'},
+    {key:'k3',   label:'3-комн.',   color:'#b8924a'},
+    {key:'multi',label:'Многокомн.',color:'#9b8fd4'},
+  ];
+  const o = cdefs();
+  o.scales.x = {stacked:true,ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10}},grid:{display:false},border:{color:'#e2ddd6'}};
+  o.scales.y = {stacked:true,min:0,max:1,ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},callback:v=>Math.round(v*100)+'%'},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}};
+  o.plugins.tooltip.callbacks.label = ctx => ctx.raw==null?null:` ${ctx.dataset.label}: ${(ctx.raw*100).toFixed(1)}%`;
+  o.plugins.legend = {display:true,position:'bottom',labels:{font:{family:'IBM Plex Mono',size:10},boxWidth:12,padding:10}};
+  mkChart('regmo-c2','bar',{labels,datasets:fields.map(f=>({
+    label:f.label, data:data.map(r=>{const v=parseFloat(r[f.key]);return isNaN(v)?null:v;}),
+    backgroundColor:f.color+'cc', borderColor:f.color, borderWidth:0,
+  }))},o);
+}
+
+function drawRegMoPrice(from, to) {
+  const data = REG_PRICE_MO.filter(r=>r.period>=from&&r.period<=to&&(r.avg_k1||r.avg_k2||r.avg_k3)).sort((a,b)=>a.period<b.period?-1:1);
+  if (!data.length) return;
+  const labels = data.map(r=>new Date(r.period+'-01').toLocaleString('ru-RU',{month:'short',year:'2-digit'}));
+  const fields = [
+    {key:'avg_k1',label:'1-комн.',color:'#4a8fa8'},
+    {key:'avg_k2',label:'2-комн.',color:'#b8924a'},
+    {key:'avg_k3',label:'3-комн.',color:'#9b8fd4'},
+  ];
+  const o = cdefs();
+  o.scales.x = {ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},maxRotation:45},grid:{color:'#f0ece5'},border:{color:'#e2ddd6'}};
+  o.scales.y = {ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},callback:v=>v+' млн'},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}};
+  o.plugins.tooltip.callbacks.label = ctx => ctx.raw==null?null:` ${ctx.dataset.label}: ${ctx.raw} млн руб`;
+  o.plugins.legend = {display:true,position:'bottom',labels:{font:{family:'IBM Plex Mono',size:10},boxWidth:24,padding:10,usePointStyle:true}};
+  mkChart('regmo-c3','line',{labels,datasets:fields.map(f=>({
+    label:f.label, data:data.map(r=>parseFloat(r[f.key])||null),
+    borderColor:f.color, backgroundColor:f.color+'15',
+    borderWidth:2, pointRadius:3, pointHoverRadius:6, tension:.3, spanGaps:true,
+  }))},o);
+}
+
+function drawRegMoRange(from, to) {
+  const data = REG_RANGE_MO.filter(r=>r.period>=from&&r.period<=to).sort((a,b)=>a.period<b.period?-1:1);
+  if (!data.length) return;
+  const labels = data.map(r=>new Date(r.period+'-01').toLocaleString('ru-RU',{month:'short',year:'2-digit'}));
+
+  // Для каждой комнатности: band (low→high) + линия mid
+  const rooms = [
+    {low:'k1_low',mid:'k1_mid',high:'k1_high',label:'1-комн.',color:'#4a8fa8'},
+    {low:'k2_low',mid:'k2_mid',high:'k2_high',label:'2-комн.',color:'#b8924a'},
+    {low:'k3_low',mid:'k3_mid',high:'k3_high',label:'3-комн.',color:'#9b8fd4'},
+  ];
+
+  const datasets = [];
+  rooms.forEach(r => {
+    // Верхняя граница (high) — заполнение вниз до low через Chart.js fill
+    datasets.push({
+      label: r.label + ' (95%)',
+      data: data.map(d => parseFloat(d[r.high])||null),
+      borderColor: r.color + '40',
+      backgroundColor: r.color + '18',
+      borderWidth: 1,
+      borderDash: [3,3],
+      pointRadius: 0,
+      fill: '+1',  // заполнить до следующего dataset (low)
+      tension: .3, spanGaps: true,
+    });
+    // Нижняя граница (low)
+    datasets.push({
+      label: r.label + ' (5%)',
+      data: data.map(d => parseFloat(d[r.low])||null),
+      borderColor: r.color + '40',
+      backgroundColor: r.color + '18',
+      borderWidth: 1,
+      borderDash: [3,3],
+      pointRadius: 0,
+      fill: false,
+      tension: .3, spanGaps: true,
+    });
+    // Средний чек — основная линия
+    datasets.push({
+      label: r.label,
+      data: data.map(d => parseFloat(d[r.mid])||null),
+      borderColor: r.color,
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      pointRadius: 3,
+      pointHoverRadius: 6,
+      fill: false,
+      tension: .3, spanGaps: true,
+    });
+  });
+
+  const o = cdefs();
+  o.scales.x = {ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},maxRotation:45},grid:{color:'#f0ece5'},border:{color:'#e2ddd6'}};
+  o.scales.y = {ticks:{color:'#7a7268',font:{family:'IBM Plex Mono',size:10},callback:v=>v+' млн'},grid:{color:'rgba(226,221,214,.7)'},border:{color:'#e2ddd6'}};
+  o.plugins.tooltip.callbacks.label = ctx => {
+    const v = ctx.raw; if(v==null) return null;
+    return ` ${ctx.dataset.label}: ${v} млн руб`;
+  };
+  // В легенде показываем только основные линии (каждая 3-я)
+  o.plugins.legend = {display:true, position:'bottom', labels:{
+    font:{family:'IBM Plex Mono',size:10}, boxWidth:24, padding:10,
+    usePointStyle:true,
+    filter: (item) => !item.text.includes('(95%)') && !item.text.includes('(5%)'),
+  }};
+  mkChart('regmo-c4','line',{labels,datasets},o);
 }
 
 loadData();
