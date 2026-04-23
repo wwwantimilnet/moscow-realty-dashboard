@@ -584,7 +584,7 @@ function projectGeo(geojson, width, height, padding=20, cropBounds=null) {
 // Сверху — верхняя граница Зеленограда, снизу — нижняя граница НАО
 const MOSCOW_CROP = {minLng:36.80, maxLng:37.97, minLat:55.513, maxLat:55.99};
 
-function buildMap(svgId, geojson, priceMap, onClickDistrict, crop=true) {
+function buildMap(svgId, geojson, priceMap, onClickDistrict, crop=true, unit='₽/м²') {
   const svg = document.getElementById(svgId);
   if (!svg || !geojson) return;
   svg.innerHTML = '';
@@ -635,7 +635,7 @@ function buildMap(svgId, geojson, priceMap, onClickDistrict, crop=true) {
     tt.style.top=(e.clientY-10)+'px';
     const pName  = path.dataset.name;
     const pPrice = parseFloat(path.dataset.price);
-    const priceStr = pPrice>0 ? new Intl.NumberFormat('ru-RU').format(Math.round(pPrice))+' ₽/м²' : 'нет данных';
+    const priceStr = pPrice>0 ? new Intl.NumberFormat('ru-RU').format(Math.round(pPrice))+' '+unit : 'нет данных';
     tt.innerHTML = `<div class="tt-name">${pName}</div><div class="tt-price">${priceStr}</div>`;
   });
   svg.addEventListener('mouseleave', ()=>tt.style.display='none');
@@ -1325,24 +1325,32 @@ function _rUpdate() {
   // Таблица
   document.getElementById('r-tbl').classList.toggle('on', showT);
   if (showT) {
-    // Таблица: строки=округа, колонки=месяцы*2 (цена+изм%)
     const ps = periods.slice(-8);
-    let h = '<table class="dt"><thead><tr><th>Округ</th>';
-    ps.forEach(p => h += `<th colspan="2">${p.slice(2)}</th>`);
-    h += '</tr><tr><th></th>'; ps.forEach(() => h += '<th>₽/мес</th><th>изм.%</th>'); h += '</tr></thead><tbody>';
-    areas.forEach(a => {
-      h += `<tr><td>${a}</td>`;
-      ps.forEach(m => {
-        const pr = pm[a][m], ch = cm[a][m];
-        const ps2 = pr ? new Intl.NumberFormat('ru-RU').format(pr) : '—';
-        let cs = '—', cc = '';
-        if (ch != null) { cs = (ch>0?'+':'')+ch.toFixed(1)+'%'; cc = ch>0?'tp':ch<0?'tn':''; }
-        h += `<td>${ps2}</td><td class="${cc}">${cs}</td>`;
+    const CAT_TITLES = {'0':'Студии','1':'1-комнатные','2':'2-комнатные','3':'3-комнатные','4':'4-комнатные','5':'Многокомнатные'};
+    let html = '';
+    cats.forEach(c => {
+      html += `<div class="tbl-title" style="margin-top:20px">${CAT_TITLES[c]||c} · ₽/мес</div>`;
+      html += '<table class="dt"><thead><tr><th>Округ</th>';
+      ps.forEach(p => html += `<th colspan="2">${p.slice(2)}</th>`);
+      html += '</tr><tr><th></th>';
+      ps.forEach(() => html += '<th>₽/мес</th><th>изм.%</th>');
+      html += '</tr></thead><tbody>';
+      areas.forEach(a => {
+        html += `<tr><td>${a}</td>`;
+        ps.forEach(m => {
+          const d = RENT[a]?.[c]?.[m];
+          const pr = d?.price;
+          const ch = d?.change;
+          const pStr = pr ? new Intl.NumberFormat('ru-RU').format(pr) : '—';
+          let cs = '—', cc = '';
+          if (ch != null) { cs = (ch>0?'+':'')+ch.toFixed(1)+'%'; cc = ch>0?'tp':ch<0?'tn':''; }
+          html += `<td>${pStr}</td><td class="${cc}">${cs}</td>`;
+        });
+        html += '</tr>';
       });
-      h += '</tr>';
+      html += '</tbody></table>';
     });
-    h += '</tbody></table>';
-    document.getElementById('r-tbl-c').innerHTML = h;
+    document.getElementById('r-tbl-c').innerHTML = html;
   }
 
   // КАРТА АРЕНДЫ
@@ -1391,7 +1399,7 @@ function buildRentMap(last) {
   const moName = new Date(last+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'});
   document.getElementById('r-map-title').textContent = `Карта аренды — ${catLabel}`;
   document.getElementById('r-map-sub').textContent = `₽/мес · ${moName}`;
-  const res = buildMap('r-map-svg', GEO_AO, priceMap, null, true);
+  const res = buildMap('r-map-svg', GEO_AO, priceMap, null, true, '₽/мес');
   if (res) drawLegend('r-leg-bar','r-leg-min','r-leg-max', res.minP, res.maxP);
 }
 
