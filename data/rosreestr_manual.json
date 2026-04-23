@@ -1,16 +1,169 @@
 {
-  "2026-02": {
-    "secondary_moscow": 10785,
-    "mortgage": 7789,
-    "ddu_residential": 3790,
-    "ddu_commercial": 2339,
-    "ddu_total": 6129
+  "monthly": {
+    "2022-01": {
+      "secondary_moscow": 9298,
+      "mortgage": 8353
+    },
+    "2022-02": {
+      "mortgage": 10838
+    },
+    "2023-01": {
+      "secondary_moscow": 7672,
+      "mortgage": 7071
+    },
+    "2023-02": {
+      "mortgage": 9781
+    },
+    "2023-12": {
+      "mortgage": 9664,
+      "ddu_commercial": 5766,
+      "ddu_residential": 13090,
+      "ddu_total": 18856
+    },
+    "2024-01": {
+      "secondary_moscow": 7469,
+      "mortgage": 7854,
+      "ddu_commercial": 3698,
+      "ddu_residential": 5326,
+      "ddu_total": 9024
+    },
+    "2024-02": {
+      "secondary_moscow": 10710,
+      "mortgage": 9678
+    },
+    "2024-12": {
+      "mortgage": 11242,
+      "ddu_commercial": 5475,
+      "ddu_residential": 9938,
+      "ddu_total": 15413
+    },
+    "2025-01": {
+      "secondary_moscow": 9496,
+      "mortgage": 7653,
+      "ddu_commercial": 3225,
+      "ddu_residential": 6028,
+      "ddu_total": 9253
+    },
+    "2025-02": {
+      "secondary_moscow": 12058,
+      "mortgage": 11044,
+      "ddu_commercial": 3683,
+      "ddu_residential": 7778,
+      "ddu_total": 11461
+    },
+    "2025-03": {
+      "secondary_moscow": 12355,
+      "mortgage": 10383,
+      "ddu_commercial": 3104,
+      "ddu_residential": 6888,
+      "ddu_total": 9992
+    },
+    "2025-04": {
+      "secondary_moscow": 11411,
+      "mortgage": 11553,
+      "ddu_commercial": 3045,
+      "ddu_residential": 6630,
+      "ddu_total": 9675
+    },
+    "2025-05": {
+      "secondary_moscow": 8759,
+      "mortgage": 9193,
+      "ddu_commercial": 2387,
+      "ddu_residential": 4996,
+      "ddu_total": 7383
+    },
+    "2025-06": {
+      "secondary_moscow": 9771,
+      "mortgage": 8633,
+      "ddu_commercial": 2444,
+      "ddu_residential": 5414,
+      "ddu_total": 7858
+    },
+    "2025-07": {
+      "secondary_moscow": 11438,
+      "mortgage": 10137,
+      "ddu_commercial": 3044,
+      "ddu_residential": 6499,
+      "ddu_total": 9543
+    },
+    "2025-08": {
+      "secondary_moscow": 10645,
+      "mortgage": 9429,
+      "ddu_commercial": 2352,
+      "ddu_residential": 6579,
+      "ddu_total": 8931
+    },
+    "2025-09": {
+      "secondary_moscow": 11985,
+      "mortgage": 11372,
+      "ddu_commercial": 3179,
+      "ddu_residential": 7320,
+      "ddu_total": 10499
+    },
+    "2025-10": {
+      "secondary_moscow": 13977,
+      "mortgage": 9774,
+      "ddu_commercial": 3633,
+      "ddu_residential": 7711,
+      "ddu_total": 11344
+    },
+    "2025-11": {
+      "secondary_moscow": 11715,
+      "mortgage": 8177,
+      "ddu_commercial": 3076,
+      "ddu_residential": 8285,
+      "ddu_total": 11361
+    },
+    "2025-12": {
+      "secondary_moscow": 16985,
+      "mortgage": 10822,
+      "ddu_commercial": 4393,
+      "ddu_residential": 11237,
+      "ddu_total": 15630
+    },
+    "2026-01": {
+      "secondary_moscow": 7439,
+      "mortgage": 7039,
+      "ddu_commercial": 2063,
+      "ddu_residential": 5491,
+      "ddu_total": 7554
+    },
+    "2026-02": {
+      "secondary_moscow": 10785,
+      "mortgage": 7789,
+      "ddu_commercial": 2339,
+      "ddu_residential": 3790,
+      "ddu_total": 6129
+    },
+    "2026-03": {
+      "secondary_moscow": 12123,
+      "mortgage": 7702,
+      "ddu_commercial": 2473,
+      "ddu_residential": 3787,
+      "ddu_total": 6260
+    }
   },
-  "2026-03": {
-    "secondary_moscow": 12123,
-    "mortgage": 7702,
-    "ddu_residential": 3787,
-    "ddu_commercial": 2473,
-    "ddu_total": 6260
+  "yearly": {
+    "2025": {
+      "secondary_moscow": 140595,
+      "mortgage": 118171,
+      "ddu_commercial": 37565,
+      "ddu_residential": 85365,
+      "ddu_total": 122930
+    },
+    "2024": {
+      "secondary_moscow": 146200,
+      "mortgage": 120881,
+      "ddu_commercial": 49868,
+      "ddu_residential": 87142,
+      "ddu_total": 137010
+    },
+    "2023": {
+      "secondary_moscow": 174952,
+      "mortgage": 136208,
+      "ddu_commercial": 50815,
+      "ddu_residential": 115587,
+      "ddu_total": 166402
+    }
   }
 }
