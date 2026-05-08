@@ -122,6 +122,23 @@ select option{background:var(--surface);color:var(--text);}
 .waffle-leg-dot{width:11px;height:11px;border-radius:2px;flex-shrink:0;}
 .waffle-leg-lbl{font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);}
 .waffle-leg-val{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);font-weight:500;margin-left:4px;}
+/* manual blocks */
+.manual-block{background:var(--surface);padding:26px;}
+.manual-block .ct{margin-bottom:2px;}
+.manual-block .cs{margin-bottom:14px;}
+.manual-comment{font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text);line-height:1.7;opacity:.85;margin-bottom:14px;}
+.manual-quote{border-left:2px solid var(--gold);padding:10px 14px;margin-bottom:18px;background:rgba(184,146,74,.04);}
+.manual-quote-text{font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-style:italic;color:var(--text);line-height:1.6;opacity:.9;}
+.manual-quote-author{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gold);margin-top:6px;letter-spacing:.05em;}
+.manual-charts-row{display:grid;grid-template-columns:2fr 1fr 1fr;gap:1px;background:var(--border);margin-top:0;}
+.manual-slice{background:var(--surface);padding:18px 16px 14px;}
+.manual-slice-title{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.manual-slice .cw{height:180px;}
+.arrow-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.arrow-tag{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:3px 8px;border-radius:2px;display:inline-flex;align-items:center;gap:4px;}
+.arrow-tag.pos{color:var(--pos);background:rgba(45,138,94,.08);border:1px solid rgba(45,138,94,.2);}
+.arrow-tag.neg{color:var(--neg);background:rgba(192,57,43,.08);border:1px solid rgba(192,57,43,.2);}
+.arrow-tag.neu{color:var(--muted);background:rgba(122,114,104,.08);border:1px solid rgba(122,114,104,.2);}
 footer{padding:14px 40px;border-top:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
 @media(max-width:860px){
   .header,.ctrl-bar,.tog-row,.tbl-sec,.upd-bar{padding:14px 16px;}
@@ -340,10 +357,108 @@ footer{padding:14px 40px;border-top:1px solid var(--border);font-family:'IBM Ple
         </div>
         <div class="cw"><canvas id="regm-c4"></canvas></div>
       </div>
+
+      <!-- ══ РУЧНЫЕ ГРАФИКИ РОСРЕЕСТРА ══ -->
+      <div id="manual-blocks" style="display:none">
+
+        <!-- ПЕРЕХОДЫ ПРАВ -->
+        <div class="manual-block" id="mb-secondary">
+          <div class="card-head-row">
+            <div class="card-titles">
+              <div class="ct">Динамика числа зарегистрированных в Москве переходов прав на основании договоров купли-продажи жилья</div>
+              <div class="cs" id="mb-secondary-period">по данным Управления Росреестра по Москве</div>
+            </div>
+            <button class="export-btn" onclick="exportChart('mb-c-sec-monthly',this)">↓ PNG</button>
+          </div>
+          <div id="mb-secondary-comment" class="manual-comment" style="display:none"></div>
+          <div id="mb-secondary-quotes"></div>
+          <div class="manual-charts-row" id="mb-secondary-charts">
+            <div class="manual-slice">
+              <div class="manual-slice-title">Месяцы текущего года</div>
+              <div class="cw" style="height:200px"><canvas id="mb-c-sec-monthly" role="img" aria-label="Переходы прав — месяцы текущего года"></canvas></div>
+              <div class="arrow-tags" id="mb-sec-arr-monthly"></div>
+            </div>
+            <div class="manual-slice">
+              <div class="manual-slice-title">Этот месяц по годам</div>
+              <div class="cw" style="height:200px"><canvas id="mb-c-sec-history" role="img" aria-label="Переходы прав — по годам"></canvas></div>
+              <div class="arrow-tags" id="mb-sec-arr-history"></div>
+            </div>
+            <div class="manual-slice">
+              <div class="manual-slice-title">Накопленный итог по годам</div>
+              <div class="cw" style="height:200px"><canvas id="mb-c-sec-ytd" role="img" aria-label="Переходы прав — накопленный итог"></canvas></div>
+              <div class="arrow-tags" id="mb-sec-arr-ytd"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:1px;background:var(--border)"></div>
+
+        <!-- ИПОТЕКА -->
+        <div class="manual-block" id="mb-mortgage">
+          <div class="card-head-row">
+            <div class="card-titles">
+              <div class="ct">Динамика числа зарегистрированных в Москве договоров ипотечного жилищного кредитования</div>
+              <div class="cs" id="mb-mortgage-period">первичная и вторичная недвижимость · по данным Управления Росреестра по Москве</div>
+            </div>
+            <button class="export-btn" onclick="exportChart('mb-c-mort-monthly',this)">↓ PNG</button>
+          </div>
+          <div id="mb-mortgage-comment" class="manual-comment" style="display:none"></div>
+          <div id="mb-mortgage-quotes"></div>
+          <div class="manual-charts-row">
+            <div class="manual-slice">
+              <div class="manual-slice-title">Месяцы текущего года</div>
+              <div class="cw" style="height:200px"><canvas id="mb-c-mort-monthly" role="img" aria-label="Ипотека — месяцы текущего года"></canvas></div>
+              <div class="arrow-tags" id="mb-mort-arr-monthly"></div>
+            </div>
+            <div class="manual-slice">
+              <div class="manual-slice-title">Этот месяц по годам</div>
+              <div class="cw" style="height:200px"><canvas id="mb-c-mort-history" role="img" aria-label="Ипотека — по годам"></canvas></div>
+              <div class="arrow-tags" id="mb-mort-arr-history"></div>
+            </div>
+            <div class="manual-slice">
+              <div class="manual-slice-title">Накопленный итог по годам</div>
+              <div class="cw" style="height:200px"><canvas id="mb-c-mort-ytd" role="img" aria-label="Ипотека — накопленный итог"></canvas></div>
+              <div class="arrow-tags" id="mb-mort-arr-ytd"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:1px;background:var(--border)"></div>
+
+        <!-- ДДУ -->
+        <div class="manual-block" id="mb-ddu">
+          <div class="card-head-row">
+            <div class="card-titles">
+              <div class="ct">Динамика числа зарегистрированных ДДУ в Москве в отношении жилой и нежилой недвижимости</div>
+              <div class="cs" id="mb-ddu-period">по данным Управления Росреестра по Москве</div>
+            </div>
+            <button class="export-btn" onclick="exportChart('mb-c-ddu-monthly',this)">↓ PNG</button>
+          </div>
+          <div id="mb-ddu-comment" class="manual-comment" style="display:none"></div>
+          <div id="mb-ddu-quotes"></div>
+          <div class="manual-charts-row">
+            <div class="manual-slice">
+              <div class="manual-slice-title">Месяцы текущего года — жилая / нежилая</div>
+              <div class="cw" style="height:200px"><canvas id="mb-c-ddu-monthly" role="img" aria-label="ДДУ — месяцы текущего года"></canvas></div>
+              <div class="arrow-tags" id="mb-ddu-arr-monthly"></div>
+            </div>
+            <div class="manual-slice">
+              <div class="manual-slice-title">Этот месяц по годам</div>
+              <div class="cw" style="height:200px"><canvas id="mb-c-ddu-history" role="img" aria-label="ДДУ — по годам"></canvas></div>
+              <div class="arrow-tags" id="mb-ddu-arr-history"></div>
+            </div>
+            <div class="manual-slice">
+              <div class="manual-slice-title">Накопленный итог по годам</div>
+              <div class="cw" style="height:200px"><canvas id="mb-c-ddu-ytd" role="img" aria-label="ДДУ — накопленный итог"></canvas></div>
+              <div class="arrow-tags" id="mb-ddu-arr-ytd"></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /manual-blocks -->
+
     </div>
   </div>
-
-  <!-- РОСРЕЕСТР МО -->
   <div class="panel" id="panel-reg-mo">
     <div class="ctrl-bar">
       <div class="cg"><span class="cl">Период с</span><input type="month" id="regmo-f" onchange="regMoUpdate()"></div>
@@ -449,6 +564,11 @@ const URL_GEO_MUN  = 'https://wwwantimilnet.github.io/moscow-realty-dashboard/mo
 const URL_SALES    = 'data/sales.json';
 const URL_RENT     = 'data/rent.json';
 const URL_COMMENTS = 'data/comments.json';
+const URL_QUOTES   = 'data/quotes.json';
+const URL_MANUAL   = 'data/rosreestr_manual.json';
+
+let REG_MANUAL = { monthly:{}, yearly:{}, history:[], arrows:[] };
+let QUOTES_DATA = {};
 
 const CLR=['#c9a96e','#7eb8c9','#9b8fd4','#6ec9a0','#e07b7b','#d4af6e','#7ec9c0','#c96e9b','#a0c96e','#6e8dc9','#c9bf6e','#c99b6e','#89c97e','#c97eb8','#7e9bc9','#c9c97e','#e0a07b'];
 const YR_CLR=['#aab4be','#4a8fa8','#b8924a'];
@@ -483,12 +603,24 @@ const ROOMS_DATA = {
 };
 const ROOMS_CLR = ['#b8924a','#4a8fa8','#7a9e7e','#a0789e','#aab4be'];
 
-// Средняя цена м² и ключевая ставка ЦБ (обновлять вручную)
-const RATE_DATA = {
-  months: ['2025-10','2025-11','2025-12','2026-01','2026-02','2026-03'],
-  prices: [331024,   336206,   344294,   353741,   361538,   369565],
-  rates:  [16,       16,       15.5,     15,       15,       15]
-};
+// Ключевая ставка ЦБ — загружается из comments.json (key_rate)
+// Цены м² — из sales.json (volume)
+let RATE_DATA = { months: [], prices: [], rates: [] };
+
+function buildRateData(vSorted) {
+  const keyRates = window._KEY_RATES || {};
+  // Берём только периоды у которых есть price_all
+  const months = vSorted.filter(r => r.price_all).map(r => r.period);
+  const prices = months.map(m => {
+    const row = vSorted.find(r => r.period === m);
+    return row ? row.price_all : null;
+  });
+  const rates = months.map(m => {
+    const v = keyRates[m];
+    return v != null ? +(v * 100).toFixed(2) : null;
+  });
+  RATE_DATA = { months, prices, rates };
+}
 
 let MOS=[], MUNI={}, GEO_AO=null, GEO_MUN=null;
 let REG_URFRS=[], REG_BUDGET_MSK=[], REG_TYPO_MSK=[], REG_PRICE_MSK=[];
@@ -692,6 +824,8 @@ async function loadData() {
           new_ads: vSorted.map(r => r.price_new || null),
           all_obj: vSorted.map(r => r.price_all || null)
         };
+        // ── Собираем RATE_DATA: цены из volume, ставки из key_rate
+        buildRateData(vSorted);
       }
 
       if (json.okrug && json.okrug.length) {
@@ -750,8 +884,31 @@ async function loadData() {
         ANALYST_COMMENTS  = cj.sales     || {};
         RENT_COMMENTS_DATA = cj.rent      || {};
         ROSREESTR_COMMENTS = cj.rosreestr || {};
+
+        // ── Собираем RATE_DATA из key_rate + sales.volume ──
+        const keyRates = cj.key_rate || {};
+        // Цены будут добавлены после загрузки sales.json — см. buildRateData()
+        window._KEY_RATES = keyRates;
       }
     } catch(e) { console.warn('Комментарии не загружены:', e.message); }
+
+    // ── Загрузка цитат из /data/quotes.json
+    try {
+      const qr = await fetch(URL_QUOTES);
+      if (qr.ok) QUOTES_DATA = await qr.json();
+    } catch(e) { console.warn('Цитаты не загружены:', e); }
+
+    // ── Загрузка ручных данных Росреестра
+    try {
+      const mr = await fetch(URL_MANUAL);
+      if (mr.ok) {
+        const mj = await mr.json();
+        REG_MANUAL.monthly = mj.monthly || {};
+        REG_MANUAL.yearly  = mj.yearly  || {};
+        REG_MANUAL.history = mj.history || [];
+        REG_MANUAL.arrows  = mj.arrows  || [];
+      }
+    } catch(e) { console.warn('rosreestr_manual не загружен:', e); }
 
     setLoad(70,'ЗАГРУЗКА КАРТЫ...');
     try {
@@ -856,6 +1013,7 @@ function switchTab(id){
     if (!regMInited) { regMInited = true; loadRegData(); }
     const lastP = REG_URFRS.length ? REG_URFRS[REG_URFRS.length-1].period : null;
     if (lastP) document.getElementById('hdr-badge').textContent = lastP;
+    drawManualBlocks();
   } else if (id === 'reg-mo') {
     if (!regMoInited) { regMoInited = true; loadRegData(); }
     const lastP = REG_PRICE_MO.length ? REG_PRICE_MO[REG_PRICE_MO.length-1].period : null;
@@ -2340,6 +2498,227 @@ function drawRegMoRange(from, to) {
     filter: (item) => !item.text.includes('(95%)') && !item.text.includes('(5%)'),
   }};
   mkChart('regmo-c4','line',{labels,datasets},o);
+}
+
+// ══════════════════════════════════════════════════════
+// РУЧНЫЕ ГРАФИКИ РОСРЕЕСТРА (rosreestr_manual.json)
+// ══════════════════════════════════════════════════════
+
+const MONTHS_RU = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+const BLUE_MANUAL  = '#4a8fa8';
+const GOLD_MANUAL  = '#b8924a';
+const GREEN_MANUAL = '#2d8a5e';
+const fmt = v => new Intl.NumberFormat('ru-RU').format(Math.round(v));
+
+function drawManualBlocks() {
+  const m = REG_MANUAL;
+  if (!m || (!Object.keys(m.monthly).length && !m.history.length)) return;
+
+  document.getElementById('manual-blocks').style.display = 'block';
+
+  // ── Определяем последний период из monthly ──────────
+  const monthlyKeys = Object.keys(m.monthly).sort();
+  const lastPeriod  = monthlyKeys[monthlyKeys.length - 1] || '';
+  const lastMonthIdx = lastPeriod ? parseInt(lastPeriod.slice(5,7)) - 1 : -1;
+  const lastMonthName = lastMonthIdx >= 0 ? MONTHS_RU[lastMonthIdx] : '';
+  const lastYear = lastPeriod ? lastPeriod.slice(0,4) : '';
+
+  // Подпись периода в заголовках
+  if (lastPeriod) {
+    const periodFull = lastPeriod ? new Date(lastPeriod+'-01').toLocaleString('ru-RU',{month:'long',year:'numeric'}) : '';
+    ['mb-secondary-period','mb-mortgage-period','mb-ddu-period'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && periodFull) el.textContent = el.textContent.split('·')[0].trim() + ' · ' + periodFull;
+    });
+  }
+
+  // ── Комментарии и цитаты — из monthly[lastPeriod] ───
+  const periodData = m.monthly[lastPeriod] || {};
+  const comments   = periodData.comments || {};
+  const quotes     = periodData.quotes   || {};
+
+  [
+    ['mb-secondary-comment', comments.secondary],
+    ['mb-mortgage-comment',  comments.mortgage],
+    ['mb-ddu-comment',       comments.ddu],
+  ].forEach(([id, text]) => {
+    const el = document.getElementById(id);
+    if (el) { el.innerHTML = text || ''; el.style.display = text ? '' : 'none'; }
+  });
+
+  [
+    ['mb-secondary-quotes', 'secondary'],
+    ['mb-mortgage-quotes',  'mortgage'],
+    ['mb-ddu-quotes',       'ddu'],
+  ].forEach(([elId, section]) => {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const qs = quotes[section] || [];
+    el.innerHTML = qs.map(q => `
+      <div class="manual-quote">
+        <div class="manual-quote-text">${q.text}</div>
+        ${q.author ? `<div class="manual-quote-author">— ${q.author}</div>` : ''}
+      </div>`).join('');
+  });
+
+  // ── Стрелки ──────────────────────────────────────────
+  function renderArrows(containerId, metric, chart) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    const arrows = (m.arrows || []).filter(a => a.metric === metric && a.chart === chart);
+    el.innerHTML = arrows.map(a => {
+      const cls = a.color === 'neg' ? 'neg' : a.color === 'neu' ? 'neu' : 'pos';
+      const arrow = a.color === 'neg' ? '↓' : a.color === 'neu' ? '→' : '↑';
+      return `<span class="arrow-tag ${cls}">${arrow} ${a.pct} <span style="opacity:.7;font-size:10px">${a.from_label||''} → ${a.to_label||''}</span></span>`;
+    }).join('');
+  }
+
+  // ── Опции Chart.js для mini-bar ──────────────────────
+  function miniOpts(yFmt) {
+    return {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#fff', borderColor:'#e2ddd6', borderWidth:1, titleColor:'#b8924a', bodyColor:'#1c1a17', titleFont:{family:'IBM Plex Mono',size:10}, bodyFont:{family:'IBM Plex Sans',size:12}, padding:8, callbacks:{ label: ctx => ` ${fmt(ctx.raw)}` } }},
+      scales:{
+        x:{ grid:{display:false}, ticks:{color:'#7a7268', font:{family:'IBM Plex Mono',size:10}, autoSkip:false, maxRotation:0} },
+        y:{ grid:{color:'rgba(226,221,214,.5)'}, border:{color:'#e2ddd6'}, ticks:{color:'#7a7268', font:{family:'IBM Plex Mono',size:10}, callback: v => fmt(v)} }
+      }
+    };
+  }
+
+  // ── SECONDARY: месяцы текущего года ──────────────────
+  {
+    const labels=[], vals=[];
+    monthlyKeys.forEach(k => {
+      const mo = parseInt(k.slice(5,7));
+      labels.push(MONTHS_RU[mo-1]);
+      vals.push((m.monthly[k]||{}).secondary_moscow || null);
+    });
+    const colors = vals.map((_,i) => i === vals.length-1 ? GOLD_MANUAL : BLUE_MANUAL+'99');
+    mkChart('mb-c-sec-monthly','bar',{labels,datasets:[{data:vals,backgroundColor:colors,borderRadius:3,borderSkipped:false}]},miniOpts());
+    renderArrows('mb-sec-arr-monthly','secondary_moscow','monthly');
+  }
+
+  // ── SECONDARY: месяц по годам ────────────────────────
+  {
+    const histItems = (m.history||[]).filter(h => h.secondary_moscow != null).sort((a,b)=>a.year-b.year);
+    if (histItems.length) {
+      const labels = histItems.map(h=>String(h.year));
+      const vals   = histItems.map(h=>h.secondary_moscow);
+      const colors = vals.map((_,i)=> i===vals.length-1 ? GOLD_MANUAL : BLUE_MANUAL+'99');
+      mkChart('mb-c-sec-history','bar',{labels,datasets:[{data:vals,backgroundColor:colors,borderRadius:3,borderSkipped:false}]},miniOpts());
+      renderArrows('mb-sec-arr-history','secondary_moscow','history_month');
+    }
+  }
+
+  // ── SECONDARY: накопленный итог (ytd_secondary) ──────
+  {
+    const histItems = (m.history||[]).filter(h => h.ytd_secondary != null).sort((a,b)=>a.year-b.year);
+    if (histItems.length) {
+      const labels = histItems.map(h=>String(h.year));
+      const vals   = histItems.map(h=>h.ytd_secondary);
+      const colors = vals.map((_,i)=> i===vals.length-1 ? GOLD_MANUAL : BLUE_MANUAL+'99');
+      mkChart('mb-c-sec-ytd','bar',{labels,datasets:[{data:vals,backgroundColor:colors,borderRadius:3,borderSkipped:false}]},miniOpts());
+      renderArrows('mb-sec-arr-ytd','secondary_moscow','history_ytd');
+    }
+  }
+
+  // ── MORTGAGE: месяцы текущего года ───────────────────
+  {
+    const labels=[], vals=[];
+    monthlyKeys.forEach(k => {
+      labels.push(MONTHS_RU[parseInt(k.slice(5,7))-1]);
+      vals.push((m.monthly[k]||{}).mortgage || null);
+    });
+    const colors = vals.map((_,i)=> i===vals.length-1 ? GOLD_MANUAL : BLUE_MANUAL+'99');
+    mkChart('mb-c-mort-monthly','bar',{labels,datasets:[{data:vals,backgroundColor:colors,borderRadius:3,borderSkipped:false}]},miniOpts());
+    renderArrows('mb-mort-arr-monthly','mortgage','monthly');
+  }
+
+  // ── MORTGAGE: месяц по годам (пары янв+фев) ──────────
+  {
+    const histItems = (m.history||[]).filter(h => h.mortgage_cur != null || h.mortgage_prev != null).sort((a,b)=>a.year-b.year);
+    if (histItems.length) {
+      const labels = histItems.map(h=>String(h.year));
+      const cur  = histItems.map(h=>h.mortgage_cur  || null);
+      const prev = histItems.map(h=>h.mortgage_prev || null);
+      const o = miniOpts();
+      o.plugins.legend = {display:true, position:'bottom', labels:{color:'#7a7268', font:{family:'IBM Plex Mono',size:10}, boxWidth:11, padding:8}};
+      mkChart('mb-c-mort-history','bar',{labels,datasets:[
+        {label: lastMonthName||'тек.мес', data:cur,  backgroundColor:BLUE_MANUAL+'cc', borderRadius:3, borderSkipped:false},
+        {label:'пред.мес',                data:prev, backgroundColor:BLUE_MANUAL+'44', borderRadius:3, borderSkipped:false},
+      ]},o);
+      renderArrows('mb-mort-arr-history','mortgage','history_month');
+    }
+  }
+
+  // ── MORTGAGE: накопленный итог ────────────────────────
+  {
+    const histItems = (m.history||[]).filter(h => h.ytd_mortgage != null).sort((a,b)=>a.year-b.year);
+    if (histItems.length) {
+      const labels = histItems.map(h=>String(h.year));
+      const vals   = histItems.map(h=>h.ytd_mortgage);
+      const colors = vals.map((_,i)=> i===vals.length-1 ? GOLD_MANUAL : BLUE_MANUAL+'99');
+      mkChart('mb-c-mort-ytd','bar',{labels,datasets:[{data:vals,backgroundColor:colors,borderRadius:3,borderSkipped:false}]},miniOpts());
+      renderArrows('mb-mort-arr-ytd','mortgage','history_ytd');
+    }
+  }
+
+  // ── DDU: месяцы текущего года (линии) ────────────────
+  {
+    const labels=[], res=[], com=[], tot=[];
+    monthlyKeys.forEach(k => {
+      const d = m.monthly[k]||{};
+      labels.push(MONTHS_RU[parseInt(k.slice(5,7))-1]);
+      res.push(d.ddu_residential || null);
+      com.push(d.ddu_commercial  || null);
+      tot.push((d.ddu_residential||0)+(d.ddu_commercial||0)||null);
+    });
+    const o = miniOpts();
+    o.plugins.legend = {display:true, position:'bottom', labels:{color:'#7a7268', font:{family:'IBM Plex Mono',size:10}, boxWidth:11, padding:8, usePointStyle:true}};
+    o.elements = {line:{tension:0.3}, point:{radius:4}};
+    mkChart('mb-c-ddu-monthly','line',{labels,datasets:[
+      {label:'жилая',   data:res, borderColor:'#4a8fa8', backgroundColor:'rgba(74,143,168,.1)', borderWidth:2, pointBackgroundColor:'#4a8fa8', fill:false},
+      {label:'нежилая', data:com, borderColor:'#b8924a', backgroundColor:'rgba(184,146,74,.1)',  borderWidth:2, pointBackgroundColor:'#b8924a', fill:false},
+      {label:'итого',   data:tot, borderColor:'#2d8a5e', backgroundColor:'rgba(45,138,94,.08)',  borderWidth:2, pointBackgroundColor:'#2d8a5e', borderDash:[4,3], fill:false},
+    ]},o);
+    renderArrows('mb-ddu-arr-monthly','ddu_residential','monthly');
+  }
+
+  // ── DDU: месяц по годам (stacked bars) ───────────────
+  {
+    const histItems = (m.history||[]).filter(h => h.ddu_residential != null || h.ddu_commercial != null).sort((a,b)=>a.year-b.year);
+    if (histItems.length) {
+      const labels = histItems.map(h=>String(h.year));
+      const res    = histItems.map(h=>h.ddu_residential || 0);
+      const com    = histItems.map(h=>h.ddu_commercial  || 0);
+      const o = miniOpts();
+      o.scales.x.stacked = true; o.scales.y.stacked = true;
+      o.plugins.legend = {display:true, position:'bottom', labels:{color:'#7a7268', font:{family:'IBM Plex Mono',size:10}, boxWidth:11, padding:8}};
+      mkChart('mb-c-ddu-history','bar',{labels,datasets:[
+        {label:'жилая',   data:res, backgroundColor:'#4a8fa8cc', stack:'s', borderRadius:0},
+        {label:'нежилая', data:com, backgroundColor:'#4a8fa855', stack:'s', borderRadius:3},
+      ]},o);
+      renderArrows('mb-ddu-arr-history','ddu_residential','history_month');
+    }
+  }
+
+  // ── DDU: накопленный итог (stacked bars) ─────────────
+  {
+    const histItems = (m.history||[]).filter(h => h.ytd_ddu_residential != null || h.ytd_ddu_commercial != null).sort((a,b)=>a.year-b.year);
+    if (histItems.length) {
+      const labels = histItems.map(h=>String(h.year));
+      const res    = histItems.map(h=>h.ytd_ddu_residential || 0);
+      const com    = histItems.map(h=>h.ytd_ddu_commercial  || 0);
+      const o = miniOpts();
+      o.scales.x.stacked = true; o.scales.y.stacked = true;
+      o.plugins.legend = {display:true, position:'bottom', labels:{color:'#7a7268', font:{family:'IBM Plex Mono',size:10}, boxWidth:11, padding:8}};
+      mkChart('mb-c-ddu-ytd','bar',{labels,datasets:[
+        {label:'жилая',   data:res, backgroundColor:'#4a8fa8cc', stack:'s', borderRadius:0},
+        {label:'нежилая', data:com, backgroundColor:'#4a8fa855', stack:'s', borderRadius:3},
+      ]},o);
+      renderArrows('mb-ddu-arr-ytd','ddu_residential','history_ytd');
+    }
+  }
 }
 
 loadData();
