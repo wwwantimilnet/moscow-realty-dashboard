@@ -608,8 +608,12 @@ const ROOMS_CLR = ['#b8924a','#4a8fa8','#7a9e7e','#a0789e','#aab4be'];
 let RATE_DATA = { months: [], prices: [], rates: [] };
 
 function buildRateData(vSorted) {
+  // Исторические ставки из xlsx (фолбэк пока key_rate не заполнен в comments.json)
+  const FALLBACK_RATES = {
+    '2025-10': 17, '2025-11': 16.5, '2025-12': 16,
+    '2026-01': 16, '2026-02': 15.5, '2026-03': 15, '2026-04': 14.5
+  };
   const keyRates = window._KEY_RATES || {};
-  // Берём только периоды у которых есть price_all
   const months = vSorted.filter(r => r.price_all).map(r => r.period);
   const prices = months.map(m => {
     const row = vSorted.find(r => r.period === m);
@@ -617,7 +621,8 @@ function buildRateData(vSorted) {
   });
   const rates = months.map(m => {
     const v = keyRates[m];
-    return v != null ? +(v * 100).toFixed(2) : null;
+    if (v != null) return +(v * 100).toFixed(2);
+    return FALLBACK_RATES[m] != null ? FALLBACK_RATES[m] : null;
   });
   RATE_DATA = { months, prices, rates };
 }
